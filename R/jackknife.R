@@ -72,6 +72,7 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)),
 # Additional arguments are needed so that update() finds them even when using parLapply
 theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=NULL, verbose=FALSE) {
   data <- model$data
+  library(gnm)
 
   if(verbose) {
       iter <- which(!1:length(data) %in% x)
@@ -120,7 +121,7 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
 }
 
 # theta.yrcskew <- function(x, model, assoc1, assoc2, family, weighting, ..., base=NULL, verbose=FALSE) {
-#   require(gnm)
+#   library(gnm)
 # 
 #   data <- model$data
 # 

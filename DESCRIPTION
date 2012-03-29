@@ -8,7 +8,8 @@ Author@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
 Author: Milan Bouchet-Valat <nalimilan@club.fr>
 Maintainer: Milan Bouchet-Valat <nalimilan@club.fr>
 Enhances: gnm
-Imports: stats, graphics, gnm, qvcalc
+Imports: stats, graphics, qvcalc
+Depends: gnm
 Suggests: ellipse, parallel, snow
 Description: Functions to easily fit and plot several variants of log-multiplicative
   row-column association models, building on the gnm package. Supported models include
