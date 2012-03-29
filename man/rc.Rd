@@ -123,6 +123,10 @@
   ## Wong (2010), Table 2.7 (p. 48-49)
   library(assoc)
   data(gss)
+  \dontshow{
+      # Limit the workload for CRAN checks
+      options(cl.cores=2)
+  }
   model <- rc(gss, nd=2, weighting="none", std.err="jackknife")
   model$assoc # phi are 2.601 and 1.522
   se.rc(model) # Standard errors are slightly different, but globally agree
