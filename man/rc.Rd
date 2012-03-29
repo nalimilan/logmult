@@ -1,0 +1,133 @@
+\name{rc}
+\alias{rc}
+\alias{print.rc}
+\alias{print.rc.homog}
+\title{Fitting Row-Column Association Models}
+\description{
+  \code{rc} fits log-multiplicative row-column association models first introduced
+  by Goodman (1979), with one or several dimensions. Supported variants (for square tables, mainly)
+  include homogeneous row and column scores, and separate diagonal parameters.
+}
+\usage{
+  rc(tab, nd = 1, homogeneous = FALSE, diagonal = FALSE,
+     weighting = c("marginal", "uniform", "none"),
+     std.err = c("none", "jackknife"), family = poisson,
+     start=NULL, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
+}
+\arguments{
+  \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;
+    if present, dimensions above two will be collapsed as appropriate.}
+  \item{nd}{ the number of dimensions to include in the model. Cannot exceed
+    \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{homogeneous} is \code{FALSE} (saturated model),
+    and twice this threshold otherwise (quasi-symmetry model).}
+  \item{homogeneous}{ should row and column scores be constrained to be equal? For rectangular tables,
+    applies to common row and column levels.}
+  \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
+    taking quasi-independence, rather than independence, as the baseline model.}
+  \item{weighting}{ what weights should be used when normalizing the scores.}
+  \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
+     supported method, and is disabled by default because it increases computation time.}
+  \item{family}{ a specification of the error distribution and link function
+     to be used in the model. This can be a character string naming
+     a family function; a family function, or the result of a call
+     to a family function. See \code{\link{family}} details of family functions.}
+  \item{start}{a vector of starting values for the parameters in the model;
+     if a starting value is \code{NA}, the default starting value will
+     be used.}
+  \item{tolerance}{ a positive numeric value specifying the tolerance level for
+     convergence; higher values will speed up the fitting process, but beware of numerical
+     instability of estimated scores!}
+  \item{iterMax}{ a positive integer specifying the maximum number of main iterations to perform;
+     consider raising this value if your model does not converge.}
+  \item{trace}{ a logical value indicating whether the deviance
+     should be printed after each iteration.}
+  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+}
+\details{
+  This function fits log-multiplicative row-column association models, usually called (after
+  Goodman) RC(M) models, typically following the equation:
+  \deqn{ log F_{ij} = \lambda + \lambda^I_i + \lambda^J_j + \sum_{m=1}^M { \phi_{m} \mu_{im} \nu_{jm} } }
+  where \eqn{F_i} is the frequency observed in the cell at the intersection of row i and column j of
+  \code{tab}, and M the number of dimensions. See references for detailed information about the
+  variants of the model, the degrees of freedom and the identification constraints applied to the scores.
+
+  Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
+  This function simply ensures correct start values are used, in addition to allowing for identification
+  of scores even with several dimensions, computation of their jackknife standard errors, and plotting.
+}
+\value{
+  A \code{rc} object, with all the components of a \code{\link{gnm}} object, plus an
+    \code{assoc} component holding the most relevant association information:
+  \item{phi }{The intrisic association parameters, one per dimension.}
+  \item{row }{Row scores, normalized so that their (weighted) mean is 0, their (weighted)
+    sum is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{col }{Column scores, normalized so that their (weighted) mean is 0, their (weighted)
+    sum is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{row.weights }{The row weights used for the identification of scores, as specified by the
+    \code{weighting} argument.}
+  \item{col.weights }{The column weights used for the identification of scores, as specified by the
+    \code{weighting} argument.}
+  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{std.err}
+    was set. It contains first phi coefficients, then normalized row and column scores, then
+    sqrt(phi) * row/column scores.}
+  \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only
+    \dQuote{jackknife} is supported.}
+}
+\note{
+  Default \code{tolerance} value is very low to ensure the model converges to the right point and that
+  coefficients are stable even in most complex cases. This comes at a cost, in particular with high-dimensional
+  tables and/or when computing jackknife standard errors. If you know what you are doing, raising \code{tolerance}
+  to 1e-6 or an intermediate value can lead to substantial computing time reductions; in that case, be sure to run the
+  model several times to check for numerical instability of the scores. (Very large jackknife standard errors are
+  a good sign that proper convergence was not attained at the chosen tolerance level.)
+}
+\references{
+  Goodman, L.A. (1979). Simple Models for the Analysis of Association in Cross-Classifications
+    having Ordered Categories. \emph{J. of the Am. Stat. Association} 74(367), 537-552.
+
+  Goodman, L.A. (1985). The Analysis of Cross-Classified Data Having Ordered and/or Unordered
+    Categories: Association Models, Correlation Models, and Asymmetry Models for Contingency
+    Tables With or Without Missing Entries. \emph{The Annals of Statistics} 13(1), 10-69.
+
+  Goodman, L.A. (1991). Measures, Models, and Graphical Displays in the Analysis of
+    Cross-Classified Data. \emph{J. of the Am. Stat. Association} 86(416), 1085-1111.
+
+  Wong, R.S-K. (2010). Association models. SAGE: Quantitative Applications in the Social Sciences.
+}
+\author{
+  Milan Bouchet-Valat
+}
+\seealso{
+  \code{\link{plot.rc}}, \code{\link{gnm}}
+}
+\examples{
+  ## Goodman (1991), Table 17.1 (p. 1097)
+  library(assoc)
+  data(criminal)
+  model <- rc(criminal)
+  model$assoc # These are the phi (.07), mu and nu
+  model$assoc$row * model$assoc$phi # These are the mu'
+  model$assoc$col * model$assoc$phi # These are the nu'
+  \dontshow{
+      stopifnot(all.equal(round(model$assoc$phi[1], d=2), 0.07))
+      # Scores have reversed signs compared to the orignal article
+      stopifnot(isTRUE(all.equal(round(model$assoc$row[,1], d=2),
+                                 c(1.26, 0.82, -0.56, -1.21),
+                                 check.attributes=FALSE)))
+      stopifnot(isTRUE(all.equal(round(model$assoc$col[,1], d=2),
+                                 c(-1.44, -1.30, -0.33, 1.00, 0.89),
+                                 check.attributes=FALSE)))
+
+  }
+
+  ## Wong (2010), Table 2.7 (p. 48-49)
+  library(assoc)
+  data(gss)
+  model <- rc(gss, nd=2, weighting="none", std.err="jackknife")
+  model$assoc # phi are 2.601 and 1.522
+  se.rc(model) # Standard errors are slightly different, but globally agree
+  plot(model, conf.ellipses=TRUE)
+}
+
+\keyword{ models }
+\keyword{ nonlinear }

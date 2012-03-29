@@ -1,0 +1,19 @@
+Package: assoc
+Type: Package
+Title: Log-multiplicative association models fitting and plotting
+Version: 0.5
+Date: 2012-03-15
+Author@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
+                 role=c("aut", "cre"))
+Author: Milan Bouchet-Valat <nalimilan@club.fr>
+Maintainer: Milan Bouchet-Valat <nalimilan@club.fr>
+Enhances: gnm
+Imports: stats, graphics, gnm, qvcalc
+Suggests: ellipse, parallel, snow
+Description: Functions to easily fit and plot several variants of log-multiplicative
+  row-column association models, building on the gnm package. Supported models include
+  the RC(M) family (a.k.a. Goodman models), and two skew-symmetric models suggested by
+  Yamaguchi and by van der Heijden & Mooijaart. Jackknife standard errors are optionally
+  computed for the association parameters.
+License: GPL (>= 2)
+
