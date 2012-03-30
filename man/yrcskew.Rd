@@ -57,6 +57,9 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric or a RC(M) association. See reference for detailed information
   about the degrees of freedom and the identification constraints applied to the scores.
 
+  Please note that contrary to other association models, this model is sensitive to reorderings of rows and columns.
+  You have to take care of passing a table whose categories follow a hierarchical order with a substantive meaning.
+
   Another model presented in the paper, the homogeneous symmetric and skew-symmetric associations models (HM_(S+SK))
   is not currently supported.
 
