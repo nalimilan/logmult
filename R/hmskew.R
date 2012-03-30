@@ -144,7 +144,7 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"), ...)
 
   ## Normalize, cf. Clogg & Shihadeh (1994), eq. 5.3 et 5.4 (p. 83)
   # Center
-  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p, "*")), "-")
+  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
   # Technique proposed in van der Heijden & Moiijaart (1995), Appendix C
   # Weighted SVD taken from Goodman (1991), Appendix 4
   lambda <- sc[,2] %o% sc[,1] - sc[,1] %o% sc[,2]

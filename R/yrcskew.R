@@ -189,25 +189,17 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
   dg <- dg[match(order(names(dg)), order(rownames(tab)))]
 
   # Center
-  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p, "*")), "-")
+  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
 
   # Technique proposed in Goodman (1991), Appendix 4
   lambda <- matrix(0, nrow(tab), ncol(tab))
   for(i in 1:nd) {
-    lambda <- lambda + sc[,i] %o% sc[,i]
+    lambda <- lambda + skew[i] * sc[,i] %o% sc[,i]
   }
   lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
   sv <- svd(lambda0)
   sc[] <- diag(1/sqrt(p)) %*% sv$u[,1:nd] # Eq. A.4.7
   phisk <- sv$d[1:nd]
-
-  # By convention, keep skew coefficient positive
-  for(i in 1:length(skew)) {
-      if(skew[i] < 0) {
-          skew[i] <- -skew[i]
-          sc[,i] <- -sc[,i]
-      }
-  }
 
 
   ## Prepare objects
@@ -217,7 +209,7 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
   if(length(dg) > 0)
       names(dg) <- rownames(tab)
 
-  obj <- list(phi = skew, row = sc, col = sc,  diagonal = dg,
+  obj <- list(phi = phisk, row = sc, col = sc,  diagonal = dg,
               weighting = weighting, row.weights = p, col.weights = p)
 
   class(obj) <- c("assoc.yrcskew", "assoc")
@@ -307,7 +299,7 @@ assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
   ## Normalize, cf. Clogg & Shihadeh (1994), eq. 5.3 et 5.4 (p. 83)
   ## Symmetric part
   # Center
-  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p, "*")), "-")
+  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
 
   # Technique proposed in Goodman (1991), Appendix 4
   # We use eigen() here rather than svd() because matrix is square and symmetric

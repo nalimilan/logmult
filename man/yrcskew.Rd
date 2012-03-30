@@ -103,17 +103,25 @@ Milan Bouchet-Valat
   \code{\link{plot.yrcskew}}, \code{\link{gnm}}
 }
 \examples{
-    \dontrun{
-      ## Yamaguchi (1990), Table 5, p. 202, and Table 6B, p. 205
-      library(assoc)
-      data(ocg1973)
 
-      # Warning: model does not always converge, several attempts may be needed
-      model <- yrcskew(ocg1973, nd.symm=1, nd.skew=1, diagonal=TRUE)
-      # We do not get the same results as the author, but the smaller deviance
-      # indicates a better fit in our version (!)
-      model$deviance
-      model$assoc
-      model$assoc.yrcskew
-    }
+  ## Yamaguchi (1990), Table 5, p. 202, and Table 6B, p. 205
+  data(ocg1973)
+
+  # Simple homogeneous RC(1) model ("Null skew-symmetry")
+  rc.model <- rc(ocg1973, diagonal=TRUE, homogeneous=TRUE, weighting="none")
+  # Reported phi is slightly different, coefficients agree
+  rc.model
+  \dontshow{
+      stopifnot(isTRUE(all.equal(round(rc.model$assoc$row[,1], d=2),
+                                 c(0.69, 0.3, -0.1, -0.33, -0.56),
+                                 check.attributes=FALSE)))
+  }
+
+\dontrun{
+  # Warning: model does not always converge, several attempts may be needed
+  model <- yrcskew(ocg1973, nd.symm=1, nd.skew=1, diagonal=TRUE, weighting="none")
+  # We do not get the same results as the author, but the smaller deviance
+  # indicates a better fit in our version (!)
+  model
+}
 }

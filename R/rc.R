@@ -226,7 +226,7 @@ assoc.rc.homog <- function(model, weighting=c("marginal", "uniform", "none"), ..
   dg <- dg[match(order(names(dg)), order(rownames(tab)))]
 
   # Center
-  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p, "*")), "-")
+  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
 
   # Technique proposed in Goodman (1991), Appendix 4, but with eigenvalues decomposition
   lambda <- matrix(0, nrow(tab), ncol(tab))
