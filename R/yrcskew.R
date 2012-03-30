@@ -194,12 +194,13 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
   # Technique proposed in Goodman (1991), Appendix 4
   lambda <- matrix(0, nrow(tab), ncol(tab))
   for(i in 1:nd) {
-    lambda <- lambda + skew[i] * sc[,i] %o% sc[,i]
+    lambda <- lambda + abs(skew[i]) * sc[,i] %o% sc[,i]
   }
   lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
   sv <- svd(lambda0)
   sc[] <- diag(1/sqrt(p)) %*% sv$u[,1:nd] # Eq. A.4.7
-  phisk <- sv$d[1:nd]
+  # Preserve the sign of skew
+  phisk <- sign(skew) * sv$d[1:nd]
 
 
   ## Prepare objects
