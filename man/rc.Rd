@@ -102,7 +102,6 @@
 }
 \examples{
   ## Goodman (1991), Table 17.1 (p. 1097)
-  library(assoc)
   data(criminal)
   model <- rc(criminal)
   model$assoc # These are the phi (.07), mu and nu
@@ -121,7 +120,6 @@
   }
 
   ## Wong (2010), Table 2.7 (p. 48-49)
-  library(assoc)
   data(gss)
   \dontshow{
       # Limit the workload for CRAN checks

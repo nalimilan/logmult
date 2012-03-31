@@ -6,37 +6,41 @@
 \alias{plot.yrcskew}
 \title{Plotting Scores from Association Models}
 \description{Graphical display of scores from association models in two dimensions}
-\usage{\method{plot}{rc}(x, dim = c(1, 2), what = c("both", "rows", "columns"),
-                         mass = TRUE, luminosity = length(x$assoc$diagonal > 0), 
-                         conf.ellipses = FALSE, coords = c("cartesian", "polar"),
-                         rev.axes = c(FALSE, FALSE), cex = par("cex"), col = c("blue", "red"),
-                         groups = NULL, xlim, ylim, xlab, ylab, ...)
+\usage{
+\method{plot}{rc}(x, dim = c(1, 2), what = c("both", "rows", "columns"),
+     mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
+     conf.ellipses = FALSE, coords = c("cartesian", "polar"),
+     rev.axes = c(FALSE, FALSE), cex = par("cex"),
+     col = c("blue", "red"), groups = NULL,
+     xlim, ylim, xlab, ylab, ...)
 
-       \method{plot}{rc.homog}(x, dim = c(1, 2),
-                         mass = TRUE, luminosity = length(x$assoc$diagonal > 0), 
-                         conf.ellipses = FALSE, coords = c("cartesian", "polar"),
-                         rev.axes = c(FALSE, FALSE), cex = par("cex"), col = "dark grey",
-                         groups = NULL, xlim, ylim, xlab, ylab, ...)
+\method{plot}{rc.homog}(x, dim = c(1, 2),
+     mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
+     conf.ellipses = FALSE, coords = c("cartesian", "polar"),
+     rev.axes = c(FALSE, FALSE), cex = par("cex"),
+     col = "dark grey", groups = NULL,
+     xlim, ylim, xlab, ylab, ...)
 
-       \method{plot}{hmskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
-                         mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0), arrow = 45,
-                         conf.ellipses = FALSE, coords = c("polar", "cartesian"),
-                         rev.axes = c(FALSE, FALSE), cex = par("cex"), col = "dark grey",
-                         groups = NULL, xlim, ylim, xlab, ylab, ...)
+\method{plot}{hmskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
+     mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
+     arrow = 45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
+     rev.axes = c(FALSE, FALSE), cex = par("cex"),
+     col = "dark grey", groups = NULL,
+     xlim, ylim, xlab, ylab, ...)
 
-       \method{plot}{yrcskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
-                         mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0), arrow = 45,
-                         conf.ellipses = FALSE, coords = c("polar", "cartesian"),
-                         rev.axes = c(FALSE, FALSE), cex = par("cex"), col = "dark grey",
-                         groups = NULL, xlim, ylim, xlab, ylab, ...)
+\method{plot}{yrcskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
+     mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0),
+     arrow = 45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
+     rev.axes = c(FALSE, FALSE), cex = par("cex"),
+     col = "dark grey", groups = NULL,
+     xlim, ylim, xlab, ylab, ...)
 
-       \method{plot}{assoc}(x, dim = c(1, 2), what = c("both", "rows", "columns"),
-                         mass = TRUE, luminosity = length(x$diagonal > 0),  arrow = NULL,
-                         conf.ellipses = FALSE, coords = c("cartesian", "polar"),
-                         rev.axes = c(FALSE, FALSE), cex = par("cex"), col = c("blue", "red"),
-                         groups = NULL, xlim, ylim, xlab, ylab, ...)
-
-      
+\method{plot}{assoc}(x, dim = c(1, 2), what = c("both", "rows", "columns"),
+     mass = TRUE, luminosity = length(x$diagonal > 0),
+     arrow = NULL, conf.ellipses = FALSE, coords = c("cartesian", "polar"),
+     rev.axes = c(FALSE, FALSE), cex = par("cex"),
+     col = c("blue", "red"), groups = NULL,
+     xlim, ylim, xlab, ylab, ...)
 }
 \arguments{
   \item{x}{an association model returned by \code{\link{rc}}, \code{\link{hmskew}} or
@@ -100,6 +104,7 @@
 
 \references{
   For RC(M) models:
+
   Goodman, L.A. (1991). Measures, Models, and Graphical Displays in the Analysis of
     Cross-Classified Data. \emph{J. of the Am. Stat. Association} 86(416), 1085-1111.
 
@@ -108,7 +113,9 @@
 
   Wong, R.S-K. (2010). Association models. Sage: Quantitative Applications in the Social Sciences (164).
 
-  For van der Heijden & Mooiijaart models:
+
+  For van der Heijden & Mooijaart models:
+
   van der Heijden, P.G.M., and Mooijaart, A. (1995). Some new log bilinear models for the analysis
     of asymmetry in a square contingency table. \emph{Sociol. Methods and Research} 24, 7-29.
 
@@ -116,14 +123,12 @@
 \seealso{\code{\link{rc}}, \code{\link{hmskew}}, \code{\link{yrcskew}}}
 \examples{
   ## Wong (2010), Figures 2.2 and 2.1 (p. 50-51)
-  library(assoc)
   data(gss)
   model <- rc(gss, nd=2, weighting="none", std.err="jackknife")
   plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
   plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
 
   ## van der Heijden & Mooijaart (1995), Figure 1c (p. 23)
-  library(assoc)
   data(ocg1973)
   # 5:1 is here to take "Farmers" as reference category (angle 0)
   model <- hmskew(ocg1973[5:1, 5:1], weighting="uniform")
