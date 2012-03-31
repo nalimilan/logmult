@@ -3,10 +3,9 @@
 \alias{print.yrcskew}
 \title{Fitting Yamaguchi RC_SK Skew-Symmetric Association Model}
 \description{
-  \code{yrcskew} fits a skew-symmetric association model proposed in
-  van der Yamaguchi (1990) to describe asymmetry of square tables.
-  This model can be combined with symmetric association models like a quasi-symmetry
-  (the default) or homogeneous RC(M) models.
+  \code{yrcskew} fits a skew-symmetric association model proposed in Yamaguchi (1990)
+  to describe asymmetry of square tables. This model can be combined with symmetric
+  association models like a quasi-symmetry (the default) or homogeneous RC(M) models.
 }
 \usage{
 yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
