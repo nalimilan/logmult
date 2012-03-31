@@ -204,7 +204,7 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
 
   ## Prepare objects
-  names(skew) <- NULL
+  names(phisk) <- NULL
   colnames(sc) <- paste("Dim", 1:nd, sep="")
   rownames(sc) <- rownames(tab)
   if(length(dg) > 0)
