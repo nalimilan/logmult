@@ -86,7 +86,7 @@
 }
 \details{
   All the functions documented here represent in a two-dimensional space the scores obtained from a
-  log-multiplicative association model. They produce \emph{biplots} in which the coordinates of points
+  log-multiplicative association model. They produce \emph{symmetric biplots} in which the coordinates of points
   on both axes are the product of normalized scores and of the square root of the intrinsic association
   coefficient corresponding to each dimension: thus, row and column points share the same \dQuote{unit}
   on all axes (Goodman, 1991, Appendix 2; Wong, 2010, eq. 2.38; Clogg & Shihadeh, 1994, p. 91-92).
