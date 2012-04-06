@@ -1,7 +1,7 @@
 # Vaguely adapted from bootstrap package, with three modifications:
 # 1) Estimate the model only once for each cell of the table,
 # and compute a mean weighted by cell frequencies at the end
-# (Wong, Association models, 2010, p. 28-29)
+# (Wong, Association models, 2010, p. 28-29; Clogg & Shihadeh, 1994, p. 34-38)
 # 2) theta must return a vector rather than a single number,
 # to allow handling a series of parameters in the same run
 # 3) The variance-covariance matrix is returned, instead of standard errors

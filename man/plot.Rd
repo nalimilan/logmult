@@ -123,8 +123,8 @@
 \seealso{\code{\link{rc}}, \code{\link{hmskew}}, \code{\link{yrcskew}}}
 \examples{
   ## Wong (2010), Figures 2.2 and 2.1 (p. 50-51)
-  data(gss)
-  model <- rc(gss, nd=2, weighting="none", std.err="jackknife")
+  data(gss8590)
+  model <- rc(gss8590, nd=2, weighting="none", std.err="jackknife")
   plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
   plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
 

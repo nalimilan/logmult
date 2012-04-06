@@ -116,16 +116,53 @@
       stopifnot(isTRUE(all.equal(round(model$assoc$col[,1], d=2),
                                  c(-1.44, -1.30, -0.33, 1.00, 0.89),
                                  check.attributes=FALSE)))
+  }
 
+  ## Clogg & Shihadeh (1994) Tables 3.5a and b, (p. 55-61)
+  data(gss88)
+  unweighted <- rc(gss88, weighting="none")$assoc
+  marginal <- rc(gss88, weighting="marginal")$assoc
+  uniform <- rc(gss88, weighting="uniform")$assoc
+  # Row scores
+  row.scores <- round(cbind(unweighted$row,
+                            unweighted$row * sqrt(unweighted$phi),
+                            marginal$row,
+                            marginal$row * sqrt(marginal$phi),
+                            uniform$row,
+                            uniform$row * sqrt(uniform$phi)), d=2)
+  row.scores
+  # Column scores
+  col.scores <- round(cbind(unweighted$col,
+                            unweighted$col * sqrt(unweighted$phi),
+                            marginal$col,
+                            marginal$col * sqrt(marginal$phi),
+                            uniform$col,
+                            uniform$col * sqrt(uniform$phi)), d=2)
+  col.scores
+  \dontshow{
+      stopifnot(all.equal(c(row.scores),
+                          c(0.57, 0.56, 0.15, -0.01, -0.23, 0.04, -0.42, -0.2, -0.19, -0.16, -0.1,
+                            1.61, 1.6, 0.42, -0.04, -0.66, 0.11, -1.19, -0.56, -0.54, -0.46, -0.29,
+                            1.78, 1.78, 0.37, -0.17, -0.91, 0, -1.53, -0.78, -0.76, -0.66, -0.47,
+                            1.53, 1.52, 0.32, -0.14, -0.78, 0, -1.31, -0.67, -0.65, -0.57, -0.4,
+                            1.88, 1.87, 0.48, -0.04,  -0.77, 0.12, -1.38, -0.65, -0.63, -0.53, -0.34, 
+                            1.87, 1.87, 0.48, -0.04, -0.77, 0.12, -1.38, -0.65, -0.63, -0.53, -0.34)))
+      stopifnot(all.equal(c(col.scores),
+                          c(-0.56, -0.41, -0.08, 0.07, 0.41, 0.58,
+                            -1.6, -1.16, -0.24, 0.19, 1.16, 1.65,
+                            -1.89, -1.39, -0.33, 0.16, 1.29, 1.85,
+                            -1.62, -1.19, -0.28, 0.14, 1.1, 1.59,
+                            -1.38, -1, -0.21, 0.16, 1, 1.43,
+                            -1.37, -1, -0.21, 0.16, 1, 1.42)))
   }
 
   ## Wong (2010), Table 2.7 (p. 48-49)
-  data(gss)
+  data(gss8590)
   \dontshow{
       # Limit the workload for CRAN checks
       options(cl.cores=2)
   }
-  model <- rc(gss, nd=2, weighting="none", std.err="jackknife")
+  model <- rc(gss8590, nd=2, weighting="none", std.err="jackknife")
   model$assoc # phi are 2.601 and 1.522
   se.rc(model) # Standard errors are slightly different, but globally agree
   plot(model, conf.ellipses=TRUE)
