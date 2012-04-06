@@ -1,9 +1,9 @@
 ## RC(M) model
 
 rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
-               weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+               weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
-  weighting <- match.arg(weighting)
+  weights <- match.arg(weights)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
 
@@ -64,13 +64,13 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
   newclasses <- if(homogeneous) c("rc.homog", "rc") else "rc"
   class(model) <- c(newclasses, class(model))
 
-  model$assoc <- assoc(model, weighting=weighting)
+  model$assoc <- assoc(model, weights=weights)
 
   if(std.err == "jackknife") {
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weighting)$jack.vcov
+                                      family, weights)$jack.vcov
       model$assoc$covtype <- "jackknife"
   }
   else {
@@ -81,7 +81,7 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
   model
 }
 
-assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
+assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -90,12 +90,12 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
                              !is.na(colnames(model$data))])
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-  weighting <- match.arg(weighting)
-  if(weighting == "marginal") {
+  weights <- match.arg(weights)
+  if(weights == "marginal") {
       rp <- prop.table(margin.table(tab, 1))
       cp <- prop.table(margin.table(tab, 2))
   }
-  else if(weighting == "uniform") {
+  else if(weights == "uniform") {
       rp <- rep(1/nrow(tab), nrow(tab))
       cp <- rep(1/ncol(tab), ncol(tab))
   }
@@ -180,14 +180,14 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
       names(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab) else paste(rownames(tab), colnames(tab), sep=":")
 
   obj <- list(phi = phi, row = row, col = col, diagonal = dg,
-              weighting = weighting, row.weights = rp, col.weights = cp)
+              weighting = weights, row.weights = rp, col.weights = cp)
 
   class(obj) <- c("rc.assoc", "assoc")
   obj
 }
 
 ## RC(M) model with homogeneous row and column scores
-assoc.rc.homog <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
+assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -196,10 +196,10 @@ assoc.rc.homog <- function(model, weighting=c("marginal", "uniform", "none"), ..
                              !is.na(colnames(model$data))])
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-  weighting <- match.arg(weighting)
-  if(weighting == "marginal")
+  weights <- match.arg(weights)
+  if(weights == "marginal")
       p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
-  else if(weighting == "uniform")
+  else if(weights == "uniform")
       p <- rep(1/nrow(tab), nrow(tab))
   else
       p <- rep(1, nrow(tab))
@@ -261,10 +261,10 @@ assoc.rc.homog <- function(model, weighting=c("marginal", "uniform", "none"), ..
       names(dg) <- rownames(tab)
 
   obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
-              weighting = weighting, row.weights = p, col.weights = p)
+              weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("rc.homog.assoc", "rc.assoc", "assoc")
   obj
 }
 
-assoc <- function(model, weighting, ...) UseMethod("assoc", model)
+assoc <- function(model, weights, ...) UseMethod("assoc", model)

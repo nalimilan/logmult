@@ -10,7 +10,7 @@
 }
 \usage{
 hmskew(tab, nd.symm = NA, diagonal = FALSE,
-       weighting = c("marginal", "uniform", "none"),
+       weights = c("marginal", "uniform", "none"),
        std.err = c("none", "jackknife"), family = poisson,
        start = NULL, tolerance = 1e-12, iterMax = 15000, trace = TRUE, ...)
 }
@@ -22,7 +22,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
     If \code{NA}, a quasi-symmetric association is used instead of a RC(M) model.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model.}
-  \item{weighting}{ what weights should be used when normalizing the scores.}
+  \item{weights}{ what weights should be used when normalizing the scores.}
   \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
   \item{family}{ a specification of the error distribution and link function
@@ -72,9 +72,9 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
   \item{col }{Column scores, normalized so that their (weighted) mean is 0, their (weighted)
     sum is 1, and their (weighted) cross-dimensional correlation is null.}
   \item{row.weights }{The row weights used for the identification of scores, as specified by the
-    \code{weighting} argument.}
+    \code{weights} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
-    \code{weighting} argument.}
+    \code{weights} argument.}
   \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{std.err}
     was set. It contains first phi coefficients, then normalized row and column scores, then
     sqrt(phi) * row/column scores.}
@@ -103,7 +103,7 @@ Milan Bouchet-Valat
   ## van der Heijden & Mooijaart (1995), Table 2c, p. 23
   data(ocg1973)
   # 5:1 is here to take "Farmers" as reference category (angle 0)
-  model <- hmskew(ocg1973[5:1, 5:1], weighting="uniform")
+  model <- hmskew(ocg1973[5:1, 5:1], weights="uniform")
   ass <- model$assoc.hmskew
   # First column of the table
   round(ass$row * sqrt(ass$phi[1]), d=2)[5:1,]

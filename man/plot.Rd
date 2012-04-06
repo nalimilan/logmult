@@ -52,7 +52,7 @@
               or both should be plotted; for \code{hmskew} and \code{yrcskew} objects, what association
               should be plotted.}
   \item{mass}{whether the size of the point symbols should reflect on the mass of the categories;
-              this only makes sense when marginal weighting was used when fitting the model. The precise
+              this only makes sense when marginal weights were used when fitting the model. The precise
               formula is that the \code{pch} of a symbol is equal to the \code{pch} argument, times the
               weight of the category divided by average weight.}
   \item{luminosity}{whether the luminosity of the symbols should vary according to the diagonal-specific
@@ -124,14 +124,14 @@
 \examples{
   ## Wong (2010), Figures 2.2 and 2.1 (p. 50-51)
   data(gss8590)
-  model <- rc(gss8590, nd=2, weighting="none", std.err="jackknife")
+  model <- rc(gss8590, nd=2, weights="none", std.err="jackknife")
   plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
   plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
 
   ## van der Heijden & Mooijaart (1995), Figure 1c (p. 23)
   data(ocg1973)
   # 5:1 is here to take "Farmers" as reference category (angle 0)
-  model <- hmskew(ocg1973[5:1, 5:1], weighting="uniform")
+  model <- hmskew(ocg1973[5:1, 5:1], weights="uniform")
   # Reproduce the plot from the original article
   plot(model, coords="cartesian")
   # Use a polar coordinates system, which makes more sense in this setting

@@ -13,9 +13,9 @@ YRCSkew <- function(mincat, maxcat, skew, inst=NULL) {
 class(YRCSkew) <- "nonlin"
 
 yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
-                    weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                    weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                     family=poisson, start=NULL, tolerance=1e-12, iterMax=15000, trace=TRUE, ...) {
-  weighting <- match.arg(weighting)
+  weights <- match.arg(weights)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
 
@@ -97,11 +97,11 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   class(model) <- c("yrcskew", "rc.homog", "rc", class(model))
 
   if(!is.na(nd.symm))
-      model$assoc <- assoc.rc.homog(model, weighting=weighting)
+      model$assoc <- assoc.rc.homog(model, weights=weights)
   else
       model$assoc <- list()
 
-  model$assoc.yrcskew <- assoc.yrcskew(model, weighting=weighting)
+  model$assoc.yrcskew <- assoc.yrcskew(model, weights=weights)
 
 
   if(std.err == "jackknife") {
@@ -110,7 +110,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
       cat("Computing jackknife standard errors...\n")
       covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model, assoc1, assoc2,
-                          family, weighting, YRCSkew=YRCSkew, base=base)$jack.vcov
+                          family, weights, YRCSkew=YRCSkew, base=base)$jack.vcov
 
       if(!is.na(nd.symm)) {
           lim <- nd.symm + nd.symm * nrow(tab) + nd.symm * ncol(tab)
@@ -133,7 +133,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 }
 
 ## Model with separate skew-symmetric association (RC_SK)
-assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
+assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -223,7 +223,7 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
       names(dg) <- rownames(tab)
 
   obj <- list(phi = phisk, row = sc, col = sc,  diagonal = dg,
-              weighting = weighting, row.weights = p, col.weights = p)
+              weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("assoc.yrcskew", "assoc")
   obj
@@ -231,16 +231,16 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
 
 ## Model with skew-symmetric association homogeneous to symmetric association (HM_(S+SK))
-assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
+assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
   if(!"gnm" %in% class(model)) stop("model must be a gnm object")
 
   # gnm doesn't include coefficients for NA row/columns, so get rid of them too
   tab <- as.table(model$data[!is.na(rownames(model$data)), !is.na(colnames(model$data))])
 
-  weights <- match.arg(weighting)
+  weights <- match.arg(weights)
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, et Becker & Clogg (1989), p. 144.
-  if(weighting == "marginal")
+  if(weights == "marginal")
       p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
   else
       p <- rep(1/nrow(tab), nrow(tab))
@@ -354,10 +354,10 @@ assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
       names(dg) <- rownames(tab)
 
   obj <- list(phi = phi, row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk, diagonal = dg,
-              weighting = weighting, row.weights = p, col.weights = p)
+              weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("rc.skew.homog", "rc.skew")
   obj
 }
 
-assoc <- function(model, weighting, ...) UseMethod("assoc", model)
+assoc <- function(model, weights, ...) UseMethod("assoc", model)

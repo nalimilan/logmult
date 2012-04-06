@@ -10,7 +10,7 @@
 }
 \usage{
   rc(tab, nd = 1, homogeneous = FALSE, diagonal = FALSE,
-     weighting = c("marginal", "uniform", "none"),
+     weights = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
      start=NULL, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
 }
@@ -24,7 +24,7 @@
     applies to common row and column levels.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model.}
-  \item{weighting}{ what weights should be used when normalizing the scores.}
+  \item{weights}{ what weights should be used when normalizing the scores.}
   \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
   \item{family}{ a specification of the error distribution and link function
@@ -63,10 +63,12 @@
     sum is 1, and their (weighted) cross-dimensional correlation is null.}
   \item{col }{Column scores, normalized so that their (weighted) mean is 0, their (weighted)
     sum is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{weighting }{The name of the weighting method used, reflected by \code{row.weights}
+    and \code{col.weights}.}
   \item{row.weights }{The row weights used for the identification of scores, as specified by the
-    \code{weighting} argument.}
+    \code{weights} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
-    \code{weighting} argument.}
+    \code{weights} argument.}
   \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{std.err}
     was set. It contains first phi coefficients, then normalized row and column scores, then
     sqrt(phi) * row/column scores.}
@@ -120,9 +122,9 @@
 
   ## Clogg & Shihadeh (1994) Tables 3.5a and b, (p. 55-61)
   data(gss88)
-  unweighted <- rc(gss88, weighting="none")$assoc
-  marginal <- rc(gss88, weighting="marginal")$assoc
-  uniform <- rc(gss88, weighting="uniform")$assoc
+  unweighted <- rc(gss88, weights="none")$assoc
+  marginal <- rc(gss88, weights="marginal")$assoc
+  uniform <- rc(gss88, weights="uniform")$assoc
   # Row scores
   row.scores <- round(cbind(unweighted$row,
                             unweighted$row * sqrt(unweighted$phi),
@@ -162,7 +164,7 @@
       # Limit the workload for CRAN checks
       options(cl.cores=2)
   }
-  model <- rc(gss8590, nd=2, weighting="none", std.err="jackknife")
+  model <- rc(gss8590, nd=2, weights="none", std.err="jackknife")
   model$assoc # phi are 2.601 and 1.522
   se.rc(model) # Standard errors are slightly different, but globally agree
   plot(model, conf.ellipses=TRUE)
