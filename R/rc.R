@@ -19,7 +19,11 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
   if(!homogeneous && nd > min(nrow(tab), ncol(tab)) - 1)
      stop("Number of dimensions cannot exceed the size of the smallest dimension of the table minus one (saturated model)")
 
-  vars <- names(dimnames(tab))
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2")
 
   if(diagonal)
       diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
@@ -100,14 +104,20 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
       cp <- rep(1, ncol(tab))
   }
 
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2")
+
   # Prepare matrices before filling them
   row <- matrix(NA, nrow(tab), 0)
   col <- matrix(NA, ncol(tab), 0)
 
   nd <- 0
   while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %s\\)\\.%s", nd+1, names(dimnames(tab)[1])))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %s\\)\\.%s", nd+1, names(dimnames(tab)[2])))]
+      mu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %s\\)\\.%s", nd+1, vars[1]))]
+      nu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %s\\)\\.%s", nd+1, vars[2]))]
 
       if(!(length(mu) == nrow(tab) && length(nu) == ncol(tab)))
           break
@@ -120,8 +130,8 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   }
 
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult.*\\)\\.%s.*[^\\.].$", names(dimnames(tab)[1])))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult.*\\)\\.%s.*[^\\.].$", names(dimnames(tab)[2])))]
+      mu <- coef(model)[pickCoef(model, sprintf("Mult.*\\)\\.%s.*[^\\.].$", vars[1]))]
+      nu <- coef(model)[pickCoef(model, sprintf("Mult.*\\)\\.%s.*[^\\.].$", vars[2]))]
 
       if(length(mu) == nrow(tab) && length(nu) == ncol(tab)) {
           nd <- 1

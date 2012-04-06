@@ -37,7 +37,11 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   if(!is.na(nd.symm) && nd.symm/2 > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions of symmetric association cannot exceed twice the size of the smallest dimension of the table minus one")
 
-  vars <- names(dimnames(tab))
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2")
 
   if(diagonal && !is.na(nd.symm))
       diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
@@ -69,19 +73,21 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       cat("Running real model...\n")
   }
 
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2")
 
   # We integrate computations in the formula rather than doing them separately
   # because gnm() does not seem to allow using objects outside of the data argument
   # in formulas called from functions. This seems to be a problem with how the formula's
   # environment is handled, and also happens when calling gnm() directly without eval().
-  dim1 <- names(dimnames(tab))[1]
-  dim2 <- names(dimnames(tab))[2]
-
   f <- sprintf("%s + instances(YRCSkew(%s[ifelse(ordered(%s) < ordered(%s), %s, %s)], %s[ifelse(ordered(%s) > ordered(%s), %s, %s)], sign(as.numeric(%s) - as.numeric(%s))), %s)",
                                        basef,
-                                       dim1, dim1, dim2, dim1, dim2,
-                                       dim1, dim1, dim2, dim1, dim2,
-                                       dim2, dim1, nd.skew)
+                                       vars[1], vars[1], vars[2], vars[1], vars[2],
+                                       vars[1], vars[1], vars[2], vars[1], vars[2],
+                                       vars[2], vars[1], nd.skew)
   eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
                            f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
 
@@ -142,15 +148,21 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
   tab <- as.table(model$data[!is.na(rownames(model$data)),
                              !is.na(colnames(model$data))])
 
-  weighting <- match.arg(weighting)
+  weights <- match.arg(weights)
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, et Becker & Clogg (1989), p. 144.
-  if(weighting == "marginal")
+  if(weights == "marginal")
       p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
-  else if(weighting == "uniform")
+  else if(weights == "uniform")
       p <- rep(1/nrow(tab), nrow(tab))
   else
       p <- rep(1, nrow(tab))
+
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2")
 
 
   ## Get skew association coefficients
@@ -170,7 +182,7 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
   }
 
   if(nd <= 0) {
-      musk <- coef(model)[pickCoef(model, sprintf("YRCSkew.*\\)\\.%s.*[^\\.].$", names(dimnames(tab)[1])))]
+      musk <- coef(model)[pickCoef(model, sprintf("YRCSkew.*\\)\\.%s.*[^\\.].$", vars[1]))]
 
       if(length(musk) == nrow(tab)) {
           nd <- 1

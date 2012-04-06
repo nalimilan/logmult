@@ -31,7 +31,11 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   if(!is.na(nd.symm) && nd.symm/2 > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions of symmetric association cannot exceed twice the size of the smallest dimension of the table minus one")
 
-  vars <- names(dimnames(tab))
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2")
 
   if(diagonal && !is.na(nd.symm))
       diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
