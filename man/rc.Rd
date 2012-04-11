@@ -107,10 +107,10 @@
   data(criminal)
   model <- rc(criminal)
   model$assoc # These are the phi (.07), mu and nu
-  model$assoc$row * model$assoc$phi # These are the mu'
-  model$assoc$col * model$assoc$phi # These are the nu'
+  model$assoc$row * model$assoc$phi[1,] # These are the mu'
+  model$assoc$col * model$assoc$phi[1,] # These are the nu'
   \dontshow{
-      stopifnot(all.equal(round(model$assoc$phi[1], d=2), 0.07))
+      stopifnot(round(model$assoc$phi[1,1], d=2) == 0.07)
       # Scores have reversed signs compared to the orignal article
       stopifnot(isTRUE(all.equal(round(model$assoc$row[,1], d=2),
                                  c(1.26, 0.82, -0.56, -1.21),
@@ -127,19 +127,19 @@
   uniform <- rc(gss88, weights="uniform")$assoc
   # Row scores
   row.scores <- round(cbind(unweighted$row,
-                            unweighted$row * sqrt(unweighted$phi),
+                            unweighted$row * sqrt(unweighted$phi[1,]),
                             marginal$row,
-                            marginal$row * sqrt(marginal$phi),
+                            marginal$row * sqrt(marginal$phi[1,]),
                             uniform$row,
-                            uniform$row * sqrt(uniform$phi)), d=2)
+                            uniform$row * sqrt(uniform$phi[1,])), d=2)
   row.scores
   # Column scores
   col.scores <- round(cbind(unweighted$col,
-                            unweighted$col * sqrt(unweighted$phi),
+                            unweighted$col * sqrt(unweighted$phi[1,]),
                             marginal$col,
-                            marginal$col * sqrt(marginal$phi),
+                            marginal$col * sqrt(marginal$phi[1,]),
                             uniform$col,
-                            uniform$col * sqrt(uniform$phi)), d=2)
+                            uniform$col * sqrt(uniform$phi[1,])), d=2)
   col.scores
   \dontshow{
       stopifnot(all.equal(c(row.scores),
@@ -164,7 +164,8 @@
       # Limit the workload for CRAN checks
       options(cl.cores=2)
   }
-  model <- rc(gss8590, nd=2, weights="none", std.err="jackknife")
+  model <- rc(margin.table(gss8590[,,c(2,4)], 1:2),
+              nd=2, weights="none", std.err="jackknife")
   model$assoc # phi are 2.601 and 1.522
   se.rc(model) # Standard errors are slightly different, but globally agree
   plot(model, conf.ellipses=TRUE)

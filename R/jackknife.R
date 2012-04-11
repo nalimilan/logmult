@@ -17,7 +17,7 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)),
                       ncpus=if(require(parallel)) getOption("cl.cores", detectCores()) else getOption("cl.cores", 2))
 {
     call <- match.call()
-    stopifnot(length(w) == length(w))
+    stopifnot(length(w) == length(x))
     w <- as.numeric(w)
     stopifnot(all(w >= 0))
     n <- length(x)
@@ -83,7 +83,8 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weights, ..., base=NUL
   }
 
   if(sum(data[-x]) > 0) {
-      tab <- matrix(-1, nrow(data), ncol(data))
+      tab <- data
+      tab[] <- -1
       tab[x] <- 0
 
       model <- update(model, data=data+tab, start=coef(model), verbose=FALSE, trace=TRUE)
@@ -105,16 +106,40 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weights, ..., base=NUL
   }
 
   ass1 <- assoc1(model, weights=weights)
-  ret <- c(ass1$phi, ass1$row, ass1$col,
-           sweep(ass1$row, 2, sqrt(ass1$phi), "*"),
-           sweep(ass1$col, 2, sqrt(ass1$phi), "*"))
+  ret <- c(t(ass1$phi))
+
+  if(length(dim(ass1$row)) == 3) {
+      for(i in 1:nrow(ass1$phi))
+           ret <- c(ret, ass1$row[,,i], ass1$col[,,i],
+                    sweep(ass1$row[,,i], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
+                    sweep(ass1$col[,,i], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
+  }
+  else {
+      for(i in 1:nrow(ass1$phi))
+           ret <- c(ret, ass1$row, ass1$col,
+                    sweep(ass1$row, 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
+                    sweep(ass1$col, 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
+  }
+
 
   # For double association models like some hmskew and yrcskew variants
   if(!is.null(assoc2)) {
       ass2 <- assoc2(model, weights=weights)
-      ret <- c(ret, ass2$phi, ass2$row, ass2$col,
-                    sweep(ass2$row, 2, sqrt(ass2$phi), "*"),
-                    sweep(ass2$col, 2, sqrt(ass2$phi), "*"))
+      ret <- c(ret, t(ass2$phi))
+
+      if(dim(ass2$row)[3] > 0) {
+          for(i in 1:nrow(ass2$phi))
+               ret <- c(ret, ass2$row[,,i], ass2$col[,,i],
+                        sweep(ass2$row[,,i], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
+                        sweep(ass2$col[,,i], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
+      }
+      else {
+          for(i in 1:nrow(ass2$phi))
+               ret <- c(ret, ass2$row, ass2$col,
+                        sweep(ass2$row, 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
+                        sweep(ass2$col, 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
+      }
+
   }
 
   ret
@@ -180,6 +205,16 @@ se.rc <- function(model, type=c("se", "quasi.se")) {
   se.assoc(model$assoc)
 }
 
+se.rcL <- function(model, type=c("se", "quasi.se")) {
+  if(!inherits(model, "rcL")) 
+      stop("model must be a rcL object")
+
+  if(length(model$assoc) == 0)
+      stop("model must have an association component")
+
+  se.assoc(model$assoc)
+}
+
 se.hmskew <- function(model, type=c("se", "quasi.se")) {
   if(!inherits(model, "hmskew")) 
       stop("model must be a hmskew object")
@@ -204,13 +239,14 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
       stop("No covariance matrix found: use the 'std.err' argument when fitting model")
 
   if(!(ncol(ass$row) == ncol(ass$col) &&
-       length(ass$phi) == ncol(ass$row)))
+       ncol(ass$phi) == ncol(ass$row)))
       stop("Invalid component length")
 
-  nd <- ncol(ass$row)
+  nd <- ncol(ass$phi)
+  nl <- nrow(ass$phi)
 
   if(nrow(ass$covmat) != ncol(ass$covmat) ||
-     nrow(ass$covmat) != nd + 2 * nd * nrow(ass$row) + 2 * nd * nrow(ass$col))
+     nrow(ass$covmat) != nl * nd + 2 * nl * nd * (nrow(ass$row) + nrow(ass$col)))
       stop("Covariance matrix dimensions do not match association structure")
 
   std.errs <- list()
@@ -224,13 +260,14 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
 
   covmat <- ass$covmat
 
-  std.errs$phise <- ass$phi
-  std.errs$phise[] <- get.se(covmat[1:nd, 1:nd, drop=FALSE])
+  std.errs$phi <- ass$phi
+  for(i in 1:nl)
+      std.errs$phi[i,] <- get.se(covmat[seq((i - 1) * nd + 1, i * nd), seq((i - 1) * nd + 1, i * nd)])
 
   std.errs$row <- ass$row
   n <- nrow(std.errs$row)
   for(i in 1:nd) {
-      int <- seq(nd + n * (i-1) + 1, nd + n * i)
+      int <- seq(nl * nd + n * (i-1) + 1, nl * nd + n * i)
       std.errs$row[,i] <- get.se(covmat[int, int, drop=FALSE])
   }
 
@@ -240,7 +277,7 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
   }
   else {
       n <- nrow(std.errs$col)
-      start <- nd + nd * nrow(std.errs$row)
+      start <- nl * nd + nd * nrow(std.errs$row)
       for(i in 1:nd) {
           int <- seq(start + n * (i-1) + 1, start + n * i)
           std.errs$col[,i] <- get.se(covmat[int, int, drop=FALSE])

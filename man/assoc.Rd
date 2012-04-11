@@ -5,6 +5,8 @@
 \alias{assoc.hmskew}
 \alias{assoc.yrcskew}
 \alias{assoc.yrcskew.homog}
+\alias{assoc.rcL}
+\alias{assoc.rcL.homog}
 \title{Identifying Scores from Association Models}
 \description{Identify log-multiplicative association scores from over-parameterized gnm models}
 \usage{\method{assoc}{rc}(model, weights = c("marginal", "uniform", "none"), ...)

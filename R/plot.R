@@ -102,7 +102,49 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
              xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, ...)
 }
 
-plot.assoc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
+plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
+                    mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
+                    conf.ellipses=FALSE, coords=c("cartesian", "polar"),
+                    rev.axes=c(FALSE, FALSE), cex=par("cex"),
+                    col=c("blue", "red"), groups=NULL,
+                    xlim, ylim, xlab, ylab, ...) {
+  what <- match.arg(what)
+  coords <- match.arg(coords)
+
+  if(!inherits(x, "rcL"))
+      stop("x must be a rcL object")
+
+  if(!length(x$assoc) > 0)
+      stop("x must contain an association component")
+
+  plot.assoc(x$assoc, dim=dim, layer=layer, what=what, mass=mass, luminosity=luminosity,
+             arrow=NULL, conf.ellipses=conf.ellipses, coords=coords,
+             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, ...)
+}
+
+plot.rcL.homog <- function(x, dim=c(1, 2), layer=1,
+                           mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
+                           conf.ellipses=FALSE, coords=c("cartesian", "polar"),
+                           rev.axes=c(FALSE, FALSE), cex=par("cex"),
+                           col=c("blue", "red"), groups=NULL,
+                           xlim, ylim, xlab, ylab, ...) {
+  what <- match.arg(what)
+  coords <- match.arg(coords)
+
+  if(!inherits(x, "rcL.homog"))
+      stop("x must be a rcL.homog object")
+
+  if(!length(x$assoc) > 0)
+      stop("x must contain an association component")
+
+  plot.assoc(x$assoc, dim=dim, layer=layer, what="rows", mass=mass, luminosity=luminosity,
+             arrow=NULL, conf.ellipses=conf.ellipses, coords=coords,
+             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, ...)
+}
+
+plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
                        mass=TRUE, luminosity=length(x$diagonal > 0), arrow=NULL,
                        conf.ellipses=FALSE, coords=c("cartesian", "polar"),
                        rev.axes=c(FALSE, FALSE), cex=par("cex"), col=c("blue", "red"),
@@ -111,10 +153,11 @@ plot.assoc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
       stop("x must be an assoc object")
 
   if(!(ncol(x$row) == ncol(x$col) &&
-       length(x$phi) == ncol(x$row)))
+       ncol(x$phi) == ncol(x$row)))
       stop("Invalid component length")
 
   nd <- ncol(x$row)
+  nl <- nrow(x$phi)
 
   if(ncol(x$row) == 1)
       stop("This function only plots models with two or more dimensions")
@@ -122,13 +165,16 @@ plot.assoc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
   if(any(dim > ncol(x$row)))
       stop("dim must be a valid dimension of the model")
 
+  if(layer > nrow(x$phi))
+      stop("layer must be a valid layer of the model")
+
   rev.axes <- rep(rev.axes, length.out=2)
 
   if(conf.ellipses && (x$covtype == "none" || length(x$covmat) == 0))
       stop("Cannot plot confidence ellipses on a model without jackknife standard errors")
 
   if(conf.ellipses && (nrow(x$covmat) != ncol(x$covmat) ||
-                       nrow(x$covmat) != nd + 2 * nd * nrow(x$row) + 2 * nd * nrow(x$col)))
+                       nrow(x$covmat) != nl * nd + 2 * nl * nd * (nrow(x$row) + nrow(x$col))))
       stop("Covariance matrix dimensions do not match association structure")
 
   what <- match.arg(what)
@@ -176,7 +222,7 @@ plot.assoc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
 
   # Integrate phi to scores for graphical representation
   # Cf. Wong (2010), eq. 2.17 and 2.38, or Clogg & Shihadeh (1994), p. 91
-  sc[,dim] <- sweep(sc[,dim], 2, sqrt(x$phi[dim]), "*")
+  sc[,dim] <- sweep(sc[,dim], 2, sqrt(abs(x$phi[layer, dim])) * sign(x$phi[layer, dim]), "*")
 
   if(isTRUE(rev.axes[1]))
       sc[,dim[1]] <- -sc[,dim[1]]
@@ -192,10 +238,10 @@ plot.assoc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
 
   if(coords == "cartesian") {
       if(missing(xlab))
-          xlab <- sprintf("Dimension %i (%.2f)", dim[1], x$phi[dim[1]])
+          xlab <- sprintf("Dimension %i (%.2f)", dim[1], x$phi[layer, dim[1]])
 
       if(missing(ylab))
-          ylab <- sprintf("Dimension %i (%.2f)", dim[2], x$phi[dim[2]])
+          ylab <- sprintf("Dimension %i (%.2f)", dim[2], x$phi[layer, dim[2]])
 
       plot(sc[,dim], xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, type="n", ...)
 
@@ -227,8 +273,10 @@ plot.assoc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
       nr <- nrow(x$row)
       nc <- nrow(x$col)
 
+      i <- 0
+
       if(what %in% c("rows", "both")) {
-          start <- nd + nd * (nr + nc) + c((dim[1] - 1) * nr, ((dim[2] - 1) * nr))
+          start <- nd + layer * nd * (nr + nc) + c((dim[1] - 1) * nr, ((dim[2] - 1) * nr))
 
           for(i in 1:nr)
               polygon(ellipse(x$covmat[start + i, start + i], centre=sc[i,dim]),
@@ -236,10 +284,10 @@ plot.assoc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
       }
 
       if(what %in% c("columns", "both")) {
-          start <- nd + nd * (nr + nc) + nd * nr + c((dim[1] - 1) * nc, (dim[2] - 1) * nc)
+          start <- nd + layer * nd * (nr + nc) + nd * nr + c((dim[1] - 1) * nc, (dim[2] - 1) * nc)
 
           for(j in 1:nc)
-              polygon(ellipse(x$covmat[start + j, start + j], centre=sc[j,dim]),
+              polygon(ellipse(x$covmat[start + j, start + j], centre=sc[i+j,dim]),
                       border="dark grey", lty="dashed", lwd=2)
       }
   }
@@ -253,7 +301,7 @@ plot.assoc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
   }
 
   # If no diagonal-specific parameters are present, we use the association of the point to itself
-  dg <- x$diagonal
+  dg <- if(nrow(dg) > 1) x$diagonal[layer,] else x$diagonal
   if(length(dg) == 0)
       dg <- rep(0, nrow(sc))
 

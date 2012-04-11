@@ -29,7 +29,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       stop("nd.symm must be NA or strictly positive")
 
   if(!is.na(nd.symm) && nd.symm/2 > min(nrow(tab), ncol(tab)) - 1)
-      stop("Number of dimensions of symmetric association cannot exceed twice the size of the smallest dimension of the table minus one")
+      stop("Number of dimensions of symmetric association cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
 
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
@@ -183,7 +183,7 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   if(length(dg) > 0)
       names(dg) <- rownames(tab)
 
-  obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
+  obj <- list(phi = rbind(phi), row = sc, col= sc, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("hmskew.assoc", "assoc")

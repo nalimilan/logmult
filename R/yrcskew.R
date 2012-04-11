@@ -35,7 +35,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       warning("nd.skew > 1 is untested. You are on your own!")
 
   if(!is.na(nd.symm) && nd.symm/2 > min(nrow(tab), ncol(tab)) - 1)
-      stop("Number of dimensions of symmetric association cannot exceed twice the size of the smallest dimension of the table minus one")
+      stop("Number of dimensions of symmetric association cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
 
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
@@ -222,7 +222,7 @@ assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   if(length(dg) > 0)
       names(dg) <- rownames(tab)
 
-  obj <- list(phi = phisk, row = sc, col = sc,  diagonal = dg,
+  obj <- list(phi = rbind(phisk), row = sc, col = sc,  diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("assoc.yrcskew", "assoc")
@@ -353,7 +353,7 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
   if(length(dg) > 0)
       names(dg) <- rownames(tab)
 
-  obj <- list(phi = phi, row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk, diagonal = dg,
+  obj <- list(phi = rbind(phi), row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("rc.skew.homog", "rc.skew")

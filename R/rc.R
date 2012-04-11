@@ -14,10 +14,10 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
       stop("nd must be strictly positive")
 
   if(homogeneous && nd/2 > min(nrow(tab), ncol(tab)) - 1)
-     stop("Number of dimensions of homogeneous model cannot exceed twice the size of the smallest dimension of the table minus one")
+     stop("Number of dimensions of homogeneous model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
 
   if(!homogeneous && nd > min(nrow(tab), ncol(tab)) - 1)
-     stop("Number of dimensions cannot exceed the size of the smallest dimension of the table minus one (saturated model)")
+     stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
 
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
@@ -71,6 +71,11 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
                                       family, weights)$jack.vcov
+      scnames <- c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
+                   t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep="")))
+      rownames(model$assoc$covmat) <- colnames(model$assoc$covmat) <-
+          c(paste("Dim", 1:nd, sep=""), scnames, paste(scnames, "*", sep=""))
+
       model$assoc$covtype <- "jackknife"
   }
   else {
@@ -161,8 +166,8 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   col[] <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
   phi <- sv$d[1:nd]
 
-  # Since the sign of coefficients is arbitrary, conventionnally choose positive scores
-  # for the first row category: this ensures the results are stable accross runs.
+  # Since the sign of scores is arbitrary, conventionnally choose positive scores
+  # for the first row category: this ensures the results are stable when jackknifing.
   for(i in 1:nd) {
       if(row[1,i] < 0) {
           row[,i] <- -row[,i]
@@ -179,7 +184,7 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   if(length(dg) > 0)
       names(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab) else paste(rownames(tab), colnames(tab), sep=":")
 
-  obj <- list(phi = phi, row = row, col = col, diagonal = dg,
+  obj <- list(phi = rbind(phi), row = row, col = col, diagonal = dg,
               weighting = weights, row.weights = rp, col.weights = cp)
 
   class(obj) <- c("rc.assoc", "assoc")
@@ -247,8 +252,8 @@ assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...)
   sc[,1:nd] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
   phi <- eigen$values[1:nd]
 
-  # Since the sign of coefficients is arbitrary, conventionnally choose positive scores
-  # for the first category: this ensures the results are stable accross runs.
+  # Since the sign of scores is arbitrary, conventionnally choose positive scores
+  # for the first category: this ensures the results are stable when jackknifing.
   for(i in 1:nd) {
       if(sc[1,i] < 0)
           sc[,i] <- -sc[,i]
@@ -260,7 +265,7 @@ assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...)
   if(length(dg) > 0)
       names(dg) <- rownames(tab)
 
-  obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
+  obj <- list(phi = rbind(phi), row = sc, col= sc, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("rc.homog.assoc", "rc.assoc", "assoc")
