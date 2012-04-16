@@ -69,7 +69,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
 }
 \value{
   A \code{yrcskew} object, which is a subclass of an \code{rc.symm} object (see\code{\link{rc}}) unless
-    \code{nd.symm} is \code{NA}. In addition to this class, it contains a \code{yrcskew.assoc} component
+    \code{nd.symm} is \code{NA}. In addition to this class, it contains a \code{assoc.yrcskew} component
     holding information about the \emph{skew-symmetric} association:
   \item{phi }{The intrisic association parameters, one per dimension.}
   \item{row }{Row scores, normalized so that their (weighted) mean is 0, their (weighted)

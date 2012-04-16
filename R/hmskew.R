@@ -190,10 +190,10 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
       colnames(dg) <- rownames(tab)
   }
 
-  obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
+  obj <- list(phi = phi, row = sc, col = sc, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
-  class(obj) <- c("hmskew.assoc", "assoc")
+  class(obj) <- c("assoc.hmskew", "assoc.symm", "assoc")
   obj
 }
 

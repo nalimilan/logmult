@@ -232,7 +232,7 @@ assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   obj <- list(phi = phisk, row = sc, col = sc,  diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
-  class(obj) <- c("assoc.yrcskew", "assoc")
+  class(obj) <- c("assoc.yrcskew", "assoc.symm", "assoc")
   obj
 }
 
@@ -367,7 +367,7 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
   obj <- list(phi = phi, row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk,
               diagonal = dg, weighting = weights, row.weights = p, col.weights = p)
 
-  class(obj) <- c("rc.skew.homog", "rc.skew")
+  class(obj) <- c("assoc.yrcskew.homog", "assoc.symm", "assoc")
   obj
 }
 

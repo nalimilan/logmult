@@ -64,7 +64,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
 }
 \value{
   A \code{hmskew} object, which is a subclass of an \code{rc.symm} object (see \code{\link{rc}}) unless
-    \code{nd} is \code{NA}. In addition to this class, it contains a \code{hmskew.assoc} component holding
+    \code{nd} is \code{NA}. In addition to this class, it contains a \code{assoc.hmskew} component holding
     information about the \emph{asymmetric} association:
   \item{phi }{The intrisic association parameters, one per dimension.}
   \item{row }{Row scores, normalized so that their (weighted) mean is 0, their (weighted)

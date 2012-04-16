@@ -196,7 +196,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(length(x$diagonal) > 0)
       x$diagonal <- x$diagonal[layer,]
 
-  if(inherits(x, "rc.symm.assoc")) {
+  if(inherits(x, "assoc.symm")) {
        stopifnot(identical(x$row, x$col))
        sc <- x$row
        p <- x$row.weights
