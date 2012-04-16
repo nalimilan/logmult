@@ -19,6 +19,9 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
   if(!homogeneous && nd > min(nrow(tab), ncol(tab)) - 1)
      stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
 
+  if(length(dim(tab)) > 2)
+      tab <- margin.table(tab, 1:2)
+
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
   vars <- make.names(names(dimnames(tab)))

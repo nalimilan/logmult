@@ -37,6 +37,9 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   if(!is.na(nd.symm) && nd.symm/2 > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions of symmetric association cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
 
+  if(length(dim(tab)) > 2)
+      tab <- margin.table(tab, 1:2)
+
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
   vars <- make.names(names(dimnames(tab)))
