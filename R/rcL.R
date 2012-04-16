@@ -17,10 +17,10 @@ rcL <- function(tab, nd=1, layer.homogeneous=c("both", "none"),
       stop("nd must be strictly positive")
 
   if(homogeneous && nd/2 > min(nrow(tab), ncol(tab)) - 1)
-     stop("Number of dimensions of homogeneous model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
+      stop("Number of dimensions of homogeneous model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
 
   if(!homogeneous && nd > min(nrow(tab), ncol(tab)) - 1)
-     stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
+      stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
 
   if(length(dim(tab)) > 3)
       tab <- margin.table(tab, 1:3)
