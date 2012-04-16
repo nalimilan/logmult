@@ -166,7 +166,7 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   col[] <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
   phi <- sv$d[1:nd]
 
-  # Since the sign of scores is arbitrary, conventionnally choose positive scores
+  # Since the sign of scores is arbitrary, conventionally choose positive scores
   # for the first row category: this ensures the results are stable when jackknifing.
   for(i in 1:nd) {
       if(row[1,i] < 0) {
@@ -176,15 +176,18 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   }
 
   ## Prepare objects
-  colnames(row) <- colnames(col) <- paste("Dim", 1:nd, sep="")
-
+  phi <- rbind(c(phi))
+  dim(row)[3] <- dim(col)[3] <- 1
+  colnames(row) <- colnames(col) <- colnames(phi) <- paste("Dim", 1:nd, sep="")
   rownames(row) <- rownames(tab)
   rownames(col) <- colnames(tab)
 
-  if(length(dg) > 0)
-      names(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab) else paste(rownames(tab), colnames(tab), sep=":")
+  if(length(dg) > 0) {
+      dg <- rbind(c(dg))
+      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab) else paste(rownames(tab), colnames(tab), sep=":")
+  }
 
-  obj <- list(phi = rbind(phi), row = row, col = col, diagonal = dg,
+  obj <- list(phi = phi, row = row, col = col, diagonal = dg,
               weighting = weights, row.weights = rp, col.weights = cp)
 
   class(obj) <- c("rc.assoc", "assoc")
@@ -252,7 +255,8 @@ assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...)
   sc[,1:nd] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
   phi <- eigen$values[1:nd]
 
-  # Since the sign of scores is arbitrary, conventionnally choose positive scores
+  # FIXME: does not apply to homogeneous scores
+  # Since the sign of scores is arbitrary, conventionally choose positive scores
   # for the first category: this ensures the results are stable when jackknifing.
   for(i in 1:nd) {
       if(sc[1,i] < 0)
@@ -260,12 +264,17 @@ assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...)
   }
 
   ## Prepare objects
-  colnames(sc) <- paste("Dim", 1:nd, sep="")
+  phi <- rbind(c(phi))
+  dim(sc)[3] <- 1
+  colnames(sc) <- colnames(phi) <- paste("Dim", 1:nd, sep="")
   rownames(sc) <- rownames(tab)
-  if(length(dg) > 0)
-      names(dg) <- rownames(tab)
+  if(length(dg) > 0) {
+      dg <- rbind(c(dg))
+      colnames(dg) <- rownames(tab)
+  }
 
-  obj <- list(phi = rbind(phi), row = sc, col= sc, diagonal = dg,
+
+  obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("rc.homog.assoc", "rc.assoc", "assoc")

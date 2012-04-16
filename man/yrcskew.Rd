@@ -111,7 +111,7 @@ Milan Bouchet-Valat
   # Reported phi is slightly different, coefficients agree
   rc.model
   \dontshow{
-      stopifnot(isTRUE(all.equal(round(rc.model$assoc$row[,1], d=2),
+      stopifnot(isTRUE(all.equal(round(rc.model$assoc$row[,1,1], d=2),
                                  c(0.69, 0.3, -0.1, -0.33, -0.56),
                                  check.attributes=FALSE)))
   }

@@ -108,36 +108,37 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weights, ..., base=NUL
   ass1 <- assoc1(model, weights=weights)
   ret <- c(t(ass1$phi))
 
-  if(length(dim(ass1$row)) == 3) {
+  if(dim(ass1$row)[3] == 1) {
+      # Even if the scores are the same for all layers, we replicate them for simplicity's sake
       for(i in 1:nrow(ass1$phi))
+           ret <- c(ret, ass1$row[,,1], ass1$col[,,1],
+                    sweep(ass1$row[,,1], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
+                    sweep(ass1$col[,,1], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
+  }
+  else {
+      for(i in 1:dim(ass1$row)[3])
            ret <- c(ret, ass1$row[,,i], ass1$col[,,i],
                     sweep(ass1$row[,,i], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
                     sweep(ass1$col[,,i], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
   }
-  else {
-      for(i in 1:nrow(ass1$phi))
-           ret <- c(ret, ass1$row, ass1$col,
-                    sweep(ass1$row, 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
-                    sweep(ass1$col, 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
-  }
-
 
   # For double association models like some hmskew and yrcskew variants
   if(!is.null(assoc2)) {
       ass2 <- assoc2(model, weights=weights)
       ret <- c(ret, t(ass2$phi))
 
-      if(dim(ass2$row)[3] > 0) {
+      if(dim(ass2$row)[3] == 1) {
+          # Even if the scores are the same for all layers, we replicate them for simplicity's sake
           for(i in 1:nrow(ass2$phi))
+               ret <- c(ret, ass2$row[,,1], ass2$col[,,1],
+                        sweep(ass2$row[,,1], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
+                        sweep(ass2$col[,,1], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
+      }
+      else {
+          for(i in 1:dim(ass2$row)[3])
                ret <- c(ret, ass2$row[,,i], ass2$col[,,i],
                         sweep(ass2$row[,,i], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
                         sweep(ass2$col[,,i], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
-      }
-      else {
-          for(i in 1:nrow(ass2$phi))
-               ret <- c(ret, ass2$row, ass2$col,
-                        sweep(ass2$row, 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
-                        sweep(ass2$col, 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
       }
 
   }
@@ -266,9 +267,11 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
 
   std.errs$row <- ass$row
   n <- nrow(std.errs$row)
-  for(i in 1:nd) {
-      int <- seq(nl * nd + n * (i-1) + 1, nl * nd + n * i)
-      std.errs$row[,i] <- get.se(covmat[int, int, drop=FALSE])
+  for(i in 1:dim(std.errs$row)[3]) {
+      for(j in 1:nd) {
+          int <- seq(nl * nd + n * (j - 1) + 1, nl * nd + n * j)
+          std.errs$row[,j,i] <- get.se(covmat[int, int, drop=FALSE])
+      }
   }
 
   std.errs$col <- ass$col
@@ -278,9 +281,11 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
   else {
       n <- nrow(std.errs$col)
       start <- nl * nd + nd * nrow(std.errs$row)
-      for(i in 1:nd) {
-          int <- seq(start + n * (i-1) + 1, start + n * i)
-          std.errs$col[,i] <- get.se(covmat[int, int, drop=FALSE])
+      for(i in 1:dim(std.errs$col)[3]) {
+          for(j in 1:nd) {
+              int <- seq(start + n * (j - 1) + 1, start + n * j)
+              std.errs$col[,j,i] <- get.se(covmat[int, int, drop=FALSE])
+          }
       }
   }
 

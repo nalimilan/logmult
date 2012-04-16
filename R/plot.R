@@ -149,15 +149,12 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
                        conf.ellipses=FALSE, coords=c("cartesian", "polar"),
                        rev.axes=c(FALSE, FALSE), cex=par("cex"), col=c("blue", "red"),
                        groups=NULL, xlim, ylim, xlab, ylab, ...) {
-  if(!inherits(x, "assoc"))
+  if(!(inherits(x, "assoc")))
       stop("x must be an assoc object")
 
-  if(!(ncol(x$row) == ncol(x$col) &&
-       ncol(x$phi) == ncol(x$row)))
+  if(ncol(x$row) != ncol(x$col) ||
+     ncol(x$phi) != ncol(x$row) || isTRUE(dim(x$row)[3] != dim(x$col)[3]))
       stop("Invalid component length")
-
-  nd <- ncol(x$row)
-  nl <- nrow(x$phi)
 
   if(ncol(x$row) == 1)
       stop("This function only plots models with two or more dimensions")
@@ -165,8 +162,11 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(any(dim > ncol(x$row)))
       stop("dim must be a valid dimension of the model")
 
-  if(layer > nrow(x$phi))
+  if((is.matrix(x$phi) && (layer > nrow(x$phi))))
       stop("layer must be a valid layer of the model")
+
+  nd <- ncol(x$row)
+  nl <- nrow(x$phi)
 
   rev.axes <- rep(rev.axes, length.out=2)
 
@@ -179,6 +179,22 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   what <- match.arg(what)
   coords <- match.arg(coords)
+
+  # Plotting only uses one layer, so get rid of others to make code cleaner below
+  x$phi <- x$phi[layer,]
+
+  if(dim(x$row)[3] > 1)
+      x$row <- x$row[,,layer]
+  else
+      x$row <- x$row[,,1]
+
+  if(dim(x$col)[3] > 1)
+      x$col <- x$col[,,layer]
+  else
+      x$col <- x$col[,,1]
+
+  if(length(x$diagonal) > 0)
+      x$diagonal <- x$diagonal[layer,]
 
   if(inherits(x, "rc.homog.assoc")) {
        stopifnot(identical(x$row, x$col))
@@ -222,7 +238,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   # Integrate phi to scores for graphical representation
   # Cf. Wong (2010), eq. 2.17 and 2.38, or Clogg & Shihadeh (1994), p. 91
-  sc[,dim] <- sweep(sc[,dim], 2, sqrt(abs(x$phi[layer, dim])) * sign(x$phi[layer, dim]), "*")
+  sc[,dim] <- sweep(sc[,dim], 2, sqrt(abs(x$phi[dim])) * sign(x$phi[dim]), "*")
 
   if(isTRUE(rev.axes[1]))
       sc[,dim[1]] <- -sc[,dim[1]]
@@ -238,10 +254,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   if(coords == "cartesian") {
       if(missing(xlab))
-          xlab <- sprintf("Dimension %i (%.2f)", dim[1], x$phi[layer, dim[1]])
+          xlab <- sprintf("Dimension %i (%.2f)", dim[1], x$phi[dim[1]])
 
       if(missing(ylab))
-          ylab <- sprintf("Dimension %i (%.2f)", dim[2], x$phi[layer, dim[2]])
+          ylab <- sprintf("Dimension %i (%.2f)", dim[2], x$phi[dim[2]])
 
       plot(sc[,dim], xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, type="n", ...)
 
@@ -301,7 +317,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
 
   # If no diagonal-specific parameters are present, we use the association of the point to itself
-  dg <- if(nrow(dg) > 1) x$diagonal[layer,] else x$diagonal
+  dg <- x$diagonal
   if(length(dg) == 0)
       dg <- rep(0, nrow(sc))
 

@@ -107,15 +107,15 @@
   data(criminal)
   model <- rc(criminal)
   model$assoc # These are the phi (.07), mu and nu
-  model$assoc$row * model$assoc$phi[1,] # These are the mu'
-  model$assoc$col * model$assoc$phi[1,] # These are the nu'
+  model$assoc$row[,1,1] * model$assoc$phi[1,1] # These are the mu'
+  model$assoc$col[,1,1] * model$assoc$phi[1,1] # These are the nu'
   \dontshow{
       stopifnot(round(model$assoc$phi[1,1], d=2) == 0.07)
       # Scores have reversed signs compared to the orignal article
-      stopifnot(isTRUE(all.equal(round(model$assoc$row[,1], d=2),
+      stopifnot(isTRUE(all.equal(round(model$assoc$row[,1,1], d=2),
                                  c(1.26, 0.82, -0.56, -1.21),
                                  check.attributes=FALSE)))
-      stopifnot(isTRUE(all.equal(round(model$assoc$col[,1], d=2),
+      stopifnot(isTRUE(all.equal(round(model$assoc$col[,1,1], d=2),
                                  c(-1.44, -1.30, -0.33, 1.00, 0.89),
                                  check.attributes=FALSE)))
   }
@@ -135,11 +135,11 @@
   row.scores
   # Column scores
   col.scores <- round(cbind(unweighted$col,
-                            unweighted$col * sqrt(unweighted$phi[1,]),
+                            unweighted$col * sqrt(unweighted$phi[1,1]),
                             marginal$col,
-                            marginal$col * sqrt(marginal$phi[1,]),
+                            marginal$col * sqrt(marginal$phi[1,1]),
                             uniform$col,
-                            uniform$col * sqrt(uniform$phi[1,])), d=2)
+                            uniform$col * sqrt(uniform$phi[1,1])), d=2)
   col.scores
   \dontshow{
       stopifnot(all.equal(c(row.scores),

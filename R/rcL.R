@@ -1,7 +1,7 @@
 ## RC-L with constant scores over time, but different scores for rows and columns
 ## (called homogeneous RC(M) by Wong(2010))
 
-rcL <- function(tab, nd=1, layer.homogeneous=c("both", "rows", "columns", "none"),
+rcL <- function(tab, nd=1, layer.homogeneous=c("both", "none"),
                homogeneous=FALSE, diagonal=FALSE,
                weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
@@ -15,9 +15,6 @@ rcL <- function(tab, nd=1, layer.homogeneous=c("both", "rows", "columns", "none"
 
   if(is.na(nd) || nd <= 0)
       stop("nd must be strictly positive")
-
-  # FIXME
-  stopifnot(layer.homogeneous == "both")
 
   if(homogeneous && nd/2 > min(nrow(tab), ncol(tab)) - 1)
      stop("Number of dimensions of homogeneous model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
@@ -39,8 +36,14 @@ rcL <- function(tab, nd=1, layer.homogeneous=c("both", "rows", "columns", "none"
   if(homogeneous) {
       f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+",
                    vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)
-      for(i in 1:nd)
-          f <- paste(f, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)", vars[3], vars[1], vars[2], i))
+      if(layer.homogeneous == "both") {
+          for(i in 1:nd)
+              f <- paste(f, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)", vars[3], vars[1], vars[2], i))
+      }
+      else {
+          for(i in 1:nd)
+              f <- paste(f, sprintf("+ MultHomog(%s:%s, %:s%s)", vars[3], vars[1], vars[3], vars[2], i))
+      }
 
       if(is.null(start))
           eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, tolerance=%e, iterMax=%i, trace=%s, ...)",
@@ -50,9 +53,14 @@ rcL <- function(tab, nd=1, layer.homogeneous=c("both", "rows", "columns", "none"
                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
   }
   else {
-      f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s, %s, %s), %i)",
-                   vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
-                   vars[3], vars[1], vars[2], nd)
+      if(layer.homogeneous == "both")
+          f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s, %s, %s), %i)",
+                       vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
+                       vars[3], vars[1], vars[2], nd)
+      else
+          f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s:%s, %s:%s), %i)",
+                       vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
+                       vars[3], vars[1], vars[3], vars[2], nd)
 
       if(is.null(start)) {
           eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, tolerance=%e, iterMax=%i, trace=%s, ...)",
@@ -105,6 +113,10 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
                              !is.na(colnames(model$data)),
                              !is.na(dimnames(model$data)[3])])
 
+  nr <- nrow(tab)
+  nc <- ncol(tab)
+  nl <- dim(tab)[3]
+
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weights <- match.arg(weights)
   if(weights == "marginal") {
@@ -112,12 +124,12 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
       cp <- prop.table(margin.table(tab, 2))
   }
   else if(weights == "uniform") {
-      rp <- rep(1/nrow(tab), nrow(tab))
-      cp <- rep(1/ncol(tab), ncol(tab))
+      rp <- rep(1/nr, nr)
+      cp <- rep(1/nc, nc)
   }
   else {
-      rp <- rep(1, nrow(tab))
-      cp <- rep(1, ncol(tab))
+      rp <- rep(1, nr)
+      cp <- rep(1, nc)
   }
 
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
@@ -126,97 +138,182 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   if(length(vars) == 0)
       vars <- c("Var1", "Var2", "Var3")
 
-  # Prepare matrices before filling them
-  row <- matrix(NA, nrow(tab), 0)
-  col <- matrix(NA, ncol(tab), 0)
-  layer <- matrix(NA, dim(tab)[3], 0)
-
+  # Find out the number of dimensions
   nd <- 0
-  while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("inst = %i.*\\.%s", nd+1, vars[1]))]
-      nu <- coef(model)[pickCoef(model, sprintf("inst = %i.*\\.%s", nd+1, vars[2]))]
-      phi <- coef(model)[pickCoef(model, sprintf("inst = %i.*\\.%s", nd+1, vars[3]))]
-
-      if(!(length(mu) == nrow(tab) && length(nu) == ncol(tab) && length(phi) == dim(tab)[3]))
-        break
-
-      # This is a correct dimension, add it
+  while(length(pickCoef(model, paste("Mult.*inst =", nd + 1))) > 0)
       nd <- nd + 1
 
-      row <- cbind(row, mu)
-      col <- cbind(col, nu)
-      layer <- cbind(layer, phi)
-  }
+  layer.homogeneous <- TRUE
 
+  # Only one dimension, or none
   if(nd <= 0) {
-    mu <- coef(model)[pickCoef(model, sprintf("\\.%s", vars[1]))]
-    nu <- coef(model)[pickCoef(model, sprintf("\\.%s", vars[2]))]
-    phi <- coef(model)[pickCoef(model, sprintf("\\.%s", vars[3]))]
+      mu <- coef(model)[pickCoef(model, sprintf("Mult.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[1],
+                                                paste(rownames(tab), collapse="\\E|\\Q")))]
+      nu <- coef(model)[pickCoef(model, sprintf("Mult.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[2],
+                                                paste(colnames(tab), collapse="\\E|\\Q")))]
+      phi <- coef(model)[pickCoef(model, sprintf("Mult.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
-      if(length(mu) == nrow(tab) && length(nu) == ncol(tab) && length(phi) == dim(tab)[3]) {
+      # Homogeneous scores for rows and/or columns
+      if(length(phi) == nl &&
+         (length(mu) == nr || length(mu) == nr * nl) &&
+         (length(nu) == nc || length(nu) == nc * nl)) {
           nd <- 1
 
-          row <- cbind(row, mu)
-          col <- cbind(col, nu)
-          layer <- cbind(layer, phi)
+          if(length(mu) == nr) {
+              row <- array(mu, dim=c(nr, 1, 1))
+          }
+          else {
+              row <- array(mu, dim=c(nr, nl, 1))
+              layer.homogeneous <- FALSE
+          }
+
+          if(length(nu) == nc) {
+              row <- array(nu, dim=c(nc, 1, 1))
+          }
+          else {
+              row <- array(nu, dim=c(nc, nl, 1))
+              layer.homogeneous <- FALSE
+          }
+
+          layer <- matrix(phi, nl, 1)
       }
       else {
-        stop("No dimensions found. Are you sure this is a row-column association model with layer effect?")
+          stop("No dimensions found. Are you sure this is a row-column association model with layer effect?")
       }
   }
 
-  if(nd < 1)
-      stop("No dimensions found. Are you sure this is a row-column association model with layer effect?")
+  # Several dimensions: prepare arrays before filling them
+  row <- array(NA, dim=c(nr, nd, nl))
+  col <- array(NA, dim=c(nc, nd, nl))
+  layer <- matrix(NA, nl, nd)
 
-  dg <- matrix(NA, dim(tab)[3], nrow(tab))
-  dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
+  for(i in 1:nd) {
+      mu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+                                                i, vars[1],
+                                                paste(rownames(tab), collapse="\\E|\\Q")))]
+      nu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+                                                i, vars[2],
+                                                paste(colnames(tab), collapse="\\E|\\Q")))]
+      phi <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                 i, vars[3],
+                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
+
+      # Homogeneous scores for rows and/or columns
+      if(length(phi) == nl &&
+         (length(mu) == nr || length(mu) == nr * nl) &&
+         (length(nu) == nc || length(nu) == nc * nl)) {
+          if(length(mu) == nr)
+              row[,i,1] <- mu
+          else {
+              row[,i,] <- t(matrix(mu, nl, nr))
+              layer.homogeneous <- FALSE
+          }
+
+          if(length(nu) == nc)
+              col[,i,1] <- nu
+          else {
+              col[,i,] <- t(matrix(nu, nl, nc))
+              layer.homogeneous <- FALSE
+          }
+
+          layer[,i] <- phi
+      }
+      # Fully heterogeneous scores
+      else if(length(phi) == 0 &&
+              length(mu) == nr * nl &&
+              length(nu) == nc * nl) {
+          layer.homogeneous <- FALSE
+          row[,i,] <- t(matrix(mu, nl, nr))
+          col[,i,] <- t(matrix(nu, nl, nc))
+          layer[,i] <- 1
+      }
+      else {
+          stop("Invalid dimensions found. Are you sure this is a row-column association model with layer effect?")
+      }
+  }
+
+  if(length(pickCoef(model, "Diag\\(") > 0)) {
+      dg <- matrix(NA, nl, nr)
+      dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
+  }
+  else {
+      dg <- numeric(0)
+  }
 
   # Center
-  row <- sweep(row, 2, colSums(sweep(row, 1, rp/sum(rp), "*")), "-")
-  col <- sweep(col, 2, colSums(sweep(col, 1, cp/sum(cp), "*")), "-")
+  row <- sweep(row, 2:3, margin.table(sweep(row, 1, rp/sum(rp), "*"), 2:3), "-")
+  col <- sweep(col, 2:3, margin.table(sweep(col, 1, cp/sum(cp), "*"), 2:3), "-")
 
-  # Scale
-  phi.row <- sqrt(colSums(sweep(row^2, 1, rp, "*")))
-  phi.col <- sqrt(colSums(sweep(col^2, 1, cp, "*")))
-  row <- sweep(row, 2, phi.row, "/")
-  col <- sweep(col, 2, phi.col, "/")
-  layer <- sweep(layer, 2, phi.row * phi.col, "*")
+  if(layer.homogeneous) {
+      # Scale
+      phi.row <- sqrt(margin.table(sweep(row[,,1, drop=FALSE]^2, 1, rp, "*"), 2))
+      phi.col <- sqrt(margin.table(sweep(col[,,1, drop=FALSE]^2, 1, cp, "*"), 2))
+      row <- sweep(row[,,1, drop=FALSE], 2, phi.row, "/")
+      col <- sweep(col[,,1, drop=FALSE], 2, phi.col, "/")
+      layer <- sweep(layer, 2, phi.row * phi.col, "*")
 
-  # Order dimensions according to phi on first layer category
-  ord <- order(abs(layer[1,]), decreasing=TRUE)
-  layer <- layer[, ord, drop=FALSE]
-  row <- row[, ord, drop=FALSE]
-  col <- col[, ord, drop=FALSE]
-
-  # By convention, keep layer coefficients positive for the first layer category
-  for(i in 1:nd) {
-      if(layer[1,i] < 0) {
-          layer[,i] <- -layer[,i]
-          row[,i] <- -row[,i]
+      # Order dimensions according to phi on first layer category
+      ord <- order(abs(layer[1,]), decreasing=TRUE)
+      layer <- layer[,ord, drop=FALSE]
+      row <- row[,ord,, drop=FALSE]
+      col <- col[,ord,, drop=FALSE]
+  }
+  else {
+      for(l in 1:nl) {
+          # Technique proposed in Goodman (1991), Appendix 4
+          lambda <- matrix(0, nr, nc)
+          for(i in 1:nd) {
+              lambda <- lambda + layer[l,i] * row[,i,l] %o% col[,i,l]
+          }
+          lambda0 <- lambda * sqrt(rp %o% cp) # Eq. A.4.3
+          sv <- svd(lambda0)
+          row[,,l] <- diag(1/sqrt(rp)) %*% sv$u[,1:nd] # Eq. A.4.7
+          col[,,l] <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
+          layer[l,] <- sv$d[1:nd]
       }
   }
 
-  # Since the sign of scores is arbitrary, conventionnally choose positive scores
+  # By convention, keep layer coefficients positive for the first layer category
+  if(layer.homogeneous) {
+      for(i in 1:nd) {
+          if(layer[1,i] < 0) {
+              layer[,i] <- -layer[,i]
+              row[,i,] <- -row[,i,]
+          }
+      }
+  }
+
+  # Since the sign of scores is arbitrary, conventionally choose positive scores
   # for the first row category: this ensures the results are stable when jackknifing.
-  for(i in 1:nd) {
-      if(row[1,i] < 0) {
-          row[,i] <- -row[,i]
-          col[,i] <- -col[,i]
+  for(i in 1:dim(row)[3]) {
+      for(j in 1:nd) {
+          if(row[1,j,i] < 0) {
+              row[,j,i] <- -row[,j,i]
+              col[,j,i] <- -col[,j,i]
+          }
       }
   }
 
   ## Prepare objects
-  colnames(row) <- colnames(col) <- colnames(layer) <- paste("Dim", 1:nd, sep="")
-
   rownames(row) <- rownames(tab)
   rownames(col) <- colnames(tab)
+  colnames(row) <- colnames(col) <- colnames(layer) <- paste("Dim", 1:nd, sep="")
   rownames(layer) <- dimnames(tab)[[3]]
+
+  if(!layer.homogeneous)
+      dimnames(row)[[3]] <- dimnames(col)[[3]] <- dimnames(tab)[[3]]
+  else
+      dimnames(row)[[3]] <- dimnames(col)[[3]] <- "All levels"
 
   if(length(dg) > 0) {
       colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
                       else paste(rownames(tab), colnames(tab), sep=":")
       rownames(dg) <- dimnames(tab)[[3]]
   }
+
+  if(!is.matrix(dg))
+      dg <- rbind(dg)
 
   obj <- list(phi = layer, row = row, col = col, diagonal = dg,
               weighting = weights, row.weights = rp, col.weights = cp)
@@ -234,14 +331,18 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
                              !is.na(colnames(model$data)),
                              !is.na(dimnames(model$data)[3])])
 
+  nr <- nrow(tab)
+  nc <- ncol(tab)
+  nl <- dim(tab)[3]
+
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weights <- match.arg(weights)
   if(weights == "marginal")
       p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
   else if(weights == "uniform")
-      p <- rep(1/nrow(tab), nrow(tab))
+      p <- rep(1/nr, nr)
   else
-      p <- rep(1, nrow(tab))
+      p <- rep(1, nr)
 
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
@@ -249,79 +350,129 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
   if(length(vars) == 0)
       vars <- c("Var1", "Var2", "Var3")
 
-  # Prepare matrices before filling them
-  sc <- matrix(NA, nrow(tab), 0)
-  layer <- matrix(NA, dim(tab)[3], 0)
 
+  # Find out the number of dimensions
   nd <- 0
-  while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("inst = %i.*\\.%s\\|%s", nd+1, vars[1], vars[2]))]
-      phi <- coef(model)[pickCoef(model, sprintf("inst = %i.*\\.%s", nd+1, vars[3]))]
-
-      if(!(length(mu) == nrow(tab) && length(phi) == dim(tab)[3]))
-        break
-
-      # This is a correct dimension, add it
+  while(length(pickCoef(model, paste("Mult.*MultHomog.*inst =", nd + 1))) > 0)
       nd <- nd + 1
 
-      sc <- cbind(sc, mu)
-      layer <- cbind(layer, phi)
-  }
+  layer.homogeneous <- TRUE
 
+  # Only one dimension, or none
   if(nd <= 0) {
-    mu <- coef(model)[pickCoef(model, sprintf("\\.%s\\|%s", vars[1], vars[2]))]
-    phi <- coef(model)[pickCoef(model, sprintf("\\.%s", vars[3]))]
+      mu <- coef(model)[pickCoef(model, sprintf("Mult.*MultHomog.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+                                                vars[1], vars[2],
+                                                paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
+      phi <- coef(model)[pickCoef(model, sprintf("Mult.*MultHomog.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
-      if(length(mu) == nrow(tab) && length(phi) == dim(tab)[3]) {
+      # Homogeneous scores
+      if(length(phi) == nl &&
+         (length(mu) == nr || length(mu) == nr * nl)) {
           nd <- 1
 
-          sc <- cbind(sc, mu)
-          layer <- cbind(layer, phi)
+          if(length(mu) == nr) {
+              sc <- array(mu, dim=c(nr, 1, 1))
+          }
+          else {
+              sc <- array(mu, dim=c(nr, nl, 1))
+              layer.homogeneous <- FALSE
+          }
+
+          layer <- matrix(phi, nl, 1)
       }
       else {
-        stop("No dimensions found. Are you sure this is an homogeneous row-column association model with layer effect?")
+          stop("No dimensions found. Are you sure this is an homogeneous row-column association model with layer effect?")
       }
   }
 
-  if(nd < 1)
-      stop("No dimensions found. Are you sure this is an homogeneous row-column association model with layer effect?")
+  # Several dimensions: prepare arrays before filling them
+  sc <- array(NA, dim=c(nr, nd, nl))
+  layer <- matrix(NA, nl, nd)
 
-  dg <- matrix(NA, dim(tab)[3], nrow(tab))
-  dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
+  for(i in 1:nd) {
+      mu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %i.*MultHomog.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+                                                i, vars[1], vars[2],
+                                                paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
+      phi <- coef(model)[pickCoef(model, sprintf("Mult.*MultHomog.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$", i, vars[3],
+                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
+
+      # Homogeneous scores
+      if(length(phi) == nl &&
+         (length(mu) == nr || length(mu) == nr * nl)) {
+          if(length(mu) == nr)
+              sc[,i,1] <- mu
+          else {
+              sc[,i,] <- t(matrix(mu, nl, nr))
+              layer.homogeneous <- FALSE
+          }
+
+          layer[,i] <- phi
+      }
+      # Fully heterogeneous scores
+      else if(length(phi) == 0 &&
+              length(mu) == nr * nl) {
+          layer.homogeneous <- FALSE
+          sc[,i,] <- t(matrix(mu, nl, nr))
+          layer[,i] <- 1
+      }
+      else {
+          stop("Invalid dimensions found. Are you sure this is an homogeneous row-column association model with layer effect?")
+      }
+  }
+
+  if(length(pickCoef(model, "Diag\\(") > 0)) {
+      dg <- matrix(NA, nl, nr)
+      dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
+  }
+  else {
+      dg <- numeric(0)
+  }
 
   # Center
-  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
+  sc <- sweep(sc, 2:3, margin.table(sweep(sc, 1, p/sum(p), "*"), 2:3), "-")
 
-  # Scale
-  phi <- sqrt(colSums(sweep(sc^2, 1, p/sum(p), "*")))
-  sc <- sweep(sc, 2, phi, "/")
-  layer <- sweep(layer, 2, phi, "*")
+  if(layer.homogeneous) {
+      # Scale
+      phi <- sqrt(margin.table(sweep(sc[,,1, drop=FALSE]^2, 1, p/sum(p), "*"), 2))
+      sc <- sweep(sc[,,1, drop=FALSE], 2, phi, "/")
+      layer <- sweep(layer, 2, phi, "*")
 
-  # Order dimensions according to phi on first layer category
-  ord <- order(layer[1,], decreasing=TRUE)
-  layer <- layer[, ord, drop=FALSE]
-  sc <- sc[, ord, drop=FALSE]
-
-  # By convention, keep layer coefficients positive for the first layer category
-  for(i in 1:nd) {
-      if(layer[1,i] < 0) {
-          layer[,i] <- -layer[,i]
-          row[,i] <- -row[,i]
+      # Order dimensions according to phi on first layer category
+      ord <- order(layer[1,], decreasing=TRUE)
+      layer <- layer[,ord, drop=FALSE]
+      sc <- sc[,ord,, drop=FALSE]
+  }
+  else {
+      for(l in 1:nl) {
+          # Technique proposed in Goodman (1991), Appendix 4, but with eigenvalues decomposition
+          lambda <- matrix(0, nr, nc)
+          for(i in 1:nd)
+              lambda <- lambda + sc[,i,l] %o% sc[,i,l]
+          lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
+          eigen <- eigen(lambda0, symmetric=TRUE)
+          sc[,,l] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
+          layer[l,] <- eigen$values[1:nd]
       }
   }
 
-  # Since the sign of scores is arbitrary, conventionnally choose positive scores
+  # Since the sign of scores is arbitrary, conventionally choose positive scores
   # for the first category: this ensures the results are stable when jackknifing.
-  for(i in 1:nd) {
-      if(sc[1,i] < 0)
-          sc[,i] <- -sc[,i]
+  for(i in 1:dim(sc)[3]) {
+      for(j in 1:nd) {
+          if(sc[1,j,i] < 0)
+              sc[,j,i] <- -sc[,j,i]
+      }
   }
 
   ## Prepare objects
+  rownames(sc) <- rownames(tab)
   colnames(sc) <- colnames(layer) <- paste("Dim", 1:nd, sep="")
 
-  rownames(sc) <- rownames(tab)
-  rownames(layer) <- dimnames(tab)[[3]]
+  if(!layer.homogeneous)
+      dimnames(sc)[[3]] <- dimnames(tab)[[3]]
+  else
+      dimnames(sc)[[3]] <- "All levels"
 
   if(length(dg) > 0) {
       colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)

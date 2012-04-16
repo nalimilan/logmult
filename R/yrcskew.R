@@ -216,13 +216,17 @@ assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) 
 
 
   ## Prepare objects
+  phi <- rbind(c(phisk))
+  dim(sc)[3] <- 1
   names(phisk) <- NULL
-  colnames(sc) <- paste("Dim", 1:nd, sep="")
+  colnames(sc) <- colnames(phisk) <- paste("Dim", 1:nd, sep="")
   rownames(sc) <- rownames(tab)
-  if(length(dg) > 0)
-      names(dg) <- rownames(tab)
+  if(length(dg) > 0) {
+      dg <- rbind(c(dg))
+      colnames(dg) <- rownames(tab)
+  }
 
-  obj <- list(phi = rbind(phisk), row = sc, col = sc,  diagonal = dg,
+  obj <- list(phi = phisk, row = sc, col = sc,  diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("assoc.yrcskew", "assoc")
@@ -347,14 +351,18 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
 
 
   ## Prepare objects
-  colnames(sc) <- paste("Dim", 1:nd, sep="")
+  phi <- rbind(c(phi))
+  dim(sc)[3] <- dim(scsk)[3] <- 1
+  colnames(sc) <- colnames(phi) <- paste("Dim", 1:nd, sep="")
   colnames(scsk) <- paste("Dim", 1:ndsk, sep="")
   rownames(sc) <- rownames(scsk) <- rownames(tab)
-  if(length(dg) > 0)
-      names(dg) <- rownames(tab)
+  if(length(dg) > 0) {
+      dg <- rbind(dg)
+      colnames(dg) <- rownames(tab)
+  }
 
-  obj <- list(phi = rbind(phi), row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk, diagonal = dg,
-              weighting = weights, row.weights = p, col.weights = p)
+  obj <- list(phi = phi, row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk,
+              diagonal = dg, weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("rc.skew.homog", "rc.skew")
   obj

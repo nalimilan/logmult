@@ -106,16 +106,16 @@ Milan Bouchet-Valat
   model <- hmskew(ocg1973[5:1, 5:1], weights="uniform")
   ass <- model$assoc.hmskew
   # First column of the table
-  round(ass$row * sqrt(ass$phi[1]), d=2)[5:1,]
+  round(ass$row[,,1] * sqrt(ass$phi[1,1]), d=2)[5:1,]
   \dontshow{
       # First score for Farmers is slightly different from the original article
-      stopifnot(isTRUE(all.equal(round(ass$row * sqrt(ass$phi[1]), d=2)[5:1,],
+      stopifnot(isTRUE(all.equal(round(ass$row[,,1] * sqrt(ass$phi[1,1]), d=2)[5:1,],
                                        matrix(c(-0.08, -0.2, -0.23, -0.11, 0.61,
                                                  0.34,  0.3, -0.13, -0.51, 0), 5, 2),
                                  check.attributes=FALSE)))
   }
   # Right part of the table
-  round(ass$phi[1] * (ass$row[,2] \%o\% ass$row[,1] - ass$row[,1] \%o\% ass$row[,2]), d=3)[5:1, 5:1]
+  round(ass$phi[1] * (ass$row[,2,1] \%o\% ass$row[,1,1] - ass$row[,1,1] \%o\% ass$row[,2,1]), d=3)[5:1, 5:1]
   # Plot
   plot(model, coords="cartesian")
 }

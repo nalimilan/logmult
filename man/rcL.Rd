@@ -10,7 +10,7 @@
   scores, possibly combined with separate diagonal parameters.
 }
 \usage{
-  rcL(tab, nd = 1, layer.homogeneous=c("both", "rows", "columns", "none"),
+  rcL(tab, nd = 1, layer.homogeneous=c("both", "none"),
      homogeneous = FALSE, diagonal = FALSE,
      weights = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
@@ -19,11 +19,10 @@
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
     if present, dimensions above three will be collapsed as appropriate.}
-#FIXME
   \item{nd}{ the number of dimensions to include in the model. Cannot exceed
     \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{homogeneous} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
-  \item{layer.homogeneous} { what scores should be forced to be equal accross layers?}
+  \item{layer.homogeneous}{ what scores should be forced to be equal accross layers?}
   \item{homogeneous}{ should row and column scores be constrained to be equal? For rectangular tables,
     applies to common row and column levels.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
@@ -100,25 +99,51 @@
 }
 \examples{
   ## Wong (2010), Table 4.7 (p. 103), model 9
-  data(gender)
+  data(gss7590)
   \dontshow{
       # Limit the workload for CRAN checks
       options(cl.cores=2)
   }
-  model <- rcL(gender, nd=2, weights="none", std.err="jackknife")
-  model$assoc
-  se.rcL(model) # Jackknife standard errors are slightly different than their asymptotic counterparts
+  model <- rcL(gss7590, nd=2, weights="none", std.err="jackknife")
+  model
+  se.rcL(model) # Jackknife standard errors are slightly different
+                # from their asymptotic counterparts
   # See ?plot.rcL for plotting
   \dontshow{
       stopifnot(all.equal(round(c(model$assoc$phi), d=3),
                           c(3.075, 3.474,  2.949, 2.460,
                             0.539, 1.686, -0.770, 1.891)))
-      stopifnot(all.equal(round(c(model$assoc$row), d=3),
+      stopifnot(all.equal(round(c(model$assoc$row[,,1]), d=3),
                           c(0.640,  0.239, -0.168, -0.711,
                             0.731, -0.217, -0.636,  0.121)))
-      stopifnot(all.equal(round(c(model$assoc$col), d=3),
+      stopifnot(all.equal(round(c(model$assoc$col[,,1]), d=3),
                           c(0.765,  0.250, -0.398, -0.273, -0.344,
                             0.071, -0.480, -0.198, -0.216,  0.824)))
+
+     # Check scores of heterogeneous model (scores not given by Wong)
+     model.heterog <- rcL(gss7590, nd=2, layer.homogeneous="none",
+                          weights="none", tolerance=1e-8)
+     sep.models <- lapply(1:4, function(i)
+         rc(gss7590[,,i], nd=2,weights="none", tolerance=1e-8))
+     # Level 2 does not converge properly because there are too few farmers:
+     # values are always slightly different and cannot be checked
+     stopifnot(isTRUE(all.equal(model.heterog$assoc$phi[-2,],
+                                rbind(sep.models[[1]]$assoc$phi,
+                                      sep.models[[3]]$assoc$phi,
+                                      sep.models[[4]]$assoc$phi),
+                                check.attributes=FALSE)))
+     stopifnot(isTRUE(all.equal(model.heterog$assoc$row[,,-2],
+                                array(c(sep.models[[1]]$assoc$row,
+                                      sep.models[[3]]$assoc$row,
+                                      sep.models[[4]]$assoc$row),
+                                      dim=c(nrow(gss7590), 2, 3)),
+                                check.attributes=FALSE)))
+     stopifnot(isTRUE(all.equal(model.heterog$assoc$col[,,-2],
+                                array(c(sep.models[[1]]$assoc$col,
+                                      sep.models[[3]]$assoc$col,
+                                      sep.models[[4]]$assoc$col),
+                                      dim=c(ncol(gss7590), 2, 3)),
+                                check.attributes=FALSE)))
   }
 }
 

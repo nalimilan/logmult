@@ -149,7 +149,7 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   ## Normalize, cf. Clogg & Shihadeh (1994), eq. 5.3 et 5.4 (p. 83)
   # Center
   sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
-  # Technique proposed in van der Heijden & Moiijaart (1995), Appendix C
+  # Technique proposed in van der Heijden & Mooijaart (1995), Appendix C
   # Weighted SVD taken from Goodman (1991), Appendix 4
   lambda <- sc[,2] %o% sc[,1] - sc[,1] %o% sc[,2]
   lambda0 <- sqrt(p %o% p) * lambda # Eq. A.4.3
@@ -178,12 +178,16 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   sc <- sc %*% matrix(c(cos(angle), sin(angle), -sin(angle), cos(angle)), 2, 2)
 
   ## Prepare objects
-  colnames(sc) <- paste("Dim", 1:2, sep="")
+  phi <- rbind(c(phi))
+  dim(sc)[3] <- 1
+  colnames(sc) <- colnames(phi) <- paste("Dim", 1:2, sep="")
   rownames(sc) <- rownames(tab)
-  if(length(dg) > 0)
-      names(dg) <- rownames(tab)
+  if(length(dg) > 0) {
+      dg <- rbind(c(dg))
+      colnames(dg) <- rownames(tab)
+  }
 
-  obj <- list(phi = rbind(phi), row = sc, col= sc, diagonal = dg,
+  obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
   class(obj) <- c("hmskew.assoc", "assoc")

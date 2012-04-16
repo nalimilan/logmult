@@ -149,16 +149,20 @@
   plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
 
   ## Wong (2010), Figures 4.1 and 4.2 (p. 108-109)
-  data(gender)
-  model <- rcL(gender, nd=2, weights="none")
+  data(gss7590)
+  model <- rcL(gss7590, nd=2, weights="none")
+
   par(mfrow=c(2, 2))
   for(i in 1:4)
       plot(model, layer=i, what="rows", rev.axes=c(TRUE, FALSE),
-           main=rownames(model$assoc$phi)[i], xlim=c(-1.2, 1.2), ylim=c(-1.2, 1.2))
+           main=rownames(model$assoc$phi)[i],
+           xlim=c(-1.2, 1.2), ylim=c(-1.2, 1.2))
+
   par(mfrow=c(2, 2))
   for(i in 1:4)
       plot(model, layer=i, what="col", rev.axes=c(TRUE, FALSE),
-           main=rownames(model$assoc$phi)[i], xlim=c(-1.4, 1.4), ylim=c(-1, 1))
+           main=rownames(model$assoc$phi)[i],
+           xlim=c(-1.4, 1.4), ylim=c(-1.2, 1.2))
 
 
   ## van der Heijden & Mooijaart (1995), Figure 1c (p. 23)
