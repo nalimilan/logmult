@@ -1,6 +1,6 @@
 ## RC(M) model
 
-rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
+rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
   weights <- match.arg(weights)
@@ -13,10 +13,10 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
   if(is.na(nd) || nd <= 0)
       stop("nd must be strictly positive")
 
-  if(homogeneous && nd/2 > min(nrow(tab), ncol(tab)) - 1)
-      stop("Number of dimensions of homogeneous model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
+  if(symmetric && nd/2 > min(nrow(tab), ncol(tab)) - 1)
+      stop("Number of dimensions of symmetric model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
 
-  if(!homogeneous && nd > min(nrow(tab), ncol(tab)) - 1)
+  if(!symmetric && nd > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
 
   if(length(dim(tab)) > 2)
@@ -33,7 +33,7 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
   else
       diagstr <- ""
 
-  if(homogeneous) {
+  if(symmetric) {
       f <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
 
@@ -64,7 +64,7 @@ rc <- function(tab, nd=1, homogeneous=FALSE, diagonal=FALSE,
   if(is.null(model))
       return(NULL)
 
-  newclasses <- if(homogeneous) c("rc.homog", "rc") else "rc"
+  newclasses <- if(symmetric) c("rc.symm", "rc") else "rc"
   class(model) <- c(newclasses, class(model))
 
   model$assoc <- assoc(model, weights=weights)
@@ -197,8 +197,8 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   obj
 }
 
-## RC(M) model with homogeneous row and column scores
-assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...) {
+## RC(M) model with symmetric row and column scores
+assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -239,7 +239,7 @@ assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...)
           sc <- cbind(sc, mu)
       }
       else {
-          stop("No dimensions found. Are you sure this is a row-column association model with homogeneous row and column scores?")
+          stop("No dimensions found. Are you sure this is a row-column association model with symmetric row and column scores?")
       }
   }
 
@@ -258,7 +258,7 @@ assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...)
   sc[,1:nd] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
   phi <- eigen$values[1:nd]
 
-  # FIXME: does not apply to homogeneous scores
+  # FIXME: does not apply to symmetric scores
   # Since the sign of scores is arbitrary, conventionally choose positive scores
   # for the first category: this ensures the results are stable when jackknifing.
   for(i in 1:nd) {
@@ -280,7 +280,7 @@ assoc.rc.homog <- function(model, weights=c("marginal", "uniform", "none"), ...)
   obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
-  class(obj) <- c("rc.homog.assoc", "rc.assoc", "assoc")
+  class(obj) <- c("rc.symm.assoc", "rc.assoc", "assoc")
   obj
 }
 

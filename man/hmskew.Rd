@@ -6,7 +6,7 @@
   \code{hmskew} fits a skew-symmetric association model proposed in
   van der Heijden & Mooijaart (1995) to describe asymmetry of square tables.
   This model can be combined with symmetric association models like a quasi-symmetry
-  (the default) or homogeneous RC(M) models.
+  (the default) or symmetric (homogeneous) RC(M) models.
 }
 \usage{
 hmskew(tab, nd.symm = NA, diagonal = FALSE,
@@ -63,7 +63,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
   of scores even with several dimensions, computation of their jackknife standard errors, and plotting.
 }
 \value{
-  A \code{hmskew} object, which is a subclass of an \code{rc.homog} object (see \code{\link{rc}}) unless
+  A \code{hmskew} object, which is a subclass of an \code{rc.symm} object (see \code{\link{rc}}) unless
     \code{nd} is \code{NA}. In addition to this class, it contains a \code{hmskew.assoc} component holding
     information about the \emph{asymmetric} association:
   \item{phi }{The intrisic association parameters, one per dimension.}

@@ -19,16 +19,16 @@ plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
              xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, ...)
 }
 
-plot.rc.homog <- function(x, dim=c(1, 2),
-                          mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
-                          conf.ellipses=FALSE, coords=c("cartesian", "polar"),
-                          rev.axes=c(FALSE, FALSE), cex=par("cex"),
-                          col="dark grey", groups=NULL,
-                          xlim, ylim, xlab, ylab, ...) {
+plot.rc.symm <- function(x, dim=c(1, 2),
+                         mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
+                         conf.ellipses=FALSE, coords=c("cartesian", "polar"),
+                         rev.axes=c(FALSE, FALSE), cex=par("cex"),
+                         col="dark grey", groups=NULL,
+                         xlim, ylim, xlab, ylab, ...) {
   coords <- match.arg(coords)
 
-  if(!inherits(x, "rc.homog"))
-      stop("x must be a rc.homog object")
+  if(!inherits(x, "rc.symm"))
+      stop("x must be a rc.symm object")
 
   if(!length(x$assoc) > 0)
       stop("x must contain an association component")
@@ -123,17 +123,17 @@ plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
              xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, ...)
 }
 
-plot.rcL.homog <- function(x, dim=c(1, 2), layer=1,
-                           mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
-                           conf.ellipses=FALSE, coords=c("cartesian", "polar"),
-                           rev.axes=c(FALSE, FALSE), cex=par("cex"),
-                           col=c("blue", "red"), groups=NULL,
-                           xlim, ylim, xlab, ylab, ...) {
+plot.rcL.symm <- function(x, dim=c(1, 2), layer=1,
+                          mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
+                          conf.ellipses=FALSE, coords=c("cartesian", "polar"),
+                          rev.axes=c(FALSE, FALSE), cex=par("cex"),
+                          col=c("blue", "red"), groups=NULL,
+                          xlim, ylim, xlab, ylab, ...) {
   what <- match.arg(what)
   coords <- match.arg(coords)
 
-  if(!inherits(x, "rcL.homog"))
-      stop("x must be a rcL.homog object")
+  if(!inherits(x, "rcL.symm"))
+      stop("x must be a rcL.symm object")
 
   if(!length(x$assoc) > 0)
       stop("x must contain an association component")
@@ -196,7 +196,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(length(x$diagonal) > 0)
       x$diagonal <- x$diagonal[layer,]
 
-  if(inherits(x, "rc.homog.assoc")) {
+  if(inherits(x, "rc.symm.assoc")) {
        stopifnot(identical(x$row, x$col))
        sc <- x$row
        p <- x$row.weights

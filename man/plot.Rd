@@ -1,11 +1,11 @@
 \name{plot.assoc}
 \alias{plot.assoc}
 \alias{plot.rc}
-\alias{plot.rc.homog}
+\alias{plot.rc.symm}
 \alias{plot.hmskew}
 \alias{plot.yrcskew}
 \alias{plot.rcL}
-\alias{plot.rcL.homog}
+\alias{plot.rcL.symm}
 \title{Plotting Scores from Association Models}
 \description{Graphical display of scores from association models in two dimensions}
 \usage{
@@ -16,7 +16,7 @@
      col = c("blue", "red"), groups = NULL,
      xlim, ylim, xlab, ylab, ...)
 
-\method{plot}{rc.homog}(x, dim = c(1, 2),
+\method{plot}{rc.symm}(x, dim = c(1, 2),
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
@@ -45,7 +45,7 @@
      col = c("blue", "red"), groups = NULL,
      xlim, ylim, xlab, ylab, ...)
 
-\method{plot}{rcL.homog}(x, dim = c(1, 2), layer = 1,
+\method{plot}{rcL.symm}(x, dim = c(1, 2), layer = 1,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),

@@ -97,10 +97,10 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   if(is.null(model))
       return(NULL)
 
-  class(model) <- c("yrcskew", "rc.homog", "rc", class(model))
+  class(model) <- c("yrcskew", "rc.symm", "rc", class(model))
 
   if(!is.na(nd.symm))
-      model$assoc <- assoc.rc.homog(model, weights=weights)
+      model$assoc <- assoc.rc.symm(model, weights=weights)
   else
       model$assoc <- list()
 
@@ -108,7 +108,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
 
   if(std.err == "jackknife") {
-      assoc1 <- if(is.na(nd.symm)) assoc.yrcskew else assoc.rc.homog
+      assoc1 <- if(is.na(nd.symm)) assoc.yrcskew else assoc.rc.symm
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.yrcskew
 
       cat("Computing jackknife standard errors...\n")
@@ -276,7 +276,7 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
           sc <- cbind(sc, mu)
       }
       else {
-          stop("No dimensions found. Are you sure this is a row-column association model with homogeneous row and column scores?")
+          stop("No dimensions found. Are you sure this is a row-column association model with symmetric row and column scores?")
       }
   }
 
@@ -304,13 +304,13 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
           scsk <- cbind(scsk, musk)
       }
       else {
-          stop("No skew dimensions found. Are you sure this is a row-column association model with homogeneous row and column scores plus skewness?")
+          stop("No skew dimensions found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
       }
   }
 
   skew <- coef(model)[pickCoef(model, "MultHomog.*skew\\)$")]
   if(length(skew) != ndsk)
-      stop("skew coefficients not found. Are you sure this is a row-column association model with homogeneous row and column scores plus skewness?")
+      stop("skew coefficients not found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
 
   dg <- coef(model)[pickCoef(model, "Diag\\(")]
   dg <- dg[match(order(names(dg)), order(rownames(tab)))]

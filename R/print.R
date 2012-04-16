@@ -20,7 +20,7 @@ print.rc <- function(x, ...) {
       "AIC:", round(extractAIC(x)[2]), "\n")
 }
 
-print.rc.homog <- function(x, ...) {
+print.rc.symm <- function(x, ...) {
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
@@ -134,7 +134,7 @@ print.rcL <- function(x, ...) {
       "AIC:", round(extractAIC(x)[2]), "\n")
 }
 
-print.rcL.homog <- function(x, ...) {
+print.rcL.symm <- function(x, ...) {
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")

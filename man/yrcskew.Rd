@@ -5,7 +5,8 @@
 \description{
   \code{yrcskew} fits a skew-symmetric association model proposed in Yamaguchi (1990)
   to describe asymmetry of square tables. This model can be combined with symmetric
-  association models like a quasi-symmetry (the default) or homogeneous RC(M) models.
+  association models like a quasi-symmetry (the default) or symmetric (homogeneous)
+  RC(M) models.
 }
 \usage{
 yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
@@ -67,7 +68,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   of scores even with several dimensions, computation of their jackknife standard errors, and plotting.
 }
 \value{
-  A \code{yrcskew} object, which is a subclass of an \code{rc.homog} object (see\code{\link{rc}}) unless
+  A \code{yrcskew} object, which is a subclass of an \code{rc.symm} object (see\code{\link{rc}}) unless
     \code{nd.symm} is \code{NA}. In addition to this class, it contains a \code{yrcskew.assoc} component
     holding information about the \emph{skew-symmetric} association:
   \item{phi }{The intrisic association parameters, one per dimension.}
@@ -106,8 +107,8 @@ Milan Bouchet-Valat
   ## Yamaguchi (1990), Table 5, p. 202, and Table 6B, p. 205
   data(ocg1973)
 
-  # Simple homogeneous RC(1) model ("Null skew-symmetry")
-  rc.model <- rc(ocg1973, diagonal=TRUE, homogeneous=TRUE, weights="none")
+  # Simple symmetric RC(1) model ("Null skew-symmetry")
+  rc.model <- rc(ocg1973, diagonal=TRUE, symmetric=TRUE, weights="none")
   # Reported phi is slightly different, coefficients agree
   rc.model
   \dontshow{

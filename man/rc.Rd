@@ -1,15 +1,15 @@
 \name{rc}
 \alias{rc}
 \alias{print.rc}
-\alias{print.rc.homog}
+\alias{print.rc.symm}
 \title{Fitting Row-Column Association Models}
 \description{
   \code{rc} fits log-multiplicative row-column association models first introduced
-  by Goodman (1979), with one or several dimensions. Supported variants (for square tables, mainly)
-  include homogeneous row and column scores, and separate diagonal parameters.
+  by Goodman (1979), with one or several dimensions. Supported variants (for square tables)
+  include symmetric (homogeneous) row and column scores, and separate diagonal parameters.
 }
 \usage{
-  rc(tab, nd = 1, homogeneous = FALSE, diagonal = FALSE,
+  rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
      weights = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
      start=NULL, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
@@ -18,12 +18,11 @@
   \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;
     if present, dimensions above two will be collapsed as appropriate.}
   \item{nd}{ the number of dimensions to include in the model. Cannot exceed
-    \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{homogeneous} is \code{FALSE} (saturated model),
+    \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
-  \item{homogeneous}{ should row and column scores be constrained to be equal? For rectangular tables,
-    applies to common row and column levels.}
+  \item{symmetric}{ should row and column scores be constrained to be equal? Valid only for square tables.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
-    taking quasi-independence, rather than independence, as the baseline model.}
+    taking quasi-independence, rather than independence, as the baseline model. Valid only for square tables.}
   \item{weights}{ what weights should be used when normalizing the scores.}
   \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}

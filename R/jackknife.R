@@ -275,7 +275,7 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
   }
 
   std.errs$col <- ass$col
-  if(inherits(ass, "assoc.rc.homog")) {
+  if(inherits(ass, "assoc.rc.symm")) {
       std.errs$col <- std.errs$row
   }
   else {

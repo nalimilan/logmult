@@ -1,17 +1,17 @@
 \name{rcL}
 \alias{rcL}
 \alias{print.rcL}
-\alias{print.rcL.homog}
+\alias{print.rcL.symm}
 \title{Fitting Row-Column Association Models With Layer Effect}
 \description{
   \code{rcL} fits log-multiplicative row-column association models with layer effect,
   with one or several dimensions. Supported variants include homogeneous or heterogeneous
-  scores over the layer variable, and (for square tables, mainly) homogeneous row and column
-  scores, possibly combined with separate diagonal parameters.
+  scores over the layer variable, and (for square tables) symmetric (homogeneous)
+  row and column scores, possibly combined with separate diagonal parameters.
 }
 \usage{
-  rcL(tab, nd = 1, layer.homogeneous=c("both", "none"),
-     homogeneous = FALSE, diagonal = FALSE,
+  rcL(tab, nd = 1, homogeneous=c("both", "none"),
+     symmetric = FALSE, diagonal = FALSE,
      weights = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
      start=NULL, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
@@ -20,13 +20,13 @@
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
     if present, dimensions above three will be collapsed as appropriate.}
   \item{nd}{ the number of dimensions to include in the model. Cannot exceed
-    \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{homogeneous} is \code{FALSE} (saturated model),
+    \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
-  \item{layer.homogeneous}{ what scores should be forced to be equal accross layers?}
-  \item{homogeneous}{ should row and column scores be constrained to be equal? For rectangular tables,
-    applies to common row and column levels.}
+  \item{homogeneous}{ what scores should be forced to be equal accross layers?}
+  \item{symmetric}{ should row and column scores be constrained to be equal? Valid only for square tables.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
-    taking quasi-independence, rather than independence, as the baseline model.}
+    taking quasi-conditional independence, rather than conditional independence, as the baseline model.
+    Valid only for square tables.}
   \item{weights}{ what weights should be used when normalizing the scores.}
   \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
@@ -51,9 +51,9 @@
   Wong) RC(M)-L models, typically following the equation:
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k + \sum_{m=1}^M { \phi_{km} \mu_{ikm} \nu_{jkm} } }
   where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
-  \code{tab}, and M the number of dimensions. If \code{layer.homogeneous} is set to \sQuote{rows} (resp. \sQuote{columns}),
+  \code{tab}, and M the number of dimensions. If \code{homogeneous} is set to \sQuote{rows} (resp. \sQuote{columns}),
   then \eqn{\mu_{ikm} = \mu_{im}} (resp. \eqn{\nu_{ikm} = \nu_{im}} for all layers k; both conditions apply if
-  \code{layer.homogeneous} is set to \sQuote{both}. See references for detailed information about the
+  \code{homogeneous} is set to \sQuote{both}. See references for detailed information about the
   variants of the model, the degrees of freedom and the identification constraints applied to the scores.
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
@@ -121,7 +121,7 @@
                             0.071, -0.480, -0.198, -0.216,  0.824)))
 
      # Check scores of heterogeneous model (scores not given by Wong)
-     model.heterog <- rcL(gss7590, nd=2, layer.homogeneous="none",
+     model.heterog <- rcL(gss7590, nd=2, homogeneous="none",
                           weights="none", tolerance=1e-8)
      sep.models <- lapply(1:4, function(i)
          rc(gss7590[,,i], nd=2,weights="none", tolerance=1e-8))

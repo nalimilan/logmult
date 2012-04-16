@@ -1,11 +1,10 @@
-## RC-L with constant scores over time, but different scores for rows and columns
-## (called homogeneous RC(M) by Wong(2010))
+## RC(M)-L model Wong(2010))
 
-rcL <- function(tab, nd=1, layer.homogeneous=c("both", "none"),
-               homogeneous=FALSE, diagonal=FALSE,
-               weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-               family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
-  layer.homogeneous <- match.arg(layer.homogeneous)
+rcL <- function(tab, nd=1, homogeneous=c("both", "none"),
+                symmetric=FALSE, diagonal=FALSE,
+                weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
+  homogeneous <- match.arg(homogeneous)
   weights <- match.arg(weights)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
@@ -16,10 +15,10 @@ rcL <- function(tab, nd=1, layer.homogeneous=c("both", "none"),
   if(is.na(nd) || nd <= 0)
       stop("nd must be strictly positive")
 
-  if(homogeneous && nd/2 > min(nrow(tab), ncol(tab)) - 1)
-      stop("Number of dimensions of homogeneous model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
+  if(symmetric && nd/2 > min(nrow(tab), ncol(tab)) - 1)
+      stop("Number of dimensions of symmetric model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
 
-  if(!homogeneous && nd > min(nrow(tab), ncol(tab)) - 1)
+  if(!symmetric && nd > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
 
   if(length(dim(tab)) > 3)
@@ -36,10 +35,10 @@ rcL <- function(tab, nd=1, layer.homogeneous=c("both", "none"),
   else
       diagstr <- ""
 
-  if(homogeneous) {
+  if(symmetric) {
       f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+",
                    vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)
-      if(layer.homogeneous == "both") {
+      if(homogeneous == "both") {
           for(i in 1:nd)
               f <- paste(f, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)", vars[3], vars[1], vars[2], i))
       }
@@ -56,7 +55,7 @@ rcL <- function(tab, nd=1, layer.homogeneous=c("both", "none"),
                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
   }
   else {
-      if(layer.homogeneous == "both")
+      if(homogeneous == "both")
           f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s, %s, %s), %i)",
                        vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
                        vars[3], vars[1], vars[2], nd)
@@ -78,7 +77,7 @@ rcL <- function(tab, nd=1, layer.homogeneous=c("both", "none"),
   if(is.null(model))
       return(NULL)
 
-  newclasses <- if(homogeneous) c("rcL.homog", "rcL") else "rcL"
+  newclasses <- if(symmetric) c("rcL.symm", "rcL") else "rcL"
   class(model) <- c(newclasses, class(model))
 
   model$assoc <- assoc(model, weights=weights)
@@ -146,7 +145,7 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   while(length(pickCoef(model, paste("Mult.*inst =", nd + 1))) > 0)
       nd <- nd + 1
 
-  layer.homogeneous <- TRUE
+  homogeneous <- TRUE
 
   # Only one dimension, or none
   if(nd <= 0) {
@@ -168,7 +167,7 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
           }
           else {
               row <- array(mu, dim=c(nr, nl, 1))
-              layer.homogeneous <- FALSE
+              homogeneous <- FALSE
           }
 
           if(length(nu) == nc) {
@@ -176,7 +175,7 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
           }
           else {
               row <- array(nu, dim=c(nc, nl, 1))
-              layer.homogeneous <- FALSE
+              homogeneous <- FALSE
           }
 
           layer <- matrix(phi, nl, 1)
@@ -210,14 +209,14 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
               row[,i,1] <- mu
           else {
               row[,i,] <- t(matrix(mu, nl, nr))
-              layer.homogeneous <- FALSE
+              homogeneous <- FALSE
           }
 
           if(length(nu) == nc)
               col[,i,1] <- nu
           else {
               col[,i,] <- t(matrix(nu, nl, nc))
-              layer.homogeneous <- FALSE
+              homogeneous <- FALSE
           }
 
           layer[,i] <- phi
@@ -226,7 +225,7 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
       else if(length(phi) == 0 &&
               length(mu) == nr * nl &&
               length(nu) == nc * nl) {
-          layer.homogeneous <- FALSE
+          homogeneous <- FALSE
           row[,i,] <- t(matrix(mu, nl, nr))
           col[,i,] <- t(matrix(nu, nl, nc))
           layer[,i] <- 1
@@ -248,7 +247,7 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   row <- sweep(row, 2:3, margin.table(sweep(row, 1, rp/sum(rp), "*"), 2:3), "-")
   col <- sweep(col, 2:3, margin.table(sweep(col, 1, cp/sum(cp), "*"), 2:3), "-")
 
-  if(layer.homogeneous) {
+  if(homogeneous) {
       # Scale
       phi.row <- sqrt(margin.table(sweep(row[,,1, drop=FALSE]^2, 1, rp, "*"), 2))
       phi.col <- sqrt(margin.table(sweep(col[,,1, drop=FALSE]^2, 1, cp, "*"), 2))
@@ -278,7 +277,7 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   }
 
   # By convention, keep layer coefficients positive for the first layer category
-  if(layer.homogeneous) {
+  if(homogeneous) {
       for(i in 1:nd) {
           if(layer[1,i] < 0) {
               layer[,i] <- -layer[,i]
@@ -304,7 +303,7 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   colnames(row) <- colnames(col) <- colnames(layer) <- paste("Dim", 1:nd, sep="")
   rownames(layer) <- dimnames(tab)[[3]]
 
-  if(!layer.homogeneous)
+  if(!homogeneous)
       dimnames(row)[[3]] <- dimnames(col)[[3]] <- dimnames(tab)[[3]]
   else
       dimnames(row)[[3]] <- dimnames(col)[[3]] <- "All levels"
@@ -325,7 +324,7 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   obj
 }
 
-assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...) {
+assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -359,7 +358,7 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
   while(length(pickCoef(model, paste("Mult.*MultHomog.*inst =", nd + 1))) > 0)
       nd <- nd + 1
 
-  layer.homogeneous <- TRUE
+  homogeneous <- TRUE
 
   # Only one dimension, or none
   if(nd <= 0) {
@@ -379,13 +378,13 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
           }
           else {
               sc <- array(mu, dim=c(nr, nl, 1))
-              layer.homogeneous <- FALSE
+              homogeneous <- FALSE
           }
 
           layer <- matrix(phi, nl, 1)
       }
       else {
-          stop("No dimensions found. Are you sure this is an homogeneous row-column association model with layer effect?")
+          stop("No dimensions found. Are you sure this is a symmetric row-column association model with layer effect?")
       }
   }
 
@@ -407,7 +406,7 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
               sc[,i,1] <- mu
           else {
               sc[,i,] <- t(matrix(mu, nl, nr))
-              layer.homogeneous <- FALSE
+              homogeneous <- FALSE
           }
 
           layer[,i] <- phi
@@ -415,12 +414,12 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
       # Fully heterogeneous scores
       else if(length(phi) == 0 &&
               length(mu) == nr * nl) {
-          layer.homogeneous <- FALSE
+          homogeneous <- FALSE
           sc[,i,] <- t(matrix(mu, nl, nr))
           layer[,i] <- 1
       }
       else {
-          stop("Invalid dimensions found. Are you sure this is an homogeneous row-column association model with layer effect?")
+          stop("Invalid dimensions found. Are you sure this is a symmetric row-column association model with layer effect?")
       }
   }
 
@@ -435,7 +434,7 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
   # Center
   sc <- sweep(sc, 2:3, margin.table(sweep(sc, 1, p/sum(p), "*"), 2:3), "-")
 
-  if(layer.homogeneous) {
+  if(homogeneous) {
       # Scale
       phi <- sqrt(margin.table(sweep(sc[,,1, drop=FALSE]^2, 1, p/sum(p), "*"), 2))
       sc <- sweep(sc[,,1, drop=FALSE], 2, phi, "/")
@@ -472,7 +471,7 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
   rownames(sc) <- rownames(tab)
   colnames(sc) <- colnames(layer) <- paste("Dim", 1:nd, sep="")
 
-  if(!layer.homogeneous)
+  if(!homogeneous)
       dimnames(sc)[[3]] <- dimnames(tab)[[3]]
   else
       dimnames(sc)[[3]] <- "All levels"
@@ -486,6 +485,6 @@ assoc.rcL.homog <- function(model, weights=c("marginal", "uniform", "none"), ...
   obj <- list(phi = layer, row = sc, col = sc, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)
 
-  class(obj) <- c("rcL.homog.assoc", "rcL.assoc", "assoc")
+  class(obj) <- c("rcL.symm.assoc", "rcL.assoc", "assoc")
   obj
 }

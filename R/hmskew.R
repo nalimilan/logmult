@@ -79,8 +79,8 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       return(NULL)
 
   if(!is.na(nd.symm)) {
-      model$assoc <- assoc.rc.homog(model, weights=weights)
-      class(model) <- c("hmskew", "rc.homog", "rc", class(model))
+      model$assoc <- assoc.rc.symm(model, weights=weights)
+      class(model) <- c("hmskew", "rc.symm", "rc", class(model))
   }
   else {
       model$assoc <- list()
@@ -91,7 +91,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
 
   if(std.err == "jackknife") {
-      assoc1 <- if(is.na(nd.symm)) assoc.hmskew else assoc.rc.homog
+      assoc1 <- if(is.na(nd.symm)) assoc.hmskew else assoc.rc.symm
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskew
 
       cat("Computing jackknife standard errors...\n")
