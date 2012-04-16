@@ -163,10 +163,25 @@
       # Limit the workload for CRAN checks
       options(cl.cores=2)
   }
-  model <- rc(margin.table(gss8590[,,c(2,4)], 1:2),
-              nd=2, weights="none", std.err="jackknife")
-  model$assoc # phi are 2.601 and 1.522
-  se.rc(model) # Standard errors are slightly different, but globally agree
+  # The table used in Wong (2010) is not perfectly consistent
+  # with that of Wong (2001)
+  tab <- margin.table(gss8590[,,c(2,4)], 1:2)
+  tab[2,4] <- 49
+  model <- rc(tab, nd=2, weights="none", std.err="jackknife")
+  model
+  \dontshow{
+      # A few scores differ from reported results by .001
+      stopifnot(isTRUE(all.equal(round(c(model$assoc$phi), d=3),
+                                 c(2.601, 1.522))))
+      stopifnot(isTRUE(all.equal(round(c(model$assoc$row), d=3),
+                                 c(0.743,  0.088, -0.200, -0.632,
+                                   0.276, -0.061, -0.777,  0.562))))
+      stopifnot(isTRUE(all.equal(round(c(model$assoc$col), d=3),
+                                 c(0.765,  0.020, -0.322, -0.55, 0.088,
+                                  -0.137, -0.549, -0.120, -0.01, 0.816))))
+  }
+  se.rc(model) # Jackknife standard errors are slightly different
+               # from their asymptotic counterparts
   plot(model, conf.ellipses=TRUE)
 }
 
