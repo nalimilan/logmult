@@ -86,12 +86,18 @@
   Goodman, L.A. (1979). Simple Models for the Analysis of Association in Cross-Classifications
     having Ordered Categories. \emph{J. of the Am. Stat. Association} 74(367), 537-552.
 
+  Becker, M.P., and Clogg, C.C. 1989. Analysis of Sets of Two-Way Contingency Tables Using
+    Association Models. \emph{Journal of the American Statistical Association} 84(405), 142-151.
+
   Goodman, L.A. (1985). The Analysis of Cross-Classified Data Having Ordered and/or Unordered
     Categories: Association Models, Correlation Models, and Asymmetry Models for Contingency
     Tables With or Without Missing Entries. \emph{The Annals of Statistics} 13(1), 10-69.
 
   Goodman, L.A. (1991). Measures, Models, and Graphical Displays in the Analysis of
     Cross-Classified Data. \emph{J. of the Am. Stat. Association} 86(416), 1085-1111.
+
+  Clogg, C.C., and Shihadeh, E.S. (1994). Statistical Models for Ordinal Variables. Sage: Advanced
+      Quantitative Techniques in the Social Sciences (4).
 
   Wong, R.S-K. (2010). Association models. SAGE: Quantitative Applications in the Social Sciences.
 }
@@ -119,7 +125,39 @@
                                  check.attributes=FALSE)))
   }
 
-  ## Clogg & Shihadeh (1994) Tables 3.5a and b, (p. 55-61)
+  ## Becker & Clogg (1989), Table 5 (p. 145)
+  data(color)
+  \dontshow{
+      # Limit the workload for CRAN checks
+      options(cl.cores=2)
+  }
+  # "Uniform weights" in the authors' terms mean "no weighting"
+  # Average marginals are currently not supported
+  caithness.unweighted <- rc(color[,,1], nd=2, weights="none",
+                             std.err="jackknife")
+  caithness.marginal <- rc(color[,,1], nd=2, weights="marginal",
+                           std.err="jackknife")
+  aberdeen.unweighted <- rc(color[,,2], nd=2, weights="none",
+                            std.err="jackknife")
+  aberdeen.marginal <- rc(color[,,2], nd=2, weights="marginal",
+                          std.err="jackknife")
+  caithness.unweighted
+  caithness.marginal
+  aberdeen.unweighted
+  aberdeen.marginal
+  \dontshow{
+      # This is one of the very few articles reporting jackknife standard errors
+      # Our results are very close for the unweighted solution;
+      # but for marginal weighting their errors are probably not in the same unit,
+      # as they are larger than the unweighted ones, while phi are much smaller.
+      stopifnot(isTRUE(all.equal(c(round(se.rc(caithness.unweighted)$phi, d=3)),
+                                 c(0.282, 0.052))))
+      stopifnot(isTRUE(all.equal(c(round(se.rc(aberdeen.unweighted)$phi, d=3)),
+                                 c(0.221, 0.040))))
+  }
+
+
+  ## Clogg & Shihadeh (1994), Tables 3.5a and b (p. 55-61)
   data(gss88)
   unweighted <- rc(gss88, weights="none")$assoc
   marginal <- rc(gss88, weights="marginal")$assoc
