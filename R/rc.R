@@ -258,7 +258,6 @@ assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   sc[,1:nd] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
   phi <- eigen$values[1:nd]
 
-  # FIXME: does not apply to symmetric scores
   # Since the sign of scores is arbitrary, conventionally choose positive scores
   # for the first category: this ensures the results are stable when jackknifing.
   for(i in 1:nd) {
