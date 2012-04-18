@@ -135,7 +135,8 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   else
       p <- rep(1, nrow(tab))
 
-  mu <- coef(model)[pickCoef(model, sprintf("HMSkew.*(%s)", paste(rownames(tab), collapse="|")))]
+  mu <- coef(model)[pickCoef(model, sprintf("HMSkew.*(\\Q%s\\E)",
+                                            paste(rownames(tab), collapse="\\E|\\Q")))]
   mu1 <- mu[1:nrow(tab)]
   mu2 <- mu[-(1:nrow(tab))]
 

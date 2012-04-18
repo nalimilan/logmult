@@ -173,7 +173,8 @@ assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) 
 
   nd <- 0
   while(TRUE) {
-      musk <- coef(model)[pickCoef(model, sprintf("YRCSkew.*inst = %s\\)(%s)", nd+1, paste(rownames(tab), collapse="|")))]
+      musk <- coef(model)[pickCoef(model, sprintf("YRCSkew\\(.*inst = %i\\)(\\Q%s\\E)",
+                                                  nd+1, paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(length(musk) != nrow(tab))
           break
@@ -285,7 +286,8 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
 
   ndsk <- 0
   while(TRUE) {
-      musk <- coef(model)[pickCoef(model, sprintf("MultHomog.*skew.*inst = %s\\)\\)(%s)", nd+1, paste(rownames(tab), collapse="|")))]
+      musk <- coef(model)[pickCoef(model, sprintf("MultHomog.*skew.*inst = %i\\)\\)(\\Q%s\\E)",
+                                                  nd + 1, paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(!(length(musk) == nrow(tab)))
           break
@@ -308,7 +310,7 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
       }
   }
 
-  skew <- coef(model)[pickCoef(model, "MultHomog.*skew\\)$")]
+  skew <- coef(model)[pickCoef(model, "MultHomog\\(.*skew\\)$")]
   if(length(skew) != ndsk)
       stop("skew coefficients not found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
 

@@ -142,18 +142,18 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
 
   # Find out the number of dimensions
   nd <- 0
-  while(length(pickCoef(model, paste("Mult.*inst =", nd + 1))) > 0)
+  while(length(pickCoef(model, paste("Mult\\(.*inst =", nd + 1))) > 0)
       nd <- nd + 1
 
   homogeneous <- TRUE
 
   # Only one dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[1],
+      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[2],
+      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
-      phi <- coef(model)[pickCoef(model, sprintf("Mult.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+      phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
                                                  paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       # Homogeneous scores for rows and/or columns
@@ -191,13 +191,13 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   layer <- matrix(NA, nl, nd)
 
   for(i in 1:nd) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                                 i, vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                                 i, vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
-      phi <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
+      phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
                                                  i, vars[3],
                                                  paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -355,17 +355,17 @@ assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...)
 
   # Find out the number of dimensions
   nd <- 0
-  while(length(pickCoef(model, paste("Mult.*MultHomog.*inst =", nd + 1))) > 0)
+  while(length(pickCoef(model, paste("Mult\\(.*MultHomog\\(.*inst =", nd + 1))) > 0)
       nd <- nd + 1
 
   homogeneous <- TRUE
 
   # Only one dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult.*MultHomog.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[1], vars[2],
                                                 paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
-      phi <- coef(model)[pickCoef(model, sprintf("Mult.*MultHomog.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+      phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
                                                  paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       # Homogeneous scores
@@ -393,10 +393,11 @@ assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...)
   layer <- matrix(NA, nl, nd)
 
   for(i in 1:nd) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %i.*MultHomog.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*MultHomog\\(.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                 i, vars[1], vars[2],
                                                 paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
-      phi <- coef(model)[pickCoef(model, sprintf("Mult.*MultHomog.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$", i, vars[3],
+      phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                 i, vars[3],
                                                  paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       # Homogeneous scores

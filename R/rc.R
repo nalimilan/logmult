@@ -124,8 +124,12 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
 
   nd <- 0
   while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %s\\)\\.%s", nd+1, vars[1]))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult.*inst = %s\\)\\.%s", nd+1, vars[2]))]
+      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                nd + 1, vars[1],
+                                                paste(rownames(tab), collapse="\\E|\\Q")))]
+      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                nd + 1, vars[2],
+                                                paste(colnames(tab), collapse="\\E|\\Q")))]
 
       if(!(length(mu) == nrow(tab) && length(nu) == ncol(tab)))
           break
@@ -138,8 +142,12 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   }
 
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult.*\\)\\.%s.*[^\\.].$", vars[1]))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult.*\\)\\.%s.*[^\\.].$", vars[2]))]
+      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                vars[1],
+                                                paste(rownames(tab), collapse="\\E|\\Q")))]
+      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                vars[2],
+                                                paste(colnames(tab), collapse="\\E|\\Q")))]
 
       if(length(mu) == nrow(tab) && length(nu) == ncol(tab)) {
           nd <- 1
@@ -215,12 +223,17 @@ assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   else
       p <- rep(1, nrow(tab))
 
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2")
 
   sc <- matrix(NA, nrow(tab), 0)
 
   nd <- 0
   while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("MultHomog.*inst = %s\\)", nd+1))]
+      mu <- coef(model)[pickCoef(model, sprintf("MultHomog\\(\\Q%s\\E\\, \\Q%s\\E\\, inst = %i\\)(\\Q%s\\E)$",
+                                                vars[1], vars[2], nd + 1,
+                                                paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
 
       if(!(length(mu) == nrow(tab)))
           break
@@ -232,7 +245,9 @@ assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   }
 
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, "MultHomog")]
+      mu <- coef(model)[pickCoef(model, sprintf("MultHomog\\(\\Q%s\\E\\, \\Q%s\\E\\)(\\Q%s\\E)$",
+                                                vars[1], vars[2],
+                                                paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
 
       if(length(mu) == nrow(tab)) {
           nd <- 1
