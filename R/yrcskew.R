@@ -186,7 +186,8 @@ assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   }
 
   if(nd <= 0) {
-      musk <- coef(model)[pickCoef(model, sprintf("YRCSkew.*\\)\\.%s.*[^\\.].$", vars[1]))]
+      musk <- coef(model)[pickCoef(model, sprintf("YRCSkew.*\\)(\\Q%s\\E)$",
+                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(length(musk) == nrow(tab)) {
           nd <- 1
@@ -220,7 +221,7 @@ assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) 
 
 
   ## Prepare objects
-  phi <- rbind(c(phisk))
+  phisk <- rbind(c(phisk))
   dim(sc)[3] <- 1
   names(phisk) <- NULL
   colnames(sc) <- colnames(phisk) <- paste("Dim", 1:nd, sep="")
@@ -286,7 +287,7 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
 
   ndsk <- 0
   while(TRUE) {
-      musk <- coef(model)[pickCoef(model, sprintf("MultHomog.*skew.*inst = %i\\)\\)(\\Q%s\\E)",
+      musk <- coef(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*inst = %i\\)\\)(\\Q%s\\E)",
                                                   nd + 1, paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(!(length(musk) == nrow(tab)))
@@ -299,7 +300,8 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
   }
 
   if(ndsk <= 0) {
-      musk <- coef(model)[pickCoef(model, sprintf("MultHomog.*skew.*\\)(%s)$", paste(rownames(tab), collapse="|")))]
+      musk <- coef(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*\\)(\\Q%s\\E)$",
+                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(length(musk) == nrow(tab)) {
           ndsk <- 1

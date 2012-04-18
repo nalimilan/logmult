@@ -117,11 +117,19 @@ Milan Bouchet-Valat
                                  check.attributes=FALSE)))
   }
 
-\dontrun{
-  # Warning: model does not always converge, several attempts may be needed
+  # Note model does not always converge, several attempts may be needed
+  # Here we set known starting values to be sure it works
+  set.seed(5)
   model <- yrcskew(ocg1973, nd.symm=1, nd.skew=1, diagonal=TRUE, weights="none")
   # We do not get the same results as the author, but the smaller deviance
   # indicates a better fit in our version (!)
   model
-}
+  \dontshow{
+      # These scores cannot be checked since the author reports a higher deviance:
+      # they are simply here to ensure no regressions appear
+      stopifnot(isTRUE(all.equal(c(round(model$assoc.yrcskew$row, d=3)),
+                                 c(-0.421, -0.332, -0.166, 0.097, 0.822))))
+      stopifnot(isTRUE(all.equal(c(round(model$assoc$row, d=3)),
+                                   c(0.851, 0.049, -0.246, -0.331, -0.322))))
+  }
 }
