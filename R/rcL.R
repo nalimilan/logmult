@@ -36,15 +36,17 @@ rcL <- function(tab, nd=1, homogeneous=c("both", "none"),
       diagstr <- ""
 
   if(symmetric) {
-      f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+",
+      f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
                    vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)
       if(homogeneous == "both") {
           for(i in 1:nd)
               f <- paste(f, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)", vars[3], vars[1], vars[2], i))
       }
       else {
+          stop("Symmetric association with heterogeneous layer effect is currently not supported")
+
           for(i in 1:nd)
-              f <- paste(f, sprintf("+ MultHomog(%s:%s, %:s%s)", vars[3], vars[1], vars[3], vars[2], i))
+              f <- paste(f, sprintf("+ MultHomog(%s:%s, %s:%s, inst = %i)", vars[3], vars[1], vars[3], vars[2], i))
       }
 
       if(is.null(start))
