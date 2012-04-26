@@ -1,0 +1,334 @@
+## RC(M) with regression-type and transitional variation
+
+RCReg <- function(row, col, layer, inst=NULL) {
+  list(predictors = list(R1=substitute(row), C1=substitute(col), substitute(layer), R2=substitute(row), C2=substitute(col)),
+       term = function(predLabels, varLabels) {
+           sprintf("(%s + %s * (%s)^2) * (%s + %s * (%s)^2)",
+                   predLabels[4], predLabels[1], predLabels[3],
+                   predLabels[5], predLabels[2], predLabels[3])
+       },
+       call = as.expression(match.call()),
+       match = c(1, 2, 3, 1, 2),
+       start = function(theta) {
+       # This seems to do more harm than good
+       # theta[attr(theta, "assign") %in% c(4, 5)] <- 0
+           theta[attr(theta, "assign") == 3] <- seq(0, 1, length.out=sum(attr(theta, "assign") == 3))
+           theta
+       })
+   }
+class(RCReg) <- "nonlin"
+
+RCTrans <- function(row, col, layer, inst=NULL) {
+  list(predictors = list(R1=substitute(row), C1=substitute(col), substitute(layer), R2=substitute(row), C2=substitute(col)),
+       term = function(predLabels, varLabels) {
+           sprintf("(%s * %s * (1 - (%s)^2)) + (%s * %s * (%s)^2)",
+                   predLabels[1], predLabels[2], predLabels[3],
+                   predLabels[4], predLabels[5], predLabels[3])
+       },
+       call = as.expression(match.call()),
+       match = c(1, 2, 3, 1, 2),
+       start = function(theta) {
+           theta[attr(theta, "assign") == 3] <- seq(0, 1, length.out=sum(attr(theta, "assign") == 3))
+           theta
+       })
+  }
+class(RCTrans) <- "nonlin"
+
+rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
+                    symmetric=FALSE, diagonal=FALSE,
+                    weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                    family=poisson, start=NULL, tolerance=1e-12, iterMax=50000, trace=TRUE, ...) {
+  type <- match.arg(type)
+  weights <- match.arg(weights)
+  std.err <- match.arg(std.err)
+  tab <- as.table(tab)
+
+  if(length(dim(tab)) < 3)
+      stop("tab must have (at least) three dimensions")
+
+  if(is.na(nd) || nd <= 0)
+      stop("nd must be strictly positive")
+
+  if(symmetric && nd/2 > min(nrow(tab), ncol(tab)) - 1)
+      stop("Number of dimensions of symmetric model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
+
+  if(!symmetric && nd > min(nrow(tab), ncol(tab)) - 1)
+      stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
+
+  if(length(dim(tab)) > 3)
+      tab <- margin.table(tab, 1:3)
+
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2", "Var3")
+
+  if(diagonal)
+      diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
+  else
+      diagstr <- ""
+
+  if(symmetric) {
+#       f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+",
+#                    vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)
+#       if(homogeneous == "both") {
+#           for(i in 1:nd)
+#               f <- paste(f, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)", vars[3], vars[1], vars[2], i))
+#       }
+#       else {
+#           for(i in 1:nd)
+#               f <- paste(f, sprintf("+ MultHomog(%s:%s, %:s%s)", vars[3], vars[1], vars[3], vars[2], i))
+#       }
+# 
+#       if(is.null(start))
+#           eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, tolerance=%e, iterMax=%i, trace=%s, ...)",
+#                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
+#       else
+#           eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
+#                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
+  }
+  else {
+      if(is.null(start)) {
+          cat("Running base model to find starting values...\n")
+          base <- gnm(as.formula(sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s + instances(Mult(%s, %s), %i)",
+                                         vars[1], vars[2], vars[3],
+                                         vars[1], vars[3], vars[2], vars[3], diagstr,
+                                         vars[1], vars[2], nd)),
+                      family=family, data=tab)
+
+          start <- c(rep(NA, length(coef(base)) - (nrow(tab) + ncol(tab)) * nd))
+#           start <- coef(base)[seq(1, length(coef(base)) - (nrow(tab) + ncol(tab)) * nd)]
+          for(i in 1:nd) {
+              start <- c(start, coef(base)[pickCoef(base, paste("Mult.*inst =", i))],
+                         seq(0, 1, length.out=dim(tab)[3]), rep(NA, nrow(tab) + ncol(tab)))
+          }
+
+          cat("Running real model...\n")
+      }
+
+      f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(%s(%s, %s, %s), %i)",
+                   vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
+                   if(type == "regression") "RCReg" else "RCTrans", vars[1], vars[2], vars[3], nd)
+
+      eval(parse(text=sprintf('model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, constrain="(RCReg|RCTrans).*\\\\.[RC][12])\\\\Q%s\\\\E(\\\\Q%s\\\\E|\\\\Q%s\\\\E)$", ...)',
+                              f, tolerance, iterMax, if(trace) "TRUE" else "FALSE",
+                              names(dimnames(tab))[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1))))
+  }
+
+  if(is.null(model))
+      return(NULL)
+
+  newclasses <- if(symmetric) c("rcL.symm", "rcL.dyn", "rcL") else c("rcL.dyn", "rcL")
+  class(model) <- c(newclasses, class(model))
+
+  model$assoc <- assoc(model, weights=weights)
+
+  if(std.err == "jackknife") {
+      cat("Computing jackknife standard errors...\n")
+      model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
+                                      getS3method("assoc", class(model)), NULL,
+                                      family, weights)$jack.vcov
+      scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),
+                         c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
+                           t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep=""))),
+                         paste))
+      rownames(model$assoc$covmat) <- colnames(model$assoc$covmat) <-
+          c(t(outer(paste(vars[3], dimnames(tab)[[3]], sep=""), paste("Dim", 1:nd, sep=""), paste)),
+              scnames, paste(scnames, "*", sep=""))
+
+      model$assoc$covtype <- "jackknife"
+  }
+  else {
+      model$assoc$covmat <- numeric(0)
+      model$assoc$covtype <- "none"
+  }
+
+  model
+}
+
+# Number of constraints applied:
+#   - two layer coefficients (normally already present in the model)
+#   - two for each dimension of the fixed scores
+#   - two for each dimension of the variable scores
+#   - cross-dimensional constraints for fixed and variable scores
+assoc.rcL.dyn <- function(model, weights=c("marginal", "uniform", "none")) {
+    if(!inherits(model, "gnm"))
+      stop("model must be a gnm object")
+
+  # gnm doesn't include coefficients for NA row/columns, so get rid of them too
+  tab <- as.table(model$data[!is.na(rownames(model$data)),
+                             !is.na(colnames(model$data)),
+                             !is.na(dimnames(model$data)[3])])
+
+  nr <- nrow(tab)
+  nc <- ncol(tab)
+  nl <- dim(tab)[3]
+
+  # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
+  weights <- match.arg(weights)
+  if(weights == "marginal") {
+      rp <- prop.table(margin.table(tab, 1))
+      cp <- prop.table(margin.table(tab, 2))
+  }
+  else if(weights == "uniform") {
+      rp <- rep(1/nr, nr)
+      cp <- rep(1/nc, nc)
+  }
+  else {
+      rp <- rep(1, nr)
+      cp <- rep(1, nc)
+  }
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2", "Var3")
+
+
+  # Find out the number of dimensions
+  nd <- 0
+  while(length(pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.[RC][12]%s", nd+1, vars[1]))) > 0)
+      nd <- nd + 1
+
+  # One dimension, or none
+  if(nd <= 0) {
+      mu <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*\\)\\.R1\\Q%s\\E(\\Q%s\\E)$", vars[1],
+                                                paste(rownames(tab), collapse="\\E|\\Q")))]
+      nu <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*\\)\\.C1\\Q%s\\E(\\Q%s\\E)$", vars[2],
+                                                paste(colnames(tab), collapse="\\E|\\Q")))]
+
+      mu1 <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*\\)\\.R2\\Q%s\\E(\\Q%s\\E)",vars[1],
+                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
+      nu1 <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*\\)\\.C2\\Q%s\\E(\\Q%s\\E)", vars[2],
+                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
+
+      phi <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.\\Q%s\\E(\\Q%s\\E)", vars[3],
+                                                paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
+
+      if(length(mu) == nr && length(nu) == nc
+         && length(mu1) == nr && length(nu1) == nc
+         && length(phi) == nl) {
+          nd <- 1
+
+          row <- matrix(mu, nr, 1)
+          col <- matrix(nu, nc, 1)
+          row1 <- matrix(mu1, nr, 1)
+          col1 <- matrix(nu1, nc, 1)
+          layer <- matrix(phi, nl, 1)
+      }
+      else {
+          stop("No dimensions found. Are you sure this is a row-column association model with regression-type layer effect?")
+      }
+  }
+  else {
+      # Several dimensions: prepare matrices before filling them
+      row <- matrix(NA, nr, nd)
+      col <- matrix(NA, nc, nd)
+      row1 <- matrix(NA, nr, nd)
+      col1 <- matrix(NA, nc, nd)
+      layer <- matrix(NA, nl, nd)
+
+      for(i in 1:nd) {
+          mu <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.R1\\Q%s\\E(\\Q%s\\E)$",
+                                                    i, vars[1],
+                                                    paste(rownames(tab), collapse="\\E|\\Q")))]
+          nu <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.C1\\Q%s\\E(\\Q%s\\E)$",
+                                                    i, vars[2],
+                                                    paste(colnames(tab), collapse="\\E|\\Q")))]
+
+          mu1 <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.R2\\Q%s\\E(\\Q%s\\E)$",
+                                                    i, vars[1],
+                                                    paste(rownames(tab), collapse="\\E|\\Q")))]
+          nu1 <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.C2\\Q%s\\E(\\Q%s\\E)$",
+                                                    i, vars[2],
+                                                    paste(colnames(tab), collapse="\\E|\\Q")))]
+
+          phi <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                    i, vars[3],
+                                                    paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
+
+          if(length(mu) == nr && length(nu) == nc
+               && length(mu1) == nr && length(nu1) == nc
+               && length(phi) == nl) {
+              row[,i] <- mu
+              col[,i] <- nu
+              row1[,i] <- mu1
+              col1[,i] <- nu1
+              layer[,i] <- phi
+          }
+          else {
+              stop("Invalid dimensions found. Are you sure this is a row-column association model with regression-type layer effect?")
+          }
+      }
+  }
+
+  if(length(pickCoef(model, "Diag\\(") > 0)) {
+      dg <- matrix(NA, nl, nr)
+      dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
+  }
+  else {
+      dg <- numeric(0)
+  }
+
+
+  # Layer coefficients are squared internally by RCReg
+  layer <- layer^2
+
+  # Replace constrained coefficients
+  layer[1,] <- 0
+  layer[nrow(layer),] <- 1
+
+  # Center
+  row <- sweep(row, 2, colSums(sweep(row, 1, rp/sum(rp), "*")), "-")
+  col <- sweep(col, 2, colSums(sweep(col, 1, cp/sum(cp), "*")), "-")
+  row1 <- sweep(row1, 2, colSums(sweep(row1, 1, rp/sum(rp), "*")), "-")
+  col1 <- sweep(col1, 2, colSums(sweep(col1, 1, cp/sum(cp), "*")), "-")
+
+  # Compute scores for all layer states
+  row <- array(row, dim=c(nr, nd, nl))
+  col <- array(col, dim=c(nc, nd, nl))
+
+  for(i in 1:nl) {
+      row[,,i] <- row[,,i] + sweep(row1, 2, layer[i,], "*")
+      col[,,i] <- col[,,i] + sweep(col1, 2, layer[i,], "*")
+  }
+
+  # Normalize all layer states
+  for(i in 1:nl) {
+#       phir <- sqrt(colSums(apply(as.matrix(row[,,i])^2, 2, "*", rp)))
+#       phic <- sqrt(colSums(apply(as.matrix(col[,,i])^2, 2, "*", cp)))
+#       row[,,i] <- sweep(as.matrix(row[,,i]), 2, phir, "/")
+#       col[,,i] <- sweep(as.matrix(col[,,i]), 2, phic, "/")
+#       layer[i,] <- phir * phic
+      lambda <- matrix(0, nrow(tab), ncol(tab))
+      for(j in 1:nd) {
+          lambda <- lambda + row[,j,i] %o% col[,j,i]
+      }
+      lambda0 <- lambda * sqrt(rp %o% cp) # Eq. A.4.3
+      sv <- svd(lambda0)
+      row[,,i] <- diag(1/sqrt(rp)) %*% sv$u[,1:nd] # Eq. A.4.7
+      col[,,i] <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
+      layer[i,] <- sv$d[1:nd]
+  }
+
+
+  ## Prepare objects
+  colnames(row) <- colnames(col) <- colnames(row1) <- colnames(col1) <- colnames(layer) <- paste("Dim", 1:nd, sep="")
+
+  rownames(row) <- rownames(row1) <- rownames(tab)
+  rownames(col) <- rownames(col1) <- colnames(tab)
+  rownames(layer) <- dimnames(tab)[[3]]
+
+  if(length(dg) > 0) {
+      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
+                      else paste(rownames(tab), colnames(tab), sep=":")
+      rownames(dg) <- dimnames(tab)[[3]]
+  }
+
+  obj <- list(phi = layer, row = row, col = col, diagonal = dg,
+              weighting = weights, row.weights = rp, col.weights = cp)
+
+  class(obj) <- c("assoc.rcL.dyn", "assoc.rcL", "assoc")
+  obj
+}
