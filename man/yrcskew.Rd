@@ -53,7 +53,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   These models follow the equation:
   \deqn{ log F_{ij} = q_{ij} + \delta_{i<j} \nu_i (\nu_j - \nu_i) - \delta_{i>j} \nu_j (\nu_i - \nu_j)
                     = q_{ij} + (\delta_{i<j} - \delta_{i>j}) \nu_{min(i,j)} (\nu_{max(i,j)} - \nu_{min(i,j)})}
-  where \eqn{F_i} is the frequency observed in the cell at the intersection of row i and column j of
+  where \eqn{F_ij} is the frequency observed in the cell at the intersection of row i and column j of
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric or a RC(M) association. See reference for detailed information
   about the degrees of freedom and the identification constraints applied to the scores.
 

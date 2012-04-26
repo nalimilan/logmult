@@ -46,7 +46,7 @@
   This function fits log-multiplicative row-column association models, usually called (after
   Goodman) RC(M) models, typically following the equation:
   \deqn{ log F_{ij} = \lambda + \lambda^I_i + \lambda^J_j + \sum_{m=1}^M { \phi_{m} \mu_{im} \nu_{jm} } }
-  where \eqn{F_i} is the frequency observed in the cell at the intersection of row i and column j of
+  where \eqn{F_ij} is the frequency observed in the cell at the intersection of row i and column j of
   \code{tab}, and M the number of dimensions. See references for detailed information about the
   variants of the model, the degrees of freedom and the identification constraints applied to the scores.
 

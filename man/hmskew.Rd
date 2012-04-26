@@ -50,7 +50,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
 
   These models follow the equation:
   \deqn{ log F_{ij} = q_{ij} + \nu_i \mu_j - \mu_j \nu_i }
-  where \eqn{F_i} is the frequency observed in the cell at the intersection of row i and column j of
+  where \eqn{F_ij} is the frequency observed in the cell at the intersection of row i and column j of
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric or a RC(M) association. See reference for detailed information
   about the degrees of freedom and the identification constraints applied to the scores.
 
