@@ -202,8 +202,13 @@ assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   if(length(skew) != nd)
       stop("Skew coefficients not found. Are you sure this is a Yamaguchi RC_SK model?")
 
-  dg <- coef(model)[pickCoef(model, "Diag\\(")]
-  dg <- dg[match(order(names(dg)), order(rownames(tab)))]
+  if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+  else if(length(pickCoef(model, "Diag\\(")) > 0)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+  else
+      dg <- numeric(0)
+
 
   # Center
   sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
@@ -226,9 +231,18 @@ assoc.yrcskew <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   names(phisk) <- NULL
   colnames(sc) <- colnames(phisk) <- paste("Dim", 1:nd, sep="")
   rownames(sc) <- rownames(tab)
+
   if(length(dg) > 0) {
-      dg <- rbind(c(dg))
-      colnames(dg) <- rownames(tab)
+      # Diag() sorts coefficients alphabetically!
+      dg[,order(rownames(tab))] <- dg
+
+      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
+                      else paste(rownames(tab), colnames(tab), sep=":")
+
+      if(nrow(dg) > 1)
+          rownames(dg) <- dimnames(tab)[[3]]
+      else
+          rownames(dg) <- "All levels"
   }
 
   obj <- list(phi = phisk, row = sc, col = sc,  diagonal = dg,
@@ -316,8 +330,12 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
   if(length(skew) != ndsk)
       stop("skew coefficients not found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
 
-  dg <- coef(model)[pickCoef(model, "Diag\\(")]
-  dg <- dg[match(order(names(dg)), order(rownames(tab)))]
+  if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+  else if(length(pickCoef(model, "Diag\\(")) > 0)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+  else
+      dg <- numeric(0)
 
 
   ## Normalize, cf. Clogg & Shihadeh (1994), eq. 5.3 et 5.4 (p. 83)
@@ -363,9 +381,18 @@ assoc.yrcskew.homog <- function(model, weights=c("marginal", "unit"), ...) {
   colnames(sc) <- colnames(phi) <- paste("Dim", 1:nd, sep="")
   colnames(scsk) <- paste("Dim", 1:ndsk, sep="")
   rownames(sc) <- rownames(scsk) <- rownames(tab)
+
   if(length(dg) > 0) {
-      dg <- rbind(dg)
-      colnames(dg) <- rownames(tab)
+      # Diag() sorts coefficients alphabetically!
+      dg[,order(rownames(tab))] <- dg
+
+      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
+                      else paste(rownames(tab), colnames(tab), sep=":")
+
+      if(nrow(dg) > 1)
+          rownames(dg) <- dimnames(tab)[[3]]
+      else
+          rownames(dg) <- "All levels"
   }
 
   obj <- list(phi = phi, row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk,

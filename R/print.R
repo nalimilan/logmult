@@ -10,7 +10,7 @@ print.rc <- function(x, ...) {
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1,], d=3))
+    print(round(ass$diag[1:nrow(ass$diag),], d=3))
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
@@ -30,7 +30,7 @@ print.rc.symm <- function(x, ...) {
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1,], d=3))
+    print(round(ass$diag[1:nrow(ass$diag),], d=3))
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
@@ -59,7 +59,7 @@ print.hmskew <- function(x, ...) {
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1,], d=3))
+    print(round(ass$diag[1:nrow(ass$diag),], d=3))
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
@@ -88,7 +88,7 @@ print.yrcskew <- function(x, ...) {
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1,], d=3))
+    print(round(ass$diag[1:nrow(ass$diag),], d=3))
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
@@ -124,7 +124,7 @@ print.rcL <- function(x, ...) {
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag, d=3))
+    print(round(ass$diag[1:nrow(ass$diag),], d=3))
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
@@ -151,7 +151,7 @@ print.rcL.symm <- function(x, ...) {
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag, d=3))
+    print(round(ass$diag[1:nrow(ass$diag),], d=3))
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")

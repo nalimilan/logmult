@@ -10,8 +10,8 @@
   row and column scores, possibly combined with separate diagonal parameters.
 }
 \usage{
-  rcL(tab, nd = 1, homogeneous=c("both", "none"),
-     symmetric = FALSE, diagonal = FALSE,
+  rcL(tab, nd = 1, layer.effect=c("homogeneous", "heterogeneous", "none"),
+     symmetric = FALSE, diagonal =c("none", "heterogeneous", "homogeneous"),
      weights = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
      start=NULL, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
@@ -22,9 +22,10 @@
   \item{nd}{ the number of dimensions to include in the model. Cannot exceed
     \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
-  \item{homogeneous}{ what scores should be forced to be equal accross layers?}
+  \item{layer.effect}{ determines the form of the interaction between row-column association and layers.
+     See \dQuote{Details} below.}
   \item{symmetric}{ should row and column scores be constrained to be equal? Valid only for square tables.}
-  \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
+  \item{diagonal}{ what type of diagonal-specific parameters to include in the model, if any. This amounts to
     taking quasi-conditional independence, rather than conditional independence, as the baseline model.
     Valid only for square tables.}
   \item{weights}{ what weights should be used when normalizing the scores.}
@@ -51,10 +52,13 @@
   Wong) RC(M)-L models, typically following the equation:
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k + \sum_{m=1}^M { \phi_{km} \mu_{ikm} \nu_{jkm} } }
   where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
-  \code{tab}, and M the number of dimensions. If \code{homogeneous} is set to \sQuote{rows} (resp. \sQuote{columns}),
-  then \eqn{\mu_{ikm} = \mu_{im}} (resp. \eqn{\nu_{ikm} = \nu_{im}} for all layers k; both conditions apply if
-  \code{homogeneous} is set to \sQuote{both}. See references for detailed information about the
-  variants of the model, the degrees of freedom and the identification constraints applied to the scores.
+  \code{tab}, and M the number of dimensions. If \code{layer.effect} is set to \sQuote{heterogeneous}, different scores
+  will be computed for each level, which is equivalent to fitting separate RC(M) models on the k two-way tables.
+  If it is set to \sQuote{homogeneous}, then \eqn{\mu_{ikm} = \mu_{im}} and \eqn{\nu_{ikm} = \nu_{im}} for all layers k:
+  only the \eqn{\phi_{km}} are allowed to vary accross layers. If it is set to \sQuote{none}, then in addition to the
+  previous conditions all \eqn{\phi_{km}} are forced equal for all layers k, which amounts to a stability of the
+  association accross layers. See references for detailed information about the variants of the model, the degrees
+  of freedom and the identification constraints applied to the scores.
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
@@ -121,7 +125,7 @@
                             0.071, -0.480, -0.198, -0.216,  0.824)))
 
      # Check scores of heterogeneous model (scores not given by Wong)
-     model.heterog <- rcL(gss7590, nd=2, homogeneous="none",
+     model.heterog <- rcL(gss7590, nd=2, layer.effect="heterogeneous",
                           weights="none", tolerance=1e-8)
      sep.models <- lapply(1:4, function(i)
          rc(gss7590[,,i], nd=2,weights="none", tolerance=1e-8))

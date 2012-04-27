@@ -1,10 +1,11 @@
 ## RC(M)-L model Wong(2010))
 
-rcL <- function(tab, nd=1, homogeneous=c("both", "none"),
-                symmetric=FALSE, diagonal=FALSE,
+rcL <- function(tab, nd=1, layer.effect=c("homogeneous", "heterogeneous", "none"),
+                symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                 weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                 family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
-  homogeneous <- match.arg(homogeneous)
+  layer.effect <- match.arg(layer.effect)
+  diagonal <- match.arg(diagonal)
   weights <- match.arg(weights)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
@@ -30,23 +31,28 @@ rcL <- function(tab, nd=1, homogeneous=c("both", "none"),
   if(length(vars) == 0)
       vars <- c("Var1", "Var2", "Var3")
 
-  if(diagonal)
+  if(diagonal == "heterogeneous")
       diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
+  else if(diagonal == "homogeneous")
+      diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
   else
       diagstr <- ""
 
   if(symmetric) {
       f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
                    vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)
-      if(homogeneous == "both") {
+      if(layer.effect == "homogeneous") {
           for(i in 1:nd)
               f <- paste(f, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)", vars[3], vars[1], vars[2], i))
       }
-      else {
+      else if(layer.effect == "heterogeneous") {
           stop("Symmetric association with heterogeneous layer effect is currently not supported")
 
           for(i in 1:nd)
               f <- paste(f, sprintf("+ MultHomog(%s:%s, %s:%s, inst = %i)", vars[3], vars[1], vars[3], vars[2], i))
+      }
+      else {
+           f <- paste(f, sprintf("+ instances(MultHomog(%s, %s), %i)", vars[1], vars[2], nd))
       }
 
       if(is.null(start))
@@ -57,14 +63,18 @@ rcL <- function(tab, nd=1, homogeneous=c("both", "none"),
                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
   }
   else {
-      if(homogeneous == "both")
+      if(layer.effect == "homogeneous")
           f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s, %s, %s), %i)",
                        vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
                        vars[3], vars[1], vars[2], nd)
-      else
+      else if(layer.effect == "heterogeneous")
           f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s:%s, %s:%s), %i)",
                        vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
                        vars[3], vars[1], vars[3], vars[2], nd)
+      else
+          f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s, %s), %i)",
+                       vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
+                       vars[1], vars[2], nd)
 
       if(is.null(start)) {
           eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, tolerance=%e, iterMax=%i, trace=%s, ...)",
@@ -80,9 +90,12 @@ rcL <- function(tab, nd=1, homogeneous=c("both", "none"),
       return(NULL)
 
   newclasses <- if(symmetric) c("rcL.symm", "rcL") else "rcL"
+
   class(model) <- c(newclasses, class(model))
 
   model$assoc <- assoc(model, weights=weights)
+  class(model$assoc) <- if(symmetric) c("assoc.rcL", "assoc.symm", "assoc")
+                        else c("assoc.rcL", "assoc")
 
   if(std.err == "jackknife") {
       cat("Computing jackknife standard errors...\n")
@@ -237,13 +250,13 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
       }
   }
 
-  if(length(pickCoef(model, "Diag\\(") > 0)) {
-      dg <- matrix(NA, nl, nr)
-      dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
-  }
-  else {
+  if(length(pickCoef(model, "Diag\\(")) > nr)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], nl, nr)
+  else if(length(pickCoef(model, "Diag\\(")) > 0)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nr)
+  else
       dg <- numeric(0)
-  }
+
 
   # Center
   row <- sweep(row, 2:3, margin.table(sweep(row, 1, rp/sum(rp), "*"), 2:3), "-")
@@ -311,13 +324,17 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
       dimnames(row)[[3]] <- dimnames(col)[[3]] <- "All levels"
 
   if(length(dg) > 0) {
+      # Diag() sorts coefficients alphabetically!
+      dg[,order(rownames(tab))] <- dg
+
       colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
                       else paste(rownames(tab), colnames(tab), sep=":")
-      rownames(dg) <- dimnames(tab)[[3]]
-  }
 
-  if(!is.matrix(dg))
-      dg <- rbind(dg)
+      if(nrow(dg) > 1)
+          rownames(dg) <- dimnames(tab)[[3]]
+      else
+          rownames(dg) <- "All levels"
+  }
 
   obj <- list(phi = layer, row = row, col = col, diagonal = dg,
               weighting = weights, row.weights = rp, col.weights = cp)
@@ -426,13 +443,21 @@ assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...)
       }
   }
 
-  if(length(pickCoef(model, "Diag\\(") > 0)) {
-      dg <- matrix(NA, nl, nr)
-      dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
+  if(length(pickCoef(model, "Diag\\(")) > nr)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], nl, nr)
+  else if(length(pickCoef(model, "Diag\\(")) > 0)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nr)
+  else  if(length(dg) > 0) {
+      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
+                      else paste(rownames(tab), colnames(tab), sep=":")
+
+      if(nrow(dg) > 1)
+          rownames(dg) <- dimnames(tab)[[3]]
+      else
+          rownames(dg) <- "All levels"
   }
-  else {
       dg <- numeric(0)
-  }
+
 
   # Center
   sc <- sweep(sc, 2:3, margin.table(sweep(sc, 1, p/sum(p), "*"), 2:3), "-")
@@ -480,9 +505,16 @@ assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...)
       dimnames(sc)[[3]] <- "All levels"
 
   if(length(dg) > 0) {
+      # Diag() sorts coefficients alphabetically!
+      dg[,order(rownames(tab))] <- dg
+
       colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
                       else paste(rownames(tab), colnames(tab), sep=":")
-      rownames(dg) <- dimnames(tab)[[3]]
+
+      if(nrow(dg) > 1)
+          rownames(dg) <- dimnames(tab)[[3]]
+      else
+          rownames(dg) <- "All levels"
   }
 
   obj <- list(phi = layer, row = sc, col = sc, diagonal = dg,

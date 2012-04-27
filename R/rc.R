@@ -94,8 +94,15 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
       stop("model must be a gnm object")
 
   # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-  tab <- as.table(model$data[!is.na(rownames(model$data)),
-                             !is.na(colnames(model$data))])
+  if(length(dim(model$data)) == 2)
+      tab <- as.table(model$data[!is.na(rownames(model$data)),
+                                 !is.na(colnames(model$data))])
+  else if(length(dim(model$data)) == 3)
+      tab <- as.table(model$data[!is.na(rownames(model$data)),
+                                 !is.na(colnames(model$data)),
+                                 !is.na(dimnames(model$data)[[3]])])
+  else
+      stop("Only two and three dimensional tables are supported")
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weights <- match.arg(weights)
@@ -160,7 +167,13 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
       }
   }
 
-  dg <- coef(model)[pickCoef(model, "Diag\\(")]
+  if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+  else if(length(pickCoef(model, "Diag\\(")) > 0)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+  else
+      dg <- numeric(0)
+
 
   # Center
   row <- sweep(row, 2, colSums(sweep(row, 1, rp/sum(rp), "*")), "-")
@@ -194,8 +207,16 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   rownames(col) <- colnames(tab)
 
   if(length(dg) > 0) {
-      dg <- rbind(c(dg))
-      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab) else paste(rownames(tab), colnames(tab), sep=":")
+      # Diag() sorts coefficients alphabetically!
+      dg[,order(rownames(tab))] <- dg
+
+      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
+                      else paste(rownames(tab), colnames(tab), sep=":")
+
+      if(nrow(dg) > 1)
+          rownames(dg) <- dimnames(tab)[[3]]
+      else
+          rownames(dg) <- "All levels"
   }
 
   obj <- list(phi = phi, row = row, col = col, diagonal = dg,
@@ -211,8 +232,15 @@ assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) 
       stop("model must be a gnm object")
 
   # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-  tab <- as.table(model$data[!is.na(rownames(model$data)),
-                             !is.na(colnames(model$data))])
+  if(length(dim(model$data)) == 2)
+      tab <- as.table(model$data[!is.na(rownames(model$data)),
+                                 !is.na(colnames(model$data))])
+  else if(length(dim(model$data)) == 3)
+      tab <- as.table(model$data[!is.na(rownames(model$data)),
+                                 !is.na(colnames(model$data)),
+                                 !is.na(dimnames(model$data)[[3]])])
+  else
+      stop("Only two and three dimensional tables are supported")
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weights <- match.arg(weights)
@@ -258,8 +286,13 @@ assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) 
       }
   }
 
-  dg <- coef(model)[pickCoef(model, "Diag\\(")]
-  dg <- dg[match(order(names(dg)), order(rownames(tab)))]
+  if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+  else if(length(pickCoef(model, "Diag\\(")) > 0)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+  else
+      dg <- numeric(0)
+
 
   # Center
   sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
@@ -285,11 +318,19 @@ assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   dim(sc)[3] <- 1
   colnames(sc) <- colnames(phi) <- paste("Dim", 1:nd, sep="")
   rownames(sc) <- rownames(tab)
-  if(length(dg) > 0) {
-      dg <- rbind(c(dg))
-      colnames(dg) <- rownames(tab)
-  }
 
+  if(length(dg) > 0) {
+      # Diag() sorts coefficients alphabetically!
+      dg[,order(rownames(tab))] <- dg
+
+      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
+                      else paste(rownames(tab), colnames(tab), sep=":")
+
+      if(nrow(dg) > 1)
+          rownames(dg) <- dimnames(tab)[[3]]
+      else
+          rownames(dg) <- "All levels"
+  }
 
   obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
               weighting = weights, row.weights = p, col.weights = p)

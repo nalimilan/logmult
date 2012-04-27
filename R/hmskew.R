@@ -146,9 +146,13 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
 
   sc <- cbind(mu1, mu2)
 
-  dg <- coef(model)[pickCoef(model, "Diag\\(")]
-  dg <- coef(model)[pickCoef(model, "Diag\\(")]
-  dg <- dg[match(order(names(dg)), order(rownames(tab)))]
+  if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], dim(tab)[3], nrow(tab))
+  else if(length(pickCoef(model, "Diag\\(")) > 0)
+      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+  else
+      dg <- numeric(0)
+
 
   ## Normalize, cf. Clogg & Shihadeh (1994), eq. 5.3 et 5.4 (p. 83)
   # Center
@@ -186,9 +190,18 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   dim(sc)[3] <- 1
   colnames(sc) <- colnames(phi) <- paste("Dim", 1:2, sep="")
   rownames(sc) <- rownames(tab)
+
   if(length(dg) > 0) {
-      dg <- rbind(c(dg))
-      colnames(dg) <- rownames(tab)
+      # Diag() sorts coefficients alphabetically!
+      dg[,order(rownames(tab))] <- dg
+
+      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
+                      else paste(rownames(tab), colnames(tab), sep=":")
+
+      if(nrow(dg) > 1)
+          rownames(dg) <- dimnames(tab)[[3]]
+      else
+          rownames(dg) <- "All levels"
   }
 
   obj <- list(phi = phi, row = sc, col = sc, diagonal = dg,
