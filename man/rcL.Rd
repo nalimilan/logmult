@@ -10,7 +10,8 @@
   row and column scores, possibly combined with separate diagonal parameters.
 }
 \usage{
-  rcL(tab, nd = 1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
+  rcL(tab, nd = 1,
+     layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
      symmetric = FALSE, diagonal =c("none", "heterogeneous", "homogeneous"),
      weights = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
