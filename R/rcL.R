@@ -38,53 +38,68 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   else
       diagstr <- ""
 
+
+  f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
+               vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)
+
+  if(is.null(start)) {
+      cat("Running base model to find starting values...\n")
+
+      base <- gnm(as.formula(f), family=family, data=tab)
+
+      cat("Running real model...\n")
+  }
+
   if(symmetric) {
-      f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
-                   vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)
       if(layer.effect == "homogeneous.scores") {
           for(i in 1:nd)
               f <- paste(f, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)", vars[3], vars[1], vars[2], i))
+
+          if(is.null(start))
+              start <- c(coef(base), rep(NA, nd * (dim(tab)[3] + nrow(tab))))
       }
       else if(layer.effect == "heterogeneous") {
           stop("Symmetric association with heterogeneous layer effect is currently not supported")
 
           for(i in 1:nd)
               f <- paste(f, sprintf("+ MultHomog(%s:%s, %s:%s, inst = %i)", vars[3], vars[1], vars[3], vars[2], i))
+
+          if(is.null(start))
+              start <- c(coef(base), rep(NA, nd * nrow(tab)))
       }
       else {
-           f <- paste(f, sprintf("+ instances(MultHomog(%s, %s), %i)", vars[1], vars[2], nd))
-      }
+          f <- paste(f, sprintf("+ instances(MultHomog(%s, %s), %i)", vars[1], vars[2], nd))
 
-      if(is.null(start))
-          eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, tolerance=%e, iterMax=%i, trace=%s, ...)",
-                                  f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
-      else
-          eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
-                                  f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
+          if(is.null(start))
+              start <- c(coef(base), rep(NA, nd * nrow(tab)))
+      }
   }
   else {
-      if(layer.effect == "homogeneous.scores")
-          f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s, %s, %s), %i)",
-                       vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
-                       vars[3], vars[1], vars[2], nd)
-      else if(layer.effect == "heterogeneous")
-          f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s:%s, %s:%s), %i)",
-                       vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
-                       vars[3], vars[1], vars[3], vars[2], nd)
-      else
-          f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s, %s), %i)",
-                       vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
-                       vars[1], vars[2], nd)
+      if(layer.effect == "homogeneous.scores") {
+          f <- paste(f, sprintf("+ instances(Mult(%s, %s, %s), %i)",
+                                vars[3], vars[1], vars[2], nd))
 
-      if(is.null(start)) {
-          eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, tolerance=%e, iterMax=%i, trace=%s, ...)",
-                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
+          if(is.null(start))
+              start <- c(coef(base), rep(NA, nd * (nrow(tab) + ncol(tab) + dim(tab)[3])))
+      }
+      else if(layer.effect == "heterogeneous") {
+          f <- paste(f, sprintf("+ instances(Mult(%s:%s, %s:%s), %i)",
+                                vars[3], vars[1], vars[3], vars[2], nd))
+
+          if(is.null(start))
+              start <- c(coef(base), rep(NA, nd * dim(tab)[3] * (nrow(tab) + ncol(tab))))
       }
       else {
-          eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
-                                  f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
+          f <- paste(f, sprintf("+ instances(Mult(%s, %s), %i)",
+                                vars[1], vars[2], nd))
+
+          if(is.null(start))
+              start <- c(coef(base), rep(NA, nd * (nrow(tab) + ncol(tab))))
       }
   }
+
+  eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
+                          f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
 
   if(is.null(model))
       return(NULL)

@@ -46,6 +46,8 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   }
   else {
       if(is.null(start)) {
+          cat("Running base model to find starting values...\n")
+
           base <- gnm(as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
                       family=family, data=tab)
 
@@ -59,6 +61,8 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
       eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
                                f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
+
+      cat("Running real model...\n")
   }
 
   if(is.null(model))
