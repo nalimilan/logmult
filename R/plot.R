@@ -129,7 +129,6 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer=1,
                           rev.axes=c(FALSE, FALSE), cex=par("cex"),
                           col=c("blue", "red"), groups=NULL,
                           xlim, ylim, xlab, ylab, ...) {
-  what <- match.arg(what)
   coords <- match.arg(coords)
 
   if(!inherits(x, "rcL.symm"))

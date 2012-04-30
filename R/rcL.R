@@ -107,10 +107,15 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   newclasses <- if(symmetric) c("rcL.symm", "rcL") else "rcL"
   class(model) <- c(newclasses, class(model))
 
-  if(layer.effect == "none")
-      model$assoc <- assoc.rc(model, weights=weights)
-  else
-      model$assoc <- assoc.rcL(model, weights=weights)
+  if(layer.effect == "none") {
+      if(symmetric)
+          model$assoc <- assoc.rc.symm(model, weights=weights)
+      else
+          model$assoc <- assoc.rc(model, weights=weights)
+  }
+  else {
+      model$assoc <- assoc(model, weights=weights)
+  }
 
   class(model$assoc) <- if(symmetric) c("assoc.rcL", "assoc.symm", "assoc")
                         else c("assoc.rcL", "assoc")
@@ -466,17 +471,8 @@ assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...)
       dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], nl, nr)
   else if(length(pickCoef(model, "Diag\\(")) > 0)
       dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nr)
-  else  if(length(dg) > 0) {
-      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
-                      else paste(rownames(tab), colnames(tab), sep=":")
-
-      if(nrow(dg) > 1)
-          rownames(dg) <- dimnames(tab)[[3]]
-      else
-          rownames(dg) <- "All levels"
-  }
+  else
       dg <- numeric(0)
-
 
   # Center
   sc <- sweep(sc, 2:3, margin.table(sweep(sc, 1, p/sum(p), "*"), 2:3), "-")
