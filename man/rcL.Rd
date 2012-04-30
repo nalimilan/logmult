@@ -10,7 +10,7 @@
   row and column scores, possibly combined with separate diagonal parameters.
 }
 \usage{
-  rcL(tab, nd = 1, layer.effect=c("homogeneous", "heterogeneous", "none"),
+  rcL(tab, nd = 1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
      symmetric = FALSE, diagonal =c("none", "heterogeneous", "homogeneous"),
      weights = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
@@ -54,10 +54,10 @@
   where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
   \code{tab}, and M the number of dimensions. If \code{layer.effect} is set to \sQuote{heterogeneous}, different scores
   will be computed for each level, which is equivalent to fitting separate RC(M) models on the k two-way tables.
-  If it is set to \sQuote{homogeneous}, then \eqn{\mu_{ikm} = \mu_{im}} and \eqn{\nu_{ikm} = \nu_{im}} for all layers k:
-  only the \eqn{\phi_{km}} are allowed to vary accross layers. If it is set to \sQuote{none}, then in addition to the
-  previous conditions all \eqn{\phi_{km}} are forced equal for all layers k, which amounts to a stability of the
-  association accross layers. See references for detailed information about the variants of the model, the degrees
+  If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ikm} = \mu_{im}} and \eqn{\nu_{ikm} = \nu_{im}} for all
+  layers k: only the \eqn{\phi_{km}} are allowed to vary accross layers. If it is set to \sQuote{none}, then in addition
+  to the previous conditions all \eqn{\phi_{km}} are forced to be equal for all layers k, which amounts to a stability
+  of the association accross layers. See references for detailed information about the variants of the model, the degrees
   of freedom and the identification constraints applied to the scores.
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.

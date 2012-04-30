@@ -1,6 +1,6 @@
 ## RC(M)-L model Wong(2010))
 
-rcL <- function(tab, nd=1, layer.effect=c("homogeneous", "heterogeneous", "none"),
+rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
                 symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                 weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                 family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
@@ -33,7 +33,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous", "heterogeneous", "none"
 
   if(diagonal == "heterogeneous")
       diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
-  else if(diagonal == "homogeneous")
+  else if(diagonal == "homogeneous.scores")
       diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
   else
       diagstr <- ""
@@ -41,7 +41,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous", "heterogeneous", "none"
   if(symmetric) {
       f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
                    vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)
-      if(layer.effect == "homogeneous") {
+      if(layer.effect == "homogeneous.scores") {
           for(i in 1:nd)
               f <- paste(f, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)", vars[3], vars[1], vars[2], i))
       }
@@ -63,7 +63,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous", "heterogeneous", "none"
                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
   }
   else {
-      if(layer.effect == "homogeneous")
+      if(layer.effect == "homogeneous.scores")
           f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(Mult(%s, %s, %s), %i)",
                        vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
                        vars[3], vars[1], vars[2], nd)
@@ -90,12 +90,16 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous", "heterogeneous", "none"
       return(NULL)
 
   newclasses <- if(symmetric) c("rcL.symm", "rcL") else "rcL"
-
   class(model) <- c(newclasses, class(model))
 
-  model$assoc <- assoc(model, weights=weights)
+  if(layer.effect == "none")
+      model$assoc <- assoc.rc(model, weights=weights)
+  else
+      model$assoc <- assoc.rcL(model, weights=weights)
+
   class(model$assoc) <- if(symmetric) c("assoc.rcL", "assoc.symm", "assoc")
                         else c("assoc.rcL", "assoc")
+
 
   if(std.err == "jackknife") {
       cat("Computing jackknife standard errors...\n")
