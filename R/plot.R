@@ -192,8 +192,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   else
       x$col <- x$col[,,1]
 
-  if(length(x$diagonal) > 0)
+  if(isTRUE(nrow(x$diagonal) > 1))
       x$diagonal <- x$diagonal[layer,]
+  else if(length(x$diagonal) > 0)
+      x$diagonal <- x$diagonal[1,]
 
   if(inherits(x, "assoc.symm")) {
        stopifnot(identical(x$row, x$col))
