@@ -20,21 +20,21 @@
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = "dark grey", groups = NULL,
+     col = "blue", groups = NULL,
      xlim, ylim, xlab, ylab, ...)
 
 \method{plot}{hmskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
      arrow = 45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = "dark grey", groups = NULL,
+     col = "blue", groups = NULL,
      xlim, ylim, xlab, ylab, ...)
 
 \method{plot}{yrcskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0),
      arrow = 45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = "dark grey", groups = NULL,
+     col = "blue", groups = NULL,
      xlim, ylim, xlab, ylab, ...)
 
 \method{plot}{rcL}(x, dim = c(1, 2), layer = 1,
@@ -49,7 +49,7 @@
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = c("blue", "red"), groups = NULL,
+     col = "blue", groups = NULL,
      xlim, ylim, xlab, ylab, ...)
 
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
