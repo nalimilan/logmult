@@ -144,13 +144,13 @@
   ## Wong (2010), Figures 2.2 and 2.1 (p. 50-51)
   data(gss8590)
   model <- rc(margin.table(gss8590[,,c(2,4)], 1:2),
-              nd=2, weights="none", std.err="jackknife")
+              nd=2, weighting="none", std.err="jackknife")
   plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
   plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
 
   ## Wong (2010), Figures 4.1 and 4.2 (p. 108-109)
   data(gss7590)
-  model <- rcL(gss7590, nd=2, weights="none")
+  model <- rcL(gss7590, nd=2, weighting="none")
 
   par(mfrow=c(2, 2))
   for(i in 1:4)
@@ -168,7 +168,7 @@
   ## van der Heijden & Mooijaart (1995), Figure 1c (p. 23)
   data(ocg1973)
   # 5:1 is here to take "Farmers" as reference category (angle 0)
-  model <- hmskew(ocg1973[5:1, 5:1], weights="uniform")
+  model <- hmskew(ocg1973[5:1, 5:1], weighting="uniform")
   # Reproduce the plot from the original article
   plot(model, coords="cartesian")
   # Use a polar coordinates system, which makes more sense in this setting

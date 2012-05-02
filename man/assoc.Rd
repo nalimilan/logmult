@@ -9,17 +9,17 @@
 \alias{assoc.rcL.symm}
 \title{Identifying Scores from Association Models}
 \description{Identify log-multiplicative association scores from over-parameterized gnm models}
-\usage{\method{assoc}{rc}(model, weights = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{rc.symm}(model, weights = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{hmskew}(model, weights = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{yrcskew}(model, weights = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{rcL}(model, weights = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{rcL.symm}(model, weights = c("marginal", "uniform", "none"), ...)
+\usage{\method{assoc}{rc}(model, weighting = c("marginal", "uniform", "none"), ...)
+       \method{assoc}{rc.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
+       \method{assoc}{hmskew}(model, weighting = c("marginal", "uniform", "none"), ...)
+       \method{assoc}{yrcskew}(model, weighting = c("marginal", "uniform", "none"), ...)
+       \method{assoc}{rcL}(model, weighting = c("marginal", "uniform", "none"), ...)
+       \method{assoc}{rcL.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
 }
 \arguments{
   \item{model}{a \code{\link{gnm}} object, usually obtained using \code{\link{rc}}, \code{\link{hmskew}} or
                \code{\link{yrcskew}}, but not necessarily.}
-  \item{weights}{the weights to be used when normalizing scores (see \sQuote{Details}).}
+  \item{weighting}{the weights to be used when normalizing scores (see \sQuote{Details}).}
   \item{...}{currently unused.}
 }
 \details{

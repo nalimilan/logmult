@@ -36,10 +36,10 @@ class(RCTrans) <- "nonlin"
 
 rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
                     symmetric=FALSE, diagonal=FALSE,
-                    weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                    weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                     family=poisson, start=NULL, tolerance=1e-12, iterMax=50000, trace=TRUE, ...) {
   type <- match.arg(type)
-  weights <- match.arg(weights)
+  weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
 
@@ -122,13 +122,13 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
   newclasses <- if(symmetric) c("rcL.symm", "rcL.dyn", "rcL") else c("rcL.dyn", "rcL")
   class(model) <- c(newclasses, class(model))
 
-  model$assoc <- assoc(model, weights=weights)
+  model$assoc <- assoc(model, weighting=weighting)
 
   if(std.err == "jackknife") {
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weights)$jack.vcov
+                                      family, weighting)$jack.vcov
       scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),
                          c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
                            t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep=""))),
@@ -152,7 +152,7 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
 #   - two for each dimension of the fixed scores
 #   - two for each dimension of the variable scores
 #   - cross-dimensional constraints for fixed and variable scores
-assoc.rcL.dyn <- function(model, weights=c("marginal", "uniform", "none")) {
+assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
     if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -166,12 +166,12 @@ assoc.rcL.dyn <- function(model, weights=c("marginal", "uniform", "none")) {
   nl <- dim(tab)[3]
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-  weights <- match.arg(weights)
-  if(weights == "marginal") {
+  weighting <- match.arg(weighting)
+  if(weighting == "marginal") {
       rp <- prop.table(margin.table(tab, 1))
       cp <- prop.table(margin.table(tab, 2))
   }
-  else if(weights == "uniform") {
+  else if(weighting == "uniform") {
       rp <- rep(1/nr, nr)
       cp <- rep(1/nc, nc)
   }
@@ -327,7 +327,7 @@ assoc.rcL.dyn <- function(model, weights=c("marginal", "uniform", "none")) {
   }
 
   obj <- list(phi = layer, row = row, col = col, diagonal = dg,
-              weighting = weights, row.weights = rp, col.weights = cp)
+              weighting = weighting, row.weights = rp, col.weights = cp)
 
   class(obj) <- c("assoc.rcL.dyn", "assoc.rcL", "assoc")
   obj

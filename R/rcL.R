@@ -2,11 +2,11 @@
 
 rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
                 symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
-                weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                 family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
   layer.effect <- match.arg(layer.effect)
   diagonal <- match.arg(diagonal)
-  weights <- match.arg(weights)
+  weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
 
@@ -132,12 +132,12 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   if(layer.effect == "none") {
       if(symmetric)
-          model$assoc <- assoc.rc.symm(model, weights=weights)
+          model$assoc <- assoc.rc.symm(model, weighting=weighting)
       else
-          model$assoc <- assoc.rc(model, weights=weights)
+          model$assoc <- assoc.rc(model, weighting=weighting)
   }
   else {
-      model$assoc <- assoc(model, weights=weights)
+      model$assoc <- assoc(model, weighting=weighting)
   }
 
   class(model$assoc) <- if(symmetric) c("assoc.rcL", "assoc.symm", "assoc")
@@ -148,7 +148,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weights)$jack.vcov
+                                      family, weighting)$jack.vcov
       scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),
                          c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
                            t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep=""))),
@@ -168,7 +168,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 }
 
 
-assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
+assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -182,12 +182,12 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   nl <- dim(tab)[3]
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-  weights <- match.arg(weights)
-  if(weights == "marginal") {
+  weighting <- match.arg(weighting)
+  if(weighting == "marginal") {
       rp <- prop.table(margin.table(tab, 1))
       cp <- prop.table(margin.table(tab, 2))
   }
-  else if(weights == "uniform") {
+  else if(weighting == "uniform") {
       rp <- rep(1/nr, nr)
       cp <- rep(1/nc, nc)
   }
@@ -384,13 +384,13 @@ assoc.rcL <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   }
 
   obj <- list(phi = layer, row = row, col = col, diagonal = dg,
-              weighting = weights, row.weights = rp, col.weights = cp)
+              weighting = weighting, row.weights = rp, col.weights = cp)
 
   class(obj) <- c("assoc.rcL", "assoc")
   obj
 }
 
-assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) {
+assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -404,10 +404,10 @@ assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...)
   nl <- dim(tab)[3]
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-  weights <- match.arg(weights)
-  if(weights == "marginal")
+  weighting <- match.arg(weighting)
+  if(weighting == "marginal")
       p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
-  else if(weights == "uniform")
+  else if(weighting == "uniform")
       p <- rep(1/nr, nr)
   else
       p <- rep(1, nr)
@@ -558,7 +558,7 @@ assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...)
   }
 
   obj <- list(phi = layer, row = sc, col = sc, diagonal = dg,
-              weighting = weights, row.weights = p, col.weights = p)
+              weighting = weighting, row.weights = p, col.weights = p)
 
   class(obj) <- c("assoc.rcL", "assoc.symm", "assoc")
   obj

@@ -70,7 +70,7 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)),
 }
 
 # Additional arguments are needed so that update() finds them even when using parLapply
-theta.assoc <- function(x, model, assoc1, assoc2, family, weights, ..., base=NULL, verbose=FALSE) {
+theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=NULL, verbose=FALSE) {
   data <- model$data
   library(gnm)
 
@@ -105,7 +105,7 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weights, ..., base=NUL
           stop("Model for cell ", which(!1:length(data) %in% x), " did not converge!")
   }
 
-  ass1 <- assoc1(model, weights=weights)
+  ass1 <- assoc1(model, weighting=weighting)
   ret <- c(t(ass1$phi))
 
   if(dim(ass1$row)[3] == 1) {
@@ -124,7 +124,7 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weights, ..., base=NUL
 
   # For double association models like some hmskew and yrcskew variants
   if(!is.null(assoc2)) {
-      ass2 <- assoc2(model, weights=weights)
+      ass2 <- assoc2(model, weighting=weighting)
       ret <- c(ret, t(ass2$phi))
 
       if(dim(ass2$row)[3] == 1) {
@@ -146,7 +146,7 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weights, ..., base=NUL
   ret
 }
 
-# theta.yrcskew <- function(x, model, assoc1, assoc2, family, weights, ..., base=NULL, verbose=FALSE) {
+# theta.yrcskew <- function(x, model, assoc1, assoc2, family, weighting, ..., base=NULL, verbose=FALSE) {
 #   library(gnm)
 # 
 #   data <- model$data
@@ -180,14 +180,14 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weights, ..., base=NUL
 #           stop("Model for cell ", which(!1:nrow(data) %in% x), " did not converge!")
 #   }
 # 
-#   ass1 <- assoc1(model, weights=weights)
+#   ass1 <- assoc1(model, weighting=weighting)
 #   ret <- c(ass1$phi, ass1$row, ass1$col,
 #            sweep(ass1$row, 2, sqrt(ass1$phi), "*"),
 #            sweep(ass1$col, 2, sqrt(ass1$phi), "*"))
 # 
 #   # For double association models like some hmskew and yrcskew variants
 #   if(!is.null(assoc2)) {
-#       ass2 <- assoc2(model, weights=weights)
+#       ass2 <- assoc2(model, weighting=weighting)
 #       ret <- c(ret, ass2$phi, ass2$row, ass2$col,
 #                     sweep(ass2$row, 2, sqrt(ass2$phi), "*"),
 #                     sweep(ass2$col, 2, sqrt(ass2$phi), "*"))

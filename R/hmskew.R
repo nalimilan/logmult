@@ -13,9 +13,9 @@ HMSkew <- function(row, col, inst=NULL) {
 class(HMSkew) <- "nonlin"
 
 hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
-                   weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                   weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                    family=poisson, start=NULL, tolerance=1e-12, iterMax=15000, trace=TRUE, ...) {
-  weights <- match.arg(weights)
+  weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
 
@@ -79,7 +79,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       return(NULL)
 
   if(!is.na(nd.symm)) {
-      model$assoc <- assoc.rc.symm(model, weights=weights)
+      model$assoc <- assoc.rc.symm(model, weighting=weighting)
       class(model) <- c("hmskew", "rc.symm", "rc", class(model))
   }
   else {
@@ -87,7 +87,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       class(model) <- c("hmskew", class(model))
   }
 
-  model$assoc.hmskew <- assoc.hmskew(model, weights=weights)
+  model$assoc.hmskew <- assoc.hmskew(model, weighting=weighting)
 
 
   if(std.err == "jackknife") {
@@ -96,7 +96,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
       cat("Computing jackknife standard errors...\n")
       covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model, assoc1, assoc2,
-                          family, weights, HMSkew=HMSkew, base=base)$jack.vcov
+                          family, weighting, HMSkew=HMSkew, base=base)$jack.vcov
 
       if(!is.na(nd.symm)) {
           lim <- nd.symm + nd.symm * nrow(tab) + nd.symm * ncol(tab)
@@ -118,7 +118,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   model
 }
 
-assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
+assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -127,10 +127,10 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
                              !is.na(colnames(model$data))])
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, et Becker & Clogg (1989), p. 144.
-  weights <- match.arg(weights)
-  if(weights == "marginal")
+  weighting <- match.arg(weighting)
+  if(weighting == "marginal")
       p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
-  else if(weights == "uniform")
+  else if(weighting == "uniform")
       p <- rep(1/nrow(tab), nrow(tab))
   else
       p <- rep(1, nrow(tab))
@@ -205,10 +205,10 @@ assoc.hmskew <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   }
 
   obj <- list(phi = phi, row = sc, col = sc, diagonal = dg,
-              weighting = weights, row.weights = p, col.weights = p)
+              weighting = weighting, row.weights = p, col.weights = p)
 
   class(obj) <- c("assoc.hmskew", "assoc.symm", "assoc")
   obj
 }
 
-assoc <- function(model, weights, ...) UseMethod("assoc", model)
+assoc <- function(model, weighting, ...) UseMethod("assoc", model)

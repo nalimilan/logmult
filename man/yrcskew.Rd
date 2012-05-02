@@ -10,7 +10,7 @@
 }
 \usage{
 yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
-        weights = c("marginal", "uniform", "none"),
+        weighting = c("marginal", "uniform", "none"),
         std.err = c("none", "jackknife"), family = poisson,
         start = NULL, tolerance = 1e-12, iterMax = 15000, trace = TRUE, ...)
 }
@@ -23,7 +23,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   \item{nd.skew}{ the number of dimensions to include in the \emph{skew-symmetric} RC(M) association.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model.}
-  \item{weights}{ what weights should be used when normalizing the scores.}
+  \item{weighting}{ what weights should be used when normalizing the scores.}
   \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
   \item{family}{ a specification of the error distribution and link function
@@ -77,9 +77,9 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   \item{col }{Column scores, normalized so that their (weighted) mean is 0, their (weighted)
     sum is 1, and their (weighted) cross-dimensional correlation is null.}
   \item{row.weights }{The row weights used for the identification of scores, as specified by the
-    \code{weights} argument.}
+    \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
-    \code{weights} argument.}
+    \code{weighting} argument.}
   \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{std.err}
     was set. It contains first phi coefficients, then normalized row and column scores, then
     sqrt(phi) * row/column scores.}
@@ -108,7 +108,7 @@ Milan Bouchet-Valat
   data(ocg1973)
 
   # Simple symmetric RC(1) model ("Null skew-symmetry")
-  rc.model <- rc(ocg1973, diagonal=TRUE, symmetric=TRUE, weights="none")
+  rc.model <- rc(ocg1973, diagonal=TRUE, symmetric=TRUE, weighting="none")
   # Reported phi is slightly different, coefficients agree
   rc.model
   \dontshow{
@@ -120,7 +120,7 @@ Milan Bouchet-Valat
   # Note model does not always converge, several attempts may be needed
   # Here we set known starting values to be sure it works
   set.seed(5)
-  model <- yrcskew(ocg1973, nd.symm=1, nd.skew=1, diagonal=TRUE, weights="none")
+  model <- yrcskew(ocg1973, nd.symm=1, nd.skew=1, diagonal=TRUE, weighting="none")
   # We do not get the same results as the author, but the smaller deviance
   # indicates a better fit in our version (!)
   model

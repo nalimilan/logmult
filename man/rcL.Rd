@@ -12,8 +12,8 @@
 \usage{
   rcL(tab, nd = 1,
      layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
-     symmetric = FALSE, diagonal =c("none", "heterogeneous", "homogeneous"),
-     weights = c("marginal", "uniform", "none"),
+     symmetric = FALSE, diagonal = c("none", "heterogeneous", "homogeneous"),
+     weighting = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
      start=NULL, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
 }
@@ -29,7 +29,7 @@
   \item{diagonal}{ what type of diagonal-specific parameters to include in the model, if any. This amounts to
     taking quasi-conditional independence, rather than conditional independence, as the baseline model.
     Valid only for square tables.}
-  \item{weights}{ what weights should be used when normalizing the scores.}
+  \item{weighting}{ what weights should be used when normalizing the scores.}
   \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
   \item{family}{ a specification of the error distribution and link function
@@ -76,9 +76,9 @@
   \item{weighting }{The name of the weighting method used, reflected by \code{row.weights}
     and \code{col.weights}.}
   \item{row.weights }{The row weights used for the identification of scores, as specified by the
-    \code{weights} argument.}
+    \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
-    \code{weights} argument.}
+    \code{weighting} argument.}
   \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{std.err}
     was set. It contains first phi coefficients, then normalized row and column scores, then
     sqrt(phi) * row/column scores.}
@@ -109,7 +109,7 @@
       # Limit the workload for CRAN checks
       options(cl.cores=2)
   }
-  model <- rcL(gss7590, nd=2, weights="none", std.err="jackknife")
+  model <- rcL(gss7590, nd=2, weighting="none", std.err="jackknife")
   model
   se.rcL(model) # Jackknife standard errors are slightly different
                 # from their asymptotic counterparts
@@ -127,9 +127,9 @@
 
      # Check scores of heterogeneous model (scores not given by Wong)
      model.heterog <- rcL(gss7590, nd=2, layer.effect="heterogeneous",
-                          weights="none", tolerance=1e-8)
+                          weighting="none", tolerance=1e-8)
      sep.models <- lapply(1:4, function(i)
-         rc(gss7590[,,i], nd=2,weights="none", tolerance=1e-8))
+         rc(gss7590[,,i], nd=2, weighting="none", tolerance=1e-8))
      # Level 2 does not converge properly because there are too few farmers:
      # values are always slightly different and cannot be checked
      stopifnot(isTRUE(all.equal(model.heterog$assoc$phi[-2,],

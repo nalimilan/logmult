@@ -10,7 +10,7 @@
 }
 \usage{
   rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
-     weights = c("marginal", "uniform", "none"),
+     weighting = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
      start=NULL, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
 }
@@ -23,7 +23,7 @@
   \item{symmetric}{ should row and column scores be constrained to be equal? Valid only for square tables.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model. Valid only for square tables.}
-  \item{weights}{ what weights should be used when normalizing the scores.}
+  \item{weighting}{ what weights should be used when normalizing the scores.}
   \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
   \item{family}{ a specification of the error distribution and link function
@@ -65,9 +65,9 @@
   \item{weighting }{The name of the weighting method used, reflected by \code{row.weights}
     and \code{col.weights}.}
   \item{row.weights }{The row weights used for the identification of scores, as specified by the
-    \code{weights} argument.}
+    \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
-    \code{weights} argument.}
+    \code{weighting} argument.}
   \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{std.err}
     was set. It contains first phi coefficients, then normalized row and column scores, then
     sqrt(phi) * row/column scores.}
@@ -119,14 +119,14 @@
       occupationalStatus <- occupationalStatus[-6,-6]
 
       model <- rc(occupationalStatus, diagonal=TRUE, symmetric=TRUE,
-                  weights="none")
+                  weighting="none")
       stopifnot(round(model$assoc$phi[1,1], d=3) == 6.10)
       stopifnot(isTRUE(all.equal(round(c(model$assoc$row), d=3),
                                  c(0.532, 0.438, 0.206, -0.031,
                                    -0.216, -0.426, -0.503))))
 
       model <- rc(occupationalStatus, diagonal=TRUE, symmetric=TRUE,
-                  weights="uniform")
+                  weighting="uniform")
       stopifnot(round(model$assoc$phi[1,1], d=3) == 0.871)
       stopifnot(isTRUE(all.equal(round(c(model$assoc$row), d=3),
                                  c(1.409, 1.159, 0.544, -0.082,
@@ -162,13 +162,13 @@
   }
   # "Uniform weights" in the authors' terms mean "no weighting"
   # Average marginals are currently not supported
-  caithness.unweighted <- rc(color[,,1], nd=2, weights="none",
+  caithness.unweighted <- rc(color[,,1], nd=2, weighting="none",
                              std.err="jackknife")
-  caithness.marginal <- rc(color[,,1], nd=2, weights="marginal",
+  caithness.marginal <- rc(color[,,1], nd=2, weighting="marginal",
                            std.err="jackknife")
-  aberdeen.unweighted <- rc(color[,,2], nd=2, weights="none",
+  aberdeen.unweighted <- rc(color[,,2], nd=2, weighting="none",
                             std.err="jackknife")
-  aberdeen.marginal <- rc(color[,,2], nd=2, weights="marginal",
+  aberdeen.marginal <- rc(color[,,2], nd=2, weighting="marginal",
                           std.err="jackknife")
   caithness.unweighted
   caithness.marginal
@@ -188,9 +188,9 @@
 
   ## Clogg & Shihadeh (1994), Tables 3.5a and b (p. 55-61)
   data(gss88)
-  unweighted <- rc(gss88, weights="none")$assoc
-  marginal <- rc(gss88, weights="marginal")$assoc
-  uniform <- rc(gss88, weights="uniform")$assoc
+  unweighted <- rc(gss88, weighting="none")$assoc
+  marginal <- rc(gss88, weighting="marginal")$assoc
+  uniform <- rc(gss88, weighting="uniform")$assoc
   # Row scores
   row.scores <- round(cbind(unweighted$row,
                             unweighted$row * sqrt(unweighted$phi[1,]),
@@ -234,7 +234,7 @@
   # with that of Wong (2001)
   tab <- margin.table(gss8590[,,c(2,4)], 1:2)
   tab[2,4] <- 49
-  model <- rc(tab, nd=2, weights="none", std.err="jackknife")
+  model <- rc(tab, nd=2, weighting="none", std.err="jackknife")
   model
   \dontshow{
       # A few scores differ from reported results by .001

@@ -1,9 +1,9 @@
 ## RC(M) model
 
 rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
-               weights=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+               weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
-  weights <- match.arg(weights)
+  weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
 
@@ -71,13 +71,13 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   newclasses <- if(symmetric) c("rc.symm", "rc") else "rc"
   class(model) <- c(newclasses, class(model))
 
-  model$assoc <- assoc(model, weights=weights)
+  model$assoc <- assoc(model, weighting=weighting)
 
   if(std.err == "jackknife") {
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weights)$jack.vcov
+                                      family, weighting)$jack.vcov
       scnames <- c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
                    t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep="")))
       rownames(model$assoc$covmat) <- colnames(model$assoc$covmat) <-
@@ -93,7 +93,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   model
 }
 
-assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
+assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -109,12 +109,12 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
       stop("Only two and three dimensional tables are supported")
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-  weights <- match.arg(weights)
-  if(weights == "marginal") {
+  weighting <- match.arg(weighting)
+  if(weighting == "marginal") {
       rp <- prop.table(margin.table(tab, 1))
       cp <- prop.table(margin.table(tab, 2))
   }
-  else if(weights == "uniform") {
+  else if(weighting == "uniform") {
       rp <- rep(1/nrow(tab), nrow(tab))
       cp <- rep(1/ncol(tab), ncol(tab))
   }
@@ -224,14 +224,14 @@ assoc.rc <- function(model, weights=c("marginal", "uniform", "none"), ...) {
   }
 
   obj <- list(phi = phi, row = row, col = col, diagonal = dg,
-              weighting = weights, row.weights = rp, col.weights = cp)
+              weighting = weighting, row.weights = rp, col.weights = cp)
 
   class(obj) <- c("assoc.rc", "assoc")
   obj
 }
 
 ## RC(M) model with symmetric row and column scores
-assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) {
+assoc.rc.symm <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -247,10 +247,10 @@ assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) 
       stop("Only two and three dimensional tables are supported")
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-  weights <- match.arg(weights)
-  if(weights == "marginal")
+  weighting <- match.arg(weighting)
+  if(weighting == "marginal")
       p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
-  else if(weights == "uniform")
+  else if(weighting == "uniform")
       p <- rep(1/nrow(tab), nrow(tab))
   else
       p <- rep(1, nrow(tab))
@@ -337,10 +337,10 @@ assoc.rc.symm <- function(model, weights=c("marginal", "uniform", "none"), ...) 
   }
 
   obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
-              weighting = weights, row.weights = p, col.weights = p)
+              weighting = weighting, row.weights = p, col.weights = p)
 
   class(obj) <- c("assoc.rc", "assoc.symm", "assoc")
   obj
 }
 
-assoc <- function(model, weights, ...) UseMethod("assoc", model)
+assoc <- function(model, weighting, ...) UseMethod("assoc", model)
