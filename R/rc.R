@@ -33,16 +33,10 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   else
       diagstr <- ""
 
+
   if(symmetric) {
       f <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
-
-      if(is.null(start))
-          eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, tolerance=%e, iterMax=%i, trace=%s, ...)",
-                                  f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
-      else
-          eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
-                                  f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
   }
   else {
       if(is.null(start)) {
@@ -55,15 +49,32 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
           # called "vars" in the global environment if not handled like this
           res <- eval(parse(text=sprintf("residSVD(base, %s, %s, %i)", vars[1], vars[2], nd)))
           start <- c(rep(NA, length(coef(base))), res)
+
+          cat("Running real model...\n")
       }
 
       f <- sprintf("Freq ~ %s + %s %s+ instances(Mult(%s, %s), %i)",
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
-      eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
-                               f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
-
-      cat("Running real model...\n")
   }
+
+  # Convenience function to call gnm with the only arguments it needs
+  # We cannot run gnm() directly if we want the call to be clean,
+  # notably so that update() works and so that ... is correctly passed
+  run.gnm <- function(...) {
+      args <- as.list(match.call())
+
+      # These are the arguments we need to appear evaluated in the call,
+      # since the objects won't be present when calling update()
+      args$formula <- as.formula(eval(args$formula))
+      args$tolerance <- eval(args$tolerance)
+      args$iterMax <- eval(args$iterMax)
+      args$trace <- eval(args$trace)
+
+      do.call("gnm", args[-1])
+  }
+
+  model <- run.gnm(formula=f, data=tab, family=family, start=start,
+                   tolerance=tolerance, iterMax=iterMax, trace=trace, ...)
 
   if(is.null(model))
       return(NULL)
