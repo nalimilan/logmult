@@ -52,8 +52,6 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       basef <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                        vars[1], vars[2], diagstr, vars[1], vars[2], nd.symm)
 
-  # Shut up an R CMD check NOTE
-  base <- NULL
 
   if(is.null(start)) {
       # Without good starting values, estimation can fail when running start-up iterations
@@ -61,8 +59,14 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       cat("Running base model to find starting values...\n")
 
       # Setting tolerance to a value below 1e-6 can lead to convergence issues with large tables
-      eval(parse(text=sprintf("base <- gnm(%s, data=tab, family=family, iterMax=%i, trace=%s, ...)",
-                              basef, iterMax, if(trace) "TRUE" else "FALSE")))
+      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+      args <- list(formula=as.formula(basef),
+                   data=tab, family=family, start=start,
+                   tolerance=1e-3, iterMax=iterMax, trace=trace)
+      dots <- as.list(substitute(list(...)))[-1]
+      args <- c(args, dots)
+
+      base <- do.call("gnm", args)
 
       coefs <- coef(base)
       coefs[base$constrain] <- base$constrainTo
@@ -73,24 +77,14 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
   f <- sprintf("%s + HMSkew(%s, %s)", basef, vars[1], vars[2])
 
-  # Convenience function to call gnm with the only arguments it needs
-  # We cannot run gnm() directly if we want the call to be clean,
-  # notably so that update() works and so that ... is correctly passed
-  run.gnm <- function(...) {
-      args <- as.list(match.call())
+  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+  args <- list(formula=eval(as.formula(f)), data=substitute(tab),
+               family=substitute(family), start=start,
+               tolerance=tolerance, iterMax=iterMax, trace=trace)
+  dots <- as.list(substitute(list(...)))[-1]
+  args <- c(args, dots)
 
-      # These are the arguments we need to appear evaluated in the call,
-      # since the objects won't be present when calling update()
-      args$formula <- as.formula(eval(args$formula))
-      args$tolerance <- eval(args$tolerance)
-      args$iterMax <- eval(args$iterMax)
-      args$trace <- eval(args$trace)
-
-      do.call("gnm", args[-1])
-  }
-
-  model <- run.gnm(formula=f, data=tab, family=family, start=start,
-                   tolerance=tolerance, iterMax=iterMax, trace=trace, ...)
+  model <- do.call("gnm", args)
 
   if(is.null(model))
       return(NULL)

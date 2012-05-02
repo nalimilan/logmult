@@ -45,7 +45,14 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(is.null(start)) {
       cat("Running base model to find starting values...\n")
 
-      base <- gnm(as.formula(paste(f1, diagstr)), family=family, data=tab)
+      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+      args <- list(formula=eval(as.formula(paste(f1, diagstr))), data=tab,
+                   family=family,
+                   tolerance=1e-3, iterMax=iterMax)
+      dots <- as.list(substitute(list(...)))[-1]
+      args <- c(args, dots)
+
+      base <- do.call("gnm", args)
   }
 
   if(symmetric) {
@@ -107,8 +114,14 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(!is.null(base) && diagonal == "heterogeneous") {
       cat("Running model with homogeneous diagonal parameters...\n")
 
-      base2 <- gnm(as.formula(paste(f1, diagstr, f2)),
-                   family=family, data=tab, start=start, trace=trace)
+      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+      args <- list(formula=as.formula(paste(f1, diagstr, f2)),
+                   data=tab, family=family, start=start,
+                   tolerance=1e-3, iterMax=iterMax, trace=trace)
+      dots <- as.list(substitute(list(...)))[-1]
+      args <- c(args, dots)
+
+      base2 <- do.call("gnm", args)
 
       start <- c(head(coef(base2), length(coef(base)) - nrow(tab)),
                  rep(NA, nrow(tab) * dim(tab)[3]), tail(coef(base2),
@@ -121,24 +134,14 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(!is.null(base))
       cat("Running real model...\n")
 
-  # Convenience function to call gnm with the only arguments it needs
-  # We cannot run gnm() directly if we want the call to be clean,
-  # notably so that update() works and so that ... is correctly passed
-  run.gnm <- function(...) {
-      args <- as.list(match.call())
+  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+  args <- list(formula=eval(as.formula(paste(f1, diagstr, f2))), data=substitute(tab),
+               family=substitute(family), start=start,
+               tolerance=tolerance, iterMax=iterMax, trace=trace)
+  dots <- as.list(substitute(list(...)))[-1]
+  args <- c(args, dots)
 
-      # These are the arguments we need to appear evaluated in the call,
-      # since the objects won't be present when calling update()
-      args$formula <- as.formula(eval(args$formula))
-      args$tolerance <- eval(args$tolerance)
-      args$iterMax <- eval(args$iterMax)
-      args$trace <- eval(args$trace)
-
-      do.call("gnm", args[-1])
-  }
-
-  model <- run.gnm(formula=paste(f1, diagstr, f2), data=tab, family=family, start=start,
-                   tolerance=tolerance, iterMax=iterMax, trace=trace, ...)
+  model <- do.call("gnm", args)
 
   if(is.null(model))
       return(NULL)

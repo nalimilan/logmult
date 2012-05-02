@@ -42,8 +42,14 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
       if(is.null(start)) {
           cat("Running base model to find starting values...\n")
 
-          base <- gnm(as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
-                      family=family, data=tab)
+          # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+          args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
+                       data=tab, family=family, start=start,
+                       tolerance=tolerance, iterMax=iterMax)
+          dots <- as.list(substitute(list(...)))[-1]
+          args <- c(args, dots)
+
+          base <- do.call("gnm", args)
 
           # residSVD evaluates the variable names in parent.frame(), which uses any object
           # called "vars" in the global environment if not handled like this
@@ -57,24 +63,14 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
   }
 
-  # Convenience function to call gnm with the only arguments it needs
-  # We cannot run gnm() directly if we want the call to be clean,
-  # notably so that update() works and so that ... is correctly passed
-  run.gnm <- function(...) {
-      args <- as.list(match.call())
+  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+  args <- list(formula=eval(as.formula(f)), data=substitute(tab),
+               family=substitute(family), start=start,
+               tolerance=tolerance, iterMax=iterMax, trace=trace)
+  dots <- as.list(substitute(list(...)))[-1]
+  args <- c(args, dots)
 
-      # These are the arguments we need to appear evaluated in the call,
-      # since the objects won't be present when calling update()
-      args$formula <- as.formula(eval(args$formula))
-      args$tolerance <- eval(args$tolerance)
-      args$iterMax <- eval(args$iterMax)
-      args$trace <- eval(args$trace)
-
-      do.call("gnm", args[-1])
-  }
-
-  model <- run.gnm(formula=f, data=tab, family=family, start=start,
-                   tolerance=tolerance, iterMax=iterMax, trace=trace, ...)
+  model <- do.call("gnm", args)
 
   if(is.null(model))
       return(NULL)
