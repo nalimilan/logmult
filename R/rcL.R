@@ -536,11 +536,13 @@ assoc.rcL.symm <- function(model, weights=c("marginal", "uniform", "none"), ...)
   ## Prepare objects
   rownames(sc) <- rownames(tab)
   colnames(sc) <- colnames(layer) <- paste("Dim", 1:nd, sep="")
+  rownames(layer) <- dimnames(tab)[[3]]
 
   if(!homogeneous)
       dimnames(sc)[[3]] <- dimnames(tab)[[3]]
   else
       dimnames(sc)[[3]] <- "All levels"
+
 
   if(length(dg) > 0) {
       # Diag() sorts coefficients alphabetically!
