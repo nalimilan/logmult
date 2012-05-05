@@ -239,7 +239,20 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   # Integrate phi to scores for graphical representation
   # Cf. Wong (2010), eq. 2.17 and 2.38, or Clogg & Shihadeh (1994), p. 91
-  sc[,dim] <- sweep(sc[,dim], 2, sqrt(abs(x$phi[dim])) * sign(x$phi[dim]), "*")
+  sc[,dim] <- sweep(sc[,dim], 2, sqrt(abs(x$phi[dim])), "*")
+
+  # If phi is negative, change sign of columns so that the interpretation
+  # is consistent with positive phi
+  # This does not make sense for symmetric association
+  if(!inherits(x, "assoc.symm")) {
+      if(what == "columns")
+          sc[,dim] <- sweep(sc[,dim], 2, sign(x$phi[dim]), "*")
+      else if(what == "both")
+          sc[-(1:nrow(x$row)),dim] <- sweep(sc[-(1:nrow(x$row)),dim], 2, sign(x$phi[dim]), "*")
+
+      # For printing below
+      x$phi[dim] <- abs(x$phi[dim])
+  }
 
   if(isTRUE(rev.axes[1]))
       sc[,dim[1]] <- -sc[,dim[1]]
