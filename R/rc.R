@@ -142,11 +142,11 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
 
   nd <- 0
   while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
-                                                nd + 1, vars[1],
+      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(\\., \\Q%s\\E, inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                vars[2], nd + 1, vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
-                                                nd + 1, vars[2],
+      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(\\Q%s\\E, \\., inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                vars[1], nd + 1, vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
 
       if(!(length(mu) == nrow(tab) && length(nu) == ncol(tab)))
@@ -160,11 +160,11 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   }
 
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\)\\.\\Q%s\\E(\\Q%s\\E)$",
-                                                vars[1],
+      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(\\., \\Q%s\\E)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                vars[2], vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\)\\.\\Q%s\\E(\\Q%s\\E)$",
-                                                vars[2],
+      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(\\Q%s\\E, \\.)\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                vars[1], vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
 
       if(length(mu) == nrow(tab) && length(nu) == ncol(tab)) {
