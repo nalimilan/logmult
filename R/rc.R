@@ -2,7 +2,7 @@
 
 rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-               family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
+               family=poisson, start=NA, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
@@ -37,14 +37,18 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   if(symmetric) {
       f <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
+
+
+      if(!is.null(start) && is.na(start))
+          start <- NULL
   }
   else {
-      if(is.null(start)) {
+      if(!is.null(start) && is.na(start)) {
           cat("Running base model to find starting values...\n")
 
           # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
           args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
-                       data=tab, family=family, start=start,
+                       data=tab, family=family,
                        tolerance=tolerance, iterMax=iterMax)
           dots <- as.list(substitute(list(...)))[-1]
           args <- c(args, dots)

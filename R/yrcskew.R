@@ -14,7 +14,7 @@ class(YRCSkew) <- "nonlin"
 
 yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                     weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                    family=poisson, start=NULL, tolerance=1e-12, iterMax=15000, trace=TRUE, ...) {
+                    family=poisson, start=NA, tolerance=1e-12, iterMax=15000, trace=TRUE, ...) {
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
@@ -59,14 +59,14 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                        vars[1], vars[2], diagstr, vars[1], vars[2], nd.symm)
 
 
-  if(is.null(start)) {
+  if(!is.null(start) && is.na(start)) {
       # Without good starting values, estimation can fail when running start-up iterations
       # with large tables
       cat("Running base model to find starting values...\n")
 
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(basef),
-                   data=tab, family=family, start=start,
+                   data=tab, family=family,
                    tolerance=1e-3, iterMax=iterMax, trace=trace)
       dots <- as.list(substitute(list(...)))[-1]
       args <- c(args, dots)

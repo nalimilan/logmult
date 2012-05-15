@@ -3,7 +3,7 @@
 rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
                 symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                 weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                family=poisson, start=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
+                family=poisson, start=NA, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
   layer.effect <- match.arg(layer.effect)
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
@@ -42,7 +42,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   base <- NULL
 
-  if(is.null(start)) {
+  if(!is.null(start) && is.na(start)) {
       cat("Running base model to find starting values...\n")
 
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
@@ -63,7 +63,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
               f2 <- paste(f2, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)",
                                       vars[3], vars[1], vars[2], i))
 
-          if(is.null(start))
+          if(!is.null(start) && is.na(start))
               start <- c(coef(base), rep(NA, nd * (dim(tab)[3] + nrow(tab))))
       }
       else if(layer.effect == "heterogeneous") {
@@ -75,13 +75,13 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
               f2 <- paste(f2, sprintf("+ MultHomog(%s:%s, %s:%s, inst = %i)", 
                                       vars[3], vars[1], vars[3], vars[2], i))
 
-          if(is.null(start))
+          if(!is.null(start) && is.na(start))
               start <- c(coef(base), rep(NA, nd * nrow(tab)))
       }
       else {
           f2 <- sprintf("+ instances(MultHomog(%s, %s), %i)", vars[1], vars[2], nd)
 
-          if(is.null(start))
+          if(!is.null(start) && is.na(start))
               start <- c(coef(base), rep(NA, nd * nrow(tab)))
       }
   }
@@ -90,21 +90,21 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
           f2 <- sprintf("+ instances(Mult(%s, %s, %s), %i)",
                         vars[3], vars[1], vars[2], nd)
 
-          if(is.null(start))
+          if(!is.null(start) && is.na(start))
               start <- c(coef(base), rep(NA, nd * (nrow(tab) + ncol(tab) + dim(tab)[3])))
       }
       else if(layer.effect == "heterogeneous") {
           f2 <- sprintf("+ instances(Mult(%s:%s, %s:%s), %i)",
                         vars[3], vars[1], vars[3], vars[2], nd)
 
-          if(is.null(start))
+          if(!is.null(start) && is.na(start))
               start <- c(coef(base), rep(NA, nd * dim(tab)[3] * (nrow(tab) + ncol(tab))))
       }
       else {
           f2 <- sprintf("+ instances(Mult(%s, %s), %i)",
                         vars[1], vars[2], nd)
 
-          if(is.null(start))
+          if(!is.null(start) && is.na(start))
               start <- c(coef(base), rep(NA, nd * (nrow(tab) + ncol(tab))))
       }
   }

@@ -12,7 +12,7 @@
 hmskew(tab, nd.symm = NA, diagonal = FALSE,
        weighting = c("marginal", "uniform", "none"),
        std.err = c("none", "jackknife"), family = poisson,
-       start = NULL, tolerance = 1e-12, iterMax = 15000, trace = TRUE, ...)
+       start = NA, tolerance = 1e-12, iterMax = 15000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -29,9 +29,9 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
      to be used in the model. This can be a character string naming
      a family function; a family function, or the result of a call
      to a family function. See \code{\link{family}} details of family functions.}
-  \item{start}{a vector of starting values for the parameters in the model;
-     if a starting value is \code{NA}, the default starting value will
-     be used.}
+  \item{start}{either \code{NA} (the default) to use reasonable starting values, \code{NULL} to use
+     random starting values, or a vector of starting values for the parameters in the model;
+     if a starting value is \code{NA}, the default starting value will be used.}
   \item{tolerance}{ a positive numeric value specifying the tolerance level for
      convergence; higher values will speed up the fitting process, but beware of numerical
      instability of estimated scores!}
@@ -61,6 +61,10 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife standard errors, and plotting.
+  The default starting values correspond to the parameters computed for the model without association
+  parameters (\dQuote{base model}); association parameters start with random starting values. In some complex
+  cases, using \code{start = NA} to get completely random starting values can be more efficient, but it is also
+  less stable.
 }
 \value{
   A \code{hmskew} object, which is a subclass of an \code{rc.symm} object (see \code{\link{rc}}) unless

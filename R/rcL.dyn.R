@@ -37,7 +37,7 @@ class(RCTrans) <- "nonlin"
 rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
                     symmetric=FALSE, diagonal=FALSE,
                     weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                    family=poisson, start=NULL, tolerance=1e-12, iterMax=50000, trace=TRUE, ...) {
+                    family=poisson, start=NA, tolerance=1e-12, iterMax=50000, trace=TRUE, ...) {
   type <- match.arg(type)
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
@@ -81,7 +81,7 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
 #               f <- paste(f, sprintf("+ MultHomog(%s:%s, %:s%s)", vars[3], vars[1], vars[3], vars[2], i))
 #       }
 # 
-#       if(is.null(start))
+#       if(!is.null(start) && is.na(start))
 #           eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, tolerance=%e, iterMax=%i, trace=%s, ...)",
 #                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
 #       else
@@ -89,7 +89,7 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
 #                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
   }
   else {
-      if(is.null(start)) {
+      if(!is.null(start) && is.na(start)) {
           cat("Running base model to find starting values...\n")
           base <- gnm(as.formula(sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s + instances(Mult(%s, %s), %i)",
                                          vars[1], vars[2], vars[3],
