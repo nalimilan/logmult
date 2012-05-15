@@ -517,14 +517,14 @@ pointLabel <- function(x, y = NULL, labels = seq(along = x), cex = 1,
           gene[i] = sample(1:8, 1)
       gene
     }
-  
+
     # Crossbreed two genes, then mutate at "hot spots" where intersections remain
     crossbreed <- function(g1, g2)
-      ifelse(sample(c(0,1), length(g1), repl = TRUE) > .5, g1, g2)
+      ifelse(sample(c(0,1), length(g1), replace = TRUE) > .5, g1, g2)
 
 
-    genes = matrix(sample(1:8, n_labels * n_startgenes, repl = TRUE), n_startgenes, n_labels)
-  
+    genes = matrix(sample(1:8, n_labels * n_startgenes, replace = TRUE), n_startgenes, n_labels)
+
     for (i in 1:10) {
       scores = array(0., NROW(genes))
       for (j in 1:NROW(genes))
