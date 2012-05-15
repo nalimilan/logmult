@@ -264,6 +264,15 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
 
           layer <- matrix(phi, nl, 1)
       }
+      # Fully heterogeneous scores
+      else if(length(phi) == 0 &&
+              length(mu) == nr * nl &&
+              length(nu) == nc * nl) {
+          homogeneous <- FALSE
+          row <- array(mu, dim=c(nr, 1, nl))
+          col <- array(nu, dim=c(nc, 1, nl))
+          layer <- matrix(1, nl, 1)
+      }
       else {
           stop("No dimensions found. Are you sure this is a row-column association model with layer effect?")
       }
@@ -440,7 +449,6 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
   if(length(vars) == 0)
       vars <- c("Var1", "Var2", "Var3")
 
-
   # Find out the number of dimensions
   nd <- 0
   while(length(pickCoef(model, paste("Mult\\(.*MultHomog\\(.*inst =", nd + 1))) > 0)
@@ -470,6 +478,13 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
           }
 
           layer <- matrix(phi, nl, 1)
+      }
+      # Fully heterogeneous scores
+      else if(length(phi) == 0 &&
+              length(mu) == nr * nl) {
+          homogeneous <- FALSE
+          sc <- array(mu, dim=c(nr, 1, nl))
+          layer <- matrix(1, nl, 1)
       }
       else {
           stop("No dimensions found. Are you sure this is a symmetric row-column association model with layer effect?")
