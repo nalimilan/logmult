@@ -54,7 +54,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
           # residSVD evaluates the variable names in parent.frame(), which uses any object
           # called "vars" in the global environment if not handled like this
           res <- eval(parse(text=sprintf("residSVD(base, %s, %s, %i)", vars[1], vars[2], nd)))
-          start <- c(rep(NA, length(coef(base))), res)
+          start <- c(coef(base), res)
 
           cat("Running real model...\n")
       }
