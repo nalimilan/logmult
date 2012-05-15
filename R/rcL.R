@@ -277,54 +277,55 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
           stop("No dimensions found. Are you sure this is a row-column association model with layer effect?")
       }
   }
+  else {
+      # Several dimensions: prepare arrays before filling them
+      row <- array(NA, dim=c(nr, nd, nl))
+      col <- array(NA, dim=c(nc, nd, nl))
+      layer <- matrix(NA, nl, nd)
 
-  # Several dimensions: prepare arrays before filling them
-  row <- array(NA, dim=c(nr, nd, nl))
-  col <- array(NA, dim=c(nc, nd, nl))
-  layer <- matrix(NA, nl, nd)
+      for(i in 1:nd) {
+          mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+                                                    vars[3], i, vars[1],
+                                                    paste(rownames(tab), collapse="\\E|\\Q")))]
+          nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+                                                    vars[3], i, vars[2],
+                                                    paste(colnames(tab), collapse="\\E|\\Q")))]
+          phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                     i, vars[3],
+                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
-  for(i in 1:nd) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
-                                                vars[3], i, vars[1],
-                                                paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
-                                                vars[3], i, vars[2],
-                                                paste(colnames(tab), collapse="\\E|\\Q")))]
-      phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
-                                                 i, vars[3],
-                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
+          # Homogeneous scores for rows and/or columns
+          if(length(phi) == nl &&
+             (length(mu) == nr || length(mu) == nr * nl) &&
+             (length(nu) == nc || length(nu) == nc * nl)) {
+              if(length(mu) == nr)
+                  row[,i,1] <- mu
+              else {
+                  row[,i,] <- t(matrix(mu, nl, nr))
+                  homogeneous <- FALSE
+              }
 
-      # Homogeneous scores for rows and/or columns
-      if(length(phi) == nl &&
-         (length(mu) == nr || length(mu) == nr * nl) &&
-         (length(nu) == nc || length(nu) == nc * nl)) {
-          if(length(mu) == nr)
-              row[,i,1] <- mu
-          else {
+              if(length(nu) == nc)
+                  col[,i,1] <- nu
+              else {
+                  col[,i,] <- t(matrix(nu, nl, nc))
+                  homogeneous <- FALSE
+              }
+
+              layer[,i] <- phi
+          }
+          # Fully heterogeneous scores
+          else if(length(phi) == 0 &&
+                  length(mu) == nr * nl &&
+                  length(nu) == nc * nl) {
+              homogeneous <- FALSE
               row[,i,] <- t(matrix(mu, nl, nr))
-              homogeneous <- FALSE
-          }
-
-          if(length(nu) == nc)
-              col[,i,1] <- nu
-          else {
               col[,i,] <- t(matrix(nu, nl, nc))
-              homogeneous <- FALSE
+              layer[,i] <- 1
           }
-
-          layer[,i] <- phi
-      }
-      # Fully heterogeneous scores
-      else if(length(phi) == 0 &&
-              length(mu) == nr * nl &&
-              length(nu) == nc * nl) {
-          homogeneous <- FALSE
-          row[,i,] <- t(matrix(mu, nl, nr))
-          col[,i,] <- t(matrix(nu, nl, nc))
-          layer[,i] <- 1
-      }
-      else {
-          stop("Invalid dimensions found. Are you sure this is a row-column association model with layer effect?")
+          else {
+              stop("Invalid dimensions found. Are you sure this is a row-column association model with layer effect?")
+          }
       }
   }
 
@@ -490,40 +491,41 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
           stop("No dimensions found. Are you sure this is a symmetric row-column association model with layer effect?")
       }
   }
+  else {
+      # Several dimensions: prepare arrays before filling them
+      sc <- array(NA, dim=c(nr, nd, nl))
+      layer <- matrix(NA, nl, nd)
 
-  # Several dimensions: prepare arrays before filling them
-  sc <- array(NA, dim=c(nr, nd, nl))
-  layer <- matrix(NA, nl, nd)
+      for(i in 1:nd) {
+          mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*MultHomog\\(.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+                                                    i, vars[1], vars[2],
+                                                    paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
+          phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
+                                                     i, vars[3],
+                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
-  for(i in 1:nd) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*MultHomog\\(.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
-                                                i, vars[1], vars[2],
-                                                paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
-      phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
-                                                 i, vars[3],
-                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
+          # Homogeneous scores
+          if(length(phi) == nl &&
+             (length(mu) == nr || length(mu) == nr * nl)) {
+              if(length(mu) == nr)
+                  sc[,i,1] <- mu
+              else {
+                  sc[,i,] <- t(matrix(mu, nl, nr))
+                  homogeneous <- FALSE
+              }
 
-      # Homogeneous scores
-      if(length(phi) == nl &&
-         (length(mu) == nr || length(mu) == nr * nl)) {
-          if(length(mu) == nr)
-              sc[,i,1] <- mu
-          else {
-              sc[,i,] <- t(matrix(mu, nl, nr))
-              homogeneous <- FALSE
+              layer[,i] <- phi
           }
-
-          layer[,i] <- phi
-      }
-      # Fully heterogeneous scores
-      else if(length(phi) == 0 &&
-              length(mu) == nr * nl) {
-          homogeneous <- FALSE
-          sc[,i,] <- t(matrix(mu, nl, nr))
-          layer[,i] <- 1
-      }
-      else {
-          stop("Invalid dimensions found. Are you sure this is a symmetric row-column association model with layer effect?")
+          # Fully heterogeneous scores
+          else if(length(phi) == 0 &&
+                  length(mu) == nr * nl) {
+              homogeneous <- FALSE
+              sc[,i,] <- t(matrix(mu, nl, nr))
+              layer[,i] <- 1
+          }
+          else {
+              stop("Invalid dimensions found. Are you sure this is a symmetric row-column association model with layer effect?")
+          }
       }
   }
 
