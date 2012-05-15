@@ -6,11 +6,12 @@
   association in the formula argument to \code{\link{gnm}}.
 }
 \usage{
-  HMSkew(row, col, inst=NULL)
+  HMSkew(row, col, inst = NULL)
 }
 \arguments{
   \item{row}{the levels of the row variable}
   \item{col}{the levels of the column variable}
+  \item{inst}{a positive integer specifying the instance number of the term}
 }
 \details{
   This function is used by \code{\link{hmskew}} to fit skew-symmetric models proposed by
