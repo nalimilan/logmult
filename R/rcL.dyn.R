@@ -10,9 +10,7 @@ RCReg <- function(row, col, layer, inst=NULL) {
        call = as.expression(match.call()),
        match = c(1, 2, 3, 1, 2),
        start = function(theta) {
-       # This seems to do more harm than good
-       # theta[attr(theta, "assign") %in% c(4, 5)] <- 0
-           theta[attr(theta, "assign") == 3] <- seq(0, 1, length.out=sum(attr(theta, "assign") == 3))
+           theta[attr(theta, "assign") == 3] <- sqrt(seq(0, 1, length.out=sum(attr(theta, "assign") == 3)))
            theta
        })
    }
@@ -101,11 +99,10 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
                                          vars[1], vars[2], nd)),
                       family=family, data=tab)
 
-          start <- c(rep(NA, length(coef(base)) - (nrow(tab) + ncol(tab)) * nd))
-#           start <- coef(base)[seq(1, length(coef(base)) - (nrow(tab) + ncol(tab)) * nd)]
+          start <- coef(base)[seq(1, length(coef(base)) - (nrow(tab) + ncol(tab)) * nd)]
           for(i in 1:nd) {
               start <- c(start, coef(base)[pickCoef(base, paste("Mult.*inst =", i))],
-                         seq(0, 1, length.out=dim(tab)[3]), rep(NA, nrow(tab) + ncol(tab)))
+                         sqrt(seq(0, 1, length.out=dim(tab)[3])), rep(NA, nrow(tab) + ncol(tab)))
           }
 
           cat("Running real model...\n")
