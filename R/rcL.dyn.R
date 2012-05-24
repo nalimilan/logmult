@@ -35,10 +35,11 @@ RCTrans <- function(row, col, layer, inst=NULL) {
 class(RCTrans) <- "nonlin"
 
 rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
-                    symmetric=FALSE, diagonal=FALSE,
+                    symmetric=FALSE, diagonal=c("none", "homogeneous", "heterogeneous"),
                     weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
                     family=poisson, start=NA, tolerance=1e-12, iterMax=50000, trace=TRUE, ...) {
   type <- match.arg(type)
+  diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
@@ -64,7 +65,9 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
   if(length(vars) == 0)
       vars <- c("Var1", "Var2", "Var3")
 
-  if(diagonal)
+  if(diagonal == "homogeneous")
+      diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
+  else if(diagonal == "heterogeneous")
       diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
   else
       diagstr <- ""
