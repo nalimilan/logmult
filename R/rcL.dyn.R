@@ -4,8 +4,8 @@ RCReg <- function(row, col, layer, inst=NULL) {
   list(predictors = list(R1=substitute(row), C1=substitute(col), substitute(layer), R2=substitute(row), C2=substitute(col)),
        term = function(predLabels, varLabels) {
            sprintf("(%s + %s * (%s)^2) * (%s + %s * (%s)^2)",
-                   predLabels[4], predLabels[1], predLabels[3],
-                   predLabels[5], predLabels[2], predLabels[3])
+                   predLabels[1], predLabels[4], predLabels[3],
+                   predLabels[2], predLabels[5], predLabels[3])
        },
        call = as.expression(match.call()),
        match = c(1, 2, 3, 1, 2),
@@ -111,9 +111,11 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
                    vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
                    if(type == "regression") "RCReg" else "RCTrans", vars[1], vars[2], vars[3], nd)
 
-      eval(parse(text=sprintf('model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, constrain="(RCReg|RCTrans).*\\\\.[RC][12])\\\\Q%s\\\\E(\\\\Q%s\\\\E|\\\\Q%s\\\\E)$", ...)',
+      # For RCReg, both constraints are really needed: the computed scores are wrong without them
+      # (rows are ordered along an oblique axis, and columns get weird values)
+      eval(parse(text=sprintf('model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, constrain="(RCReg|RCTrans).*\\\\.\\\\Q%s\\\\E(\\\\Q%s\\\\E|\\\\Q%s\\\\E)$", constrainTo=rep(0:1, %i), ...)',
                               f, tolerance, iterMax, if(trace) "TRUE" else "FALSE",
-                              names(dimnames(tab))[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1))))
+                              names(dimnames(tab))[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1), nd)))
   }
 
   if(is.null(model))
@@ -149,9 +151,8 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
 
 # Number of constraints applied:
 #   - two layer coefficients (normally already present in the model)
-#   - two for each dimension of the fixed scores
-#   - two for each dimension of the variable scores
-#   - cross-dimensional constraints for fixed and variable scores
+#   - two for each dimension of the start scores
+#   - two for each dimension of the end scores
 assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
     if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
@@ -285,40 +286,75 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
   row1 <- sweep(row1, 2, colSums(sweep(row1, 1, rp/sum(rp), "*")), "-")
   col1 <- sweep(col1, 2, colSums(sweep(col1, 1, cp/sum(cp), "*")), "-")
 
-  # Compute scores for all layer states
-  row <- array(row, dim=c(nr, nd, nl))
-  col <- array(col, dim=c(nc, nd, nl))
-
-  for(i in 1:nl) {
-      row[,,i] <- row[,,i] + sweep(row1, 2, layer[i,], "*")
-      col[,,i] <- col[,,i] + sweep(col1, 2, layer[i,], "*")
-  }
-
-  # Normalize all layer states
-  for(i in 1:nl) {
-#       phir <- sqrt(colSums(apply(as.matrix(row[,,i])^2, 2, "*", rp)))
-#       phic <- sqrt(colSums(apply(as.matrix(col[,,i])^2, 2, "*", cp)))
-#       row[,,i] <- sweep(as.matrix(row[,,i]), 2, phir, "/")
-#       col[,,i] <- sweep(as.matrix(col[,,i]), 2, phic, "/")
-#       layer[i,] <- phir * phic
-      lambda <- matrix(0, nrow(tab), ncol(tab))
-      for(j in 1:nd) {
-          lambda <- lambda + row[,j,i] %o% col[,j,i]
-      }
-      lambda0 <- lambda * sqrt(rp %o% cp) # Eq. A.4.3
-      sv <- svd(lambda0)
-      row[,,i] <- diag(1/sqrt(rp)) %*% sv$u[,1:nd] # Eq. A.4.7
-      col[,,i] <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
-      layer[i,] <- sv$d[1:nd]
-  }
-
 
   ## Prepare objects
-  colnames(row) <- colnames(col) <- colnames(row1) <- colnames(col1) <- colnames(layer) <- paste("Dim", 1:nd, sep="")
+  if(any(grepl("RCTrans", names(coef(model))))) {
+      # Scale
+      phir <- sqrt(colSums(sweep(row^2, 1, rp, "*")))
+      phic <- sqrt(colSums(sweep(col^2, 1, cp, "*")))
+      row <- sweep(row, 2, phir, "/")
+      col <- sweep(col, 2, phic, "/")
+      phi <- phir * phic
 
-  rownames(row) <- rownames(row1) <- rownames(tab)
-  rownames(col) <- rownames(col1) <- colnames(tab)
-  rownames(layer) <- dimnames(tab)[[3]]
+      phi1r <- sqrt(colSums(sweep(row1^2, 1, rp, "*")))
+      phi1c <- sqrt(colSums(sweep(col1^2, 1, cp, "*")))
+      row1 <- sweep(row1, 2, phi1r, "/")
+      col1 <- sweep(col1, 2, phi1c, "/")
+      phi1 <- phi1r * phi1c
+
+      layer <- cbind(sweep(1 - layer, 2, phi, "*"), sweep(layer, 2, phi1, "*"))
+      colnames(layer) <- c(paste("Dim", 1:nd, " S", sep=""), paste("Dim", 1:nd, " E", sep=""))
+      rownames(layer) <- dimnames(tab)[[3]]
+
+      row <- array(cbind(row, row1), dim=c(nrow(row), 2 * nd, 1), dimnames=list(rownames(tab), colnames(layer)))
+      col <- array(cbind(col, col1), dim=c(nrow(col), 2 * nd, 1), dimnames=list(colnames(tab), colnames(layer)))
+  }
+  else if(any(grepl("RCReg", names(coef(model))))) {
+      row <- array(row, dim=c(nrow(row), nd, nl)) +
+                 sweep(array(row1, dim=c(nrow(row1), nd, nl)), 3:2, layer, "*")
+      col <- array(col, dim=c(nrow(col), nd, nl)) +
+                 sweep(array(col1, dim=c(nrow(col1), nd, nl)), 3:2, layer, "*")
+
+      phir <- sqrt(margin.table(sweep(row^2, 1, rp, "*"), 2:3))
+      phic <- sqrt(margin.table(sweep(col^2, 1, cp, "*"), 2:3))
+      row <- sweep(row, 2:3, phir, "/")
+      col <- sweep(col, 2:3, phic, "/")
+      layer <- t(phir * phic)
+
+      # Order dimensions according to phi on first layer category
+      ord <- order(abs(layer[1,]), decreasing=TRUE)
+      layer <- layer[,ord, drop=FALSE]
+      row <- row[,ord,, drop=FALSE]
+      col <- col[,ord,, drop=FALSE]
+
+      colnames(layer) <- colnames(row) <- colnames(col) <- paste("Dim", 1:nd, sep="")
+      rownames(row) <- rownames(tab)
+      rownames(col) <- colnames(tab)
+      rownames(layer) <- dimnames(tab)[[3]]
+  }
+  else {
+      stop("Invalid model")
+  }
+
+
+  # Since the sign of scores is arbitrary, conventionally choose positive scores
+  # for the first row category: this ensures the results are stable when jackknifing.
+  for(i in 1:dim(row)[3]) {
+      for(j in 1:nd) {
+          if(row[1,j,i] < 0) {
+              row[,j,i] <- -row[,j,i]
+              col[,j,i] <- -col[,j,i]
+          }
+      }
+  }
+
+  # Scores can switch sides from one layer to another
+  # Reverse axes for each layer state so that the scores are positively correlated to the first layer scores for rows
+  for(i in seq_len(dim(row)[3] - 1)) {
+      chg <- ifelse(diag(cor(row[,,i+1], row[,,1])) >= 0, 1, -1)
+      row[,,i+1] <- sweep(row[,,i+1], 2, chg, "*")
+      col[,,i+1] <- sweep(col[,,i+1], 2, chg, "*")
+  }
 
   if(length(dg) > 0) {
       colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
