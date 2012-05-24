@@ -87,6 +87,7 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
 #       else
 #           eval(parse(text=sprintf("model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, ...)",
 #                                   f, tolerance, iterMax, if(trace) "TRUE" else "FALSE")))
+        model <- NULL
   }
   else {
       if(!is.null(start) && is.na(start)) {
@@ -111,11 +112,19 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
                    vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
                    if(type == "regression") "RCReg" else "RCTrans", vars[1], vars[2], vars[3], nd)
 
-      # For RCReg, both constraints are really needed: the computed scores are wrong without them
-      # (rows are ordered along an oblique axis, and columns get weird values)
-      eval(parse(text=sprintf('model <- gnm(%s, data=tab, family=family, start=start, tolerance=%e, iterMax=%i, trace=%s, constrain="(RCReg|RCTrans).*\\\\.\\\\Q%s\\\\E(\\\\Q%s\\\\E|\\\\Q%s\\\\E)$", constrainTo=rep(0:1, %i), ...)',
-                              f, tolerance, iterMax, if(trace) "TRUE" else "FALSE",
-                              names(dimnames(tab))[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1), nd)))
+      args <- list(formula=eval(as.formula(f)), data=substitute(tab),
+                   family=substitute(family),
+                   # For RCReg, both constraints are really needed: the computed scores are wrong without them
+                   # (rows are ordered along an oblique axis, and columns get weird values)
+                   constrain=sprintf("(RCReg|RCTrans).*\\\\.\\\\Q%s\\\\E(\\\\Q%s\\\\E|\\\\Q%s\\\\E)$",
+                                     names(dimnames(tab))[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1), nd),
+                   constrainTo=rep(0:1, nd),
+                   start=start,
+                   tolerance=tolerance, iterMax=iterMax, trace=trace)
+      dots <- as.list(substitute(list(...)))[-1]
+      args <- c(args, dots)
+
+      model <- do.call("gnm", args)
   }
 
   if(is.null(model))
