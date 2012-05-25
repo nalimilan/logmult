@@ -14,28 +14,28 @@
      conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
      col = c("blue", "red"), groups = NULL,
-     xlim, ylim, xlab, ylab, ...)
+     xlim, ylim, xlab, ylab, main, ...)
 
 \method{plot}{rc.symm}(x, dim = c(1, 2),
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
      col = "blue", groups = NULL,
-     xlim, ylim, xlab, ylab, ...)
+     xlim, ylim, xlab, ylab, main, ...)
 
 \method{plot}{hmskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
      arrow = 45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
      col = "blue", groups = NULL,
-     xlim, ylim, xlab, ylab, ...)
+     xlim, ylim, xlab, ylab, main, ...)
 
 \method{plot}{yrcskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0),
      arrow = 45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
      col = "blue", groups = NULL,
-     xlim, ylim, xlab, ylab, ...)
+     xlim, ylim, xlab, ylab, main, ...)
 
 \method{plot}{rcL}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"),
@@ -43,14 +43,14 @@
      conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
      col = c("blue", "red"), groups = NULL,
-     xlim, ylim, xlab, ylab, ...)
+     xlim, ylim, xlab, ylab, main, ...)
 
 \method{plot}{rcL.symm}(x, dim = c(1, 2), layer = 1,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
      col = "blue", groups = NULL,
-     xlim, ylim, xlab, ylab, ...)
+     xlim, ylim, xlab, ylab, main, ...)
 
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"),
@@ -58,7 +58,7 @@
      arrow = NULL, conf.ellipses = FALSE, coords = c("cartesian", "polar"),
      rev.axes = c(FALSE, FALSE), cex = par("cex"),
      col = c("blue", "red"), groups = NULL,
-     xlim, ylim, xlab, ylab, ...)
+     xlim, ylim, xlab, ylab, main, ...)
 }
 \arguments{
   \item{x}{an association model returned by \code{\link{rc}}, \code{\link{hmskew}} or
@@ -95,12 +95,14 @@
              See also \code{luminosity}.}
   \item{groups}{a vector indicating what point symbols should be used, recycled as necessary; groups will
                 use \code{pch} values 21, 24, 22, 23 and 25, in this order, cycling if needed.}
+  \item{xlim}{numeric vector of length 2, giving the x coordinates range.}
+  \item{ylim}{numeric vector of length 2, giving the y coordinates range.}
   \item{xlab}{a title for the x axis: see \code{\link{title}}. For RC(M) axes and Cartesian coordinates,
               the default is \dQuote{Dimension N (phi)}; it is empty in other cases where axes have no meaning.}
   \item{ylab}{a title for the y axis: see \code{\link{title}}. For RC(M) axes and Cartesian coordinates,
               the default is \dQuote{Dimension N (phi)}; it is empty in other cases where axes have no meaning.}
-  \item{xlim}{numeric vector of length 2, giving the x coordinates range.}
-  \item{ylim}{numeric vector of length 2, giving the y coordinates range.}
+  \item{main}{an overall title for the plot: see \code{\link{title}}. If missing for RC(M)-L models, the name of
+              the plotted layer will be used.}
   \item{...}{Further arguments passed to \code{\link{plot}}.}
 }
 \details{
