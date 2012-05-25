@@ -1,22 +1,18 @@
-\name{rcL}
-\alias{rcL}
-\alias{print.rcL}
-\alias{print.rcL.symm}
-\title{Fitting Row-Column Association Models With Layer Effect}
+\name{rcL.dyn}
+\alias{rcL.dyn}
+\title{Fitting Row-Column Association Models With Regression-Type Layer Effect}
 \description{
-  \code{rcL} fits log-multiplicative row-column association models with layer effect,
-  with one or several dimensions. Supported variants include homogeneous or heterogeneous
-  scores over the layer variable, and (for square tables) symmetric (homogeneous)
-  row and column scores, possibly combined with separate diagonal parameters.
+  \code{rcL.dyn} fits log-multiplicative row-column association models with regression-type,
+  layer effect with one or several dimensions. Supported variants include (for square tables)
+  symmetric (homogeneous) row and column scores, and separate diagonal parameters.
 }
 \usage{
-  rcL(tab, nd = 1,
-      layer.effect = c("homogeneous.scores", "heterogeneous", "none"),
-      symmetric = FALSE,
-      diagonal = c("none", "heterogeneous", "homogeneous"),
-      weighting = c("marginal", "uniform", "none"),
-      std.err = c("none", "jackknife"), family = poisson,
-      start = NA, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
+  rcL.dyn(tab, nd = 1,
+          symmetric = FALSE,
+          diagonal = c("none", "heterogeneous", "homogeneous"),
+          weighting = c("marginal", "uniform", "none"),
+          std.err = c("none", "jackknife"), family = poisson,
+          start = NA, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -24,8 +20,6 @@
   \item{nd}{ the number of dimensions to include in the model. Cannot exceed
     \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
-  \item{layer.effect}{ determines the form of the interaction between row-column association and layers.
-     See \dQuote{Details} below.}
   \item{symmetric}{ should row and column scores be constrained to be equal? Valid only for square tables.}
   \item{diagonal}{ what type of diagonal-specific parameters to include in the model, if any. This amounts to
     taking quasi-conditional independence, rather than conditional independence, as the baseline model.
@@ -50,17 +44,33 @@
   \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
 }
 \details{
-  This function fits log-multiplicative row-column association models with layer effect, usually called (after
-  Wong) RC(M)-L models, typically following the equation:
-  \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k + \sum_{m=1}^M { \phi_{km} \mu_{ikm} \nu_{jkm} } }
+  This function fits log-multiplicative row-column association models with regression-type layer effect, which are
+  and experimental model combining the principles behind RC(M)-L (Wong, 2010; see \code{\link{rcL}}) and regression-type
+  models (Goodman & Hout, 1983). More specifically, like RC(M)-L models, row and column scores are allowed to vary accross
+  a layer variable, and the pattern of this variation follows the regression-type inspiration: for each dimension, a set of
+  scores describes the first layer, another set describes the total variation of these scores need to describe the
+  association observed for the last layer, and one parameter per layer describes the position of the layer between the
+  first and the last layer. Compared with the RC(M)-L model with homogeneous scores accross layers, this models allows
+  for a finer description of changes since the ordering and distances of categories on a dimension are allowed to vary,
+  and not only the general strength of the association. It is designed to describe transitions from one state to another,
+  and is best suited for ordered layer variables like time (though the model is not sensitive to reordering of the layers).
+
+  The general equation of the model is:
+  \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
+               + \sum_{m=1}^M { \phi_{km} (\mu^S_{im} + \psi_km \mu^V_{im}) (\nu^S_{jm} + \psi_km \nu^V{jm}) }}
   where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
-  \code{tab}, and M the number of dimensions. If \code{layer.effect} is set to \sQuote{heterogeneous}, different scores
-  will be computed for each level, which is equivalent to fitting separate RC(M) models on the k two-way tables.
-  If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ikm} = \mu_{im}} and \eqn{\nu_{ikm} = \nu_{im}} for all
-  layers k: only the \eqn{\phi_{km}} are allowed to vary accross layers. If it is set to \sQuote{none}, then in addition
-  to the previous conditions all \eqn{\phi_{km}} are forced to be equal for all layers k, which amounts to a stability
-  of the association accross layers. See references for detailed information about the variants of the model, the degrees
-  of freedom and the identification constraints applied to the scores.
+  \code{tab}, and M the number of dimensions. The \eqn{\psi_km} parameter is constrained to be positive, equal to 0
+  for the first layer (\eqn{m = 1}), and equal to 1 for the last layer.
+
+  This model should not be confused with another combination of RC(M) models with the regression-type approach,
+  presented by Goodman & Hout (1998:180), in which two separate RC(M) associations are used to describe respectively
+  the stable and the varying components. In the present model, row and column scores for both components are summed
+  \emph{before} entering the multiplicative interaction, which means only one RC(M) association exists.
+
+  The returned object is a generic rcL association describing the fitted scores for each layer. To analyze more
+  specifically the variation of each (normalized) score from the first to the last layer, use:
+  \code{model$assoc$row[,,dim(model$assoc$row)[3]] - model$assoc$row[,,1]}
+  (and similarly for column scores).
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
@@ -99,6 +109,9 @@
   a good sign that proper convergence was not attained at the chosen tolerance level.)
 }
 \references{
+  Goodman, L.A., and Hout, M. (1998). Statistical Methods and Graphical Displays for Analyzing How the Association
+      Between Two Qualitative Variables Differs Among Countries, Among Groups, Or Over Time: A Modified Regression-Type
+      Approach. \emph{Sociological Methodology} 28(1), 175-230.
   Wong, R.S-K. (2010). Association models. SAGE: Quantitative Applications in the Social Sciences.
 }
 \author{
@@ -108,53 +121,7 @@
   \code{\link{plot.rcL}}, \code{\link{gnm}}
 }
 \examples{
-  ## Wong (2010), Table 4.7 (p. 103), model 9
-  data(gss7590)
-  \dontshow{
-      # Limit the workload for CRAN checks
-      options(cl.cores=2)
-  }
-  model <- rcL(gss7590, nd=2, weighting="none", std.err="jackknife")
-  model
-  se.rcL(model) # Jackknife standard errors are slightly different
-                # from their asymptotic counterparts
-  # See ?plot.rcL for plotting
-  \dontshow{
-      stopifnot(all.equal(round(c(model$assoc$phi), d=3),
-                          c(3.075, 3.474,  2.949, 2.460,
-                            0.539, 1.686, -0.770, 1.891)))
-      stopifnot(all.equal(round(c(model$assoc$row[,,1]), d=3),
-                          c(0.640,  0.239, -0.168, -0.711,
-                            0.731, -0.217, -0.636,  0.121)))
-      stopifnot(all.equal(round(c(model$assoc$col[,,1]), d=3),
-                          c(0.765,  0.250, -0.398, -0.273, -0.344,
-                            0.071, -0.480, -0.198, -0.216,  0.824)))
 
-     # Check scores of heterogeneous model (scores not given by Wong)
-     model.heterog <- rcL(gss7590, nd=2, layer.effect="heterogeneous",
-                          weighting="none", tolerance=1e-8)
-     sep.models <- lapply(1:4, function(i)
-         rc(gss7590[,,i], nd=2, weighting="none", tolerance=1e-8))
-     # Level 2 does not converge properly because there are too few farmers:
-     # values are always slightly different and cannot be checked
-     stopifnot(isTRUE(all.equal(model.heterog$assoc$phi[-2,],
-                                rbind(sep.models[[1]]$assoc$phi,
-                                      sep.models[[3]]$assoc$phi,
-                                      sep.models[[4]]$assoc$phi),
-                                check.attributes=FALSE)))
-     stopifnot(isTRUE(all.equal(model.heterog$assoc$row[,,-2],
-                                array(c(sep.models[[1]]$assoc$row,
-                                      sep.models[[3]]$assoc$row,
-                                      sep.models[[4]]$assoc$row),
-                                      dim=c(nrow(gss7590), 2, 3)),
-                                check.attributes=FALSE)))
-     stopifnot(isTRUE(all.equal(model.heterog$assoc$col[,,-2],
-                                array(c(sep.models[[1]]$assoc$col,
-                                      sep.models[[3]]$assoc$col,
-                                      sep.models[[4]]$assoc$col),
-                                      dim=c(ncol(gss7590), 2, 3)),
-                                check.attributes=FALSE)))
-  }
 }
 
 \keyword{ models }

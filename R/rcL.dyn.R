@@ -33,43 +33,10 @@ RCRegHomog <- function(row, col, layer, inst=NULL) {
    }
 class(RCRegHomog) <- "nonlin"
 
-RCTrans <- function(row, col, layer, inst=NULL) {
-  list(predictors = list(R1=substitute(row), C1=substitute(col), substitute(layer), R2=substitute(row), C2=substitute(col)),
-       term = function(predLabels, varLabels) {
-           sprintf("(%s * %s * (1 - (%s)^2)) + (%s * %s * (%s)^2)",
-                   predLabels[1], predLabels[2], predLabels[3],
-                   predLabels[4], predLabels[5], predLabels[3])
-       },
-       call = as.expression(match.call()),
-       match = c(1, 2, 3, 1, 2),
-       start = function(theta) {
-           theta[attr(theta, "assign") == 3] <- seq(0, 1, length.out=sum(attr(theta, "assign") == 3))
-           theta
-       })
-  }
-class(RCTrans) <- "nonlin"
 
-RCTransHomog <- function(row, col, layer, inst=NULL) {
-  list(predictors = list(R1=substitute(row), C1=substitute(col), substitute(layer), R2=substitute(row), C2=substitute(col)),
-       term = function(predLabels, varLabels) {
-           sprintf("(%s * %s * (1 - (%s)^2)) + (%s * %s * (%s)^2)",
-                   predLabels[1], predLabels[2], predLabels[3],
-                   predLabels[4], predLabels[5], predLabels[3])
-       },
-       call = as.expression(match.call()),
-       match = c(1, 2, 3, 1, 2),
-       common = c(1, 1, 3, 2, 2),
-       start = function(theta) {
-           theta[attr(theta, "assign") == 3] <- seq(0, 1, length.out=sum(attr(theta, "assign") == 3))
-           theta
-       })
-  }
-class(RCTransHomog) <- "nonlin"
-
-rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
-                    symmetric=FALSE, diagonal=c("none", "homogeneous", "heterogeneous"),
+rcL.dyn <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                     weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                    family=poisson, start=NA, tolerance=1e-12, iterMax=50000, trace=TRUE, ...) {
+                    family=poisson, start=NA, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
   type <- match.arg(type)
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
@@ -103,8 +70,6 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
       diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
   else
       diagstr <- ""
-
-  variation <- if(type == "regression") "RCReg" else "RCTrans"
 
   if(symmetric)
       variation <- paste(variation, "Homog", sep="")
@@ -150,7 +115,7 @@ rcL.dyn <- function(tab, nd=1, type=c("regression", "transition"),
                family=substitute(family),
                # For RCReg, both constraints are really needed: the computed scores are wrong without them
                # (rows are ordered along an oblique axis, and columns get weird values)
-               constrain=sprintf("(RCReg|RCTrans).*\\).\\Q%s\\E(\\Q%s\\E|\\Q%s\\E)$",
+               constrain=sprintf("RCReg.*\\).\\Q%s\\E(\\Q%s\\E|\\Q%s\\E)$",
                                  vars[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1), nd),
                constrainTo=rep(0:1, nd),
                start=start,
@@ -232,19 +197,19 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
 
   # Find out the number of dimensions
   nd <- 0
-  while(length(pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.[RC][12]%s", nd+1, vars[1]))) > 0)
+  while(length(pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.[RC][12]%s", nd+1, vars[1]))) > 0)
       nd <- nd + 1
 
   # One dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*\\)\\.R1\\Q%s\\E(\\Q%s\\E)$", vars[1],
+      mu <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.R1\\Q%s\\E(\\Q%s\\E)$", vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*\\)\\.C1\\Q%s\\E(\\Q%s\\E)$", vars[2],
+      nu <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.C1\\Q%s\\E(\\Q%s\\E)$", vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
 
-      mu1 <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*\\)\\.R2\\Q%s\\E(\\Q%s\\E)",vars[1],
+      mu1 <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.R2\\Q%s\\E(\\Q%s\\E)",vars[1],
                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu1 <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*\\)\\.C2\\Q%s\\E(\\Q%s\\E)", vars[2],
+      nu1 <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.C2\\Q%s\\E(\\Q%s\\E)", vars[2],
                                                  paste(colnames(tab), collapse="\\E|\\Q")))]
 
       phi <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.\\Q%s\\E(\\Q%s\\E)", vars[3],
@@ -274,21 +239,21 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.R1\\Q%s\\E(\\Q%s\\E)$",
+          mu <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.R1\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
-          nu <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.C1\\Q%s\\E(\\Q%s\\E)$",
+          nu <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.C1\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[2],
                                                     paste(colnames(tab), collapse="\\E|\\Q")))]
 
-          mu1 <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.R2\\Q%s\\E(\\Q%s\\E)$",
+          mu1 <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.R2\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
-          nu1 <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.C2\\Q%s\\E(\\Q%s\\E)$",
+          nu1 <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.C2\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[2],
                                                     paste(colnames(tab), collapse="\\E|\\Q")))]
 
-          phi <- coef(model)[pickCoef(model, sprintf("(RCReg|RCTrans).*inst = %s\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[3],
                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -329,55 +294,23 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
   row1 <- sweep(row1, 2, colSums(sweep(row1, 1, rp/sum(rp), "*")), "-")
   col1 <- sweep(col1, 2, colSums(sweep(col1, 1, cp/sum(cp), "*")), "-")
 
+  # Compute layer scores and scale
+  row <- array(row, dim=c(nrow(row), nd, nl)) +
+             sweep(array(row1, dim=c(nrow(row1), nd, nl)), 3:2, layer, "*")
+  col <- array(col, dim=c(nrow(col), nd, nl)) +
+             sweep(array(col1, dim=c(nrow(col1), nd, nl)), 3:2, layer, "*")
 
-  ## Prepare objects
-  if(any(grepl("RCTrans", names(coef(model))))) {
-      # Scale
-      phir <- sqrt(colSums(sweep(row^2, 1, rp, "*")))
-      phic <- sqrt(colSums(sweep(col^2, 1, cp, "*")))
-      row <- sweep(row, 2, phir, "/")
-      col <- sweep(col, 2, phic, "/")
-      phi <- phir * phic
+  phir <- sqrt(margin.table(sweep(row^2, 1, rp, "*"), 2:3))
+  phic <- sqrt(margin.table(sweep(col^2, 1, cp, "*"), 2:3))
+  row <- sweep(row, 2:3, phir, "/")
+  col <- sweep(col, 2:3, phic, "/")
+  layer <- t(phir * phic)
 
-      phi1r <- sqrt(colSums(sweep(row1^2, 1, rp, "*")))
-      phi1c <- sqrt(colSums(sweep(col1^2, 1, cp, "*")))
-      row1 <- sweep(row1, 2, phi1r, "/")
-      col1 <- sweep(col1, 2, phi1c, "/")
-      phi1 <- phi1r * phi1c
-
-      layer <- cbind(sweep(1 - layer, 2, phi, "*"), sweep(layer, 2, phi1, "*"))
-      colnames(layer) <- c(paste("Dim", 1:nd, " S", sep=""), paste("Dim", 1:nd, " E", sep=""))
-      rownames(layer) <- dimnames(tab)[[3]]
-
-      row <- array(cbind(row, row1), dim=c(nrow(row), 2 * nd, 1), dimnames=list(rownames(tab), colnames(layer)))
-      col <- array(cbind(col, col1), dim=c(nrow(col), 2 * nd, 1), dimnames=list(colnames(tab), colnames(layer)))
-  }
-  else if(any(grepl("RCReg", names(coef(model))))) {
-      row <- array(row, dim=c(nrow(row), nd, nl)) +
-                 sweep(array(row1, dim=c(nrow(row1), nd, nl)), 3:2, layer, "*")
-      col <- array(col, dim=c(nrow(col), nd, nl)) +
-                 sweep(array(col1, dim=c(nrow(col1), nd, nl)), 3:2, layer, "*")
-
-      phir <- sqrt(margin.table(sweep(row^2, 1, rp, "*"), 2:3))
-      phic <- sqrt(margin.table(sweep(col^2, 1, cp, "*"), 2:3))
-      row <- sweep(row, 2:3, phir, "/")
-      col <- sweep(col, 2:3, phic, "/")
-      layer <- t(phir * phic)
-
-      # Order dimensions according to phi on first layer category
-      ord <- order(abs(layer[1,]), decreasing=TRUE)
-      layer <- layer[,ord, drop=FALSE]
-      row <- row[,ord,, drop=FALSE]
-      col <- col[,ord,, drop=FALSE]
-
-      colnames(layer) <- colnames(row) <- colnames(col) <- paste("Dim", 1:nd, sep="")
-      rownames(row) <- rownames(tab)
-      rownames(col) <- colnames(tab)
-      rownames(layer) <- dimnames(row)[[3]] <- dimnames(col)[[3]] <- dimnames(tab)[[3]]
-  }
-  else {
-      stop("Invalid model")
-  }
+  # Order dimensions according to phi on first layer category
+  ord <- order(abs(layer[1,]), decreasing=TRUE)
+  layer <- layer[,ord, drop=FALSE]
+  row <- row[,ord,, drop=FALSE]
+  col <- col[,ord,, drop=FALSE]
 
 
   # Since the sign of scores is arbitrary, conventionally choose positive scores
@@ -398,6 +331,12 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
       row[,,i+1] <- sweep(row[,,i+1, drop=FALSE], 2, chg, "*")
       col[,,i+1] <- sweep(col[,,i+1, drop=FALSE], 2, chg, "*")
   }
+
+  ## Prepare objects
+  colnames(layer) <- colnames(row) <- colnames(col) <- paste("Dim", 1:nd, sep="")
+  rownames(row) <- rownames(tab)
+  rownames(col) <- colnames(tab)
+  rownames(layer) <- dimnames(row)[[3]] <- dimnames(col)[[3]] <- dimnames(tab)[[3]]
 
   if(length(dg) > 0) {
       colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
@@ -446,21 +385,21 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
 
   # Find out the number of dimensions
   nd <- 0
-  while(length(pickCoef(model, sprintf("(RCRegHomog|RCTransHomog).*inst = %s\\)[RC][12]\\.\\Q%s\\E\\|\\Q%s\\E",
+  while(length(pickCoef(model, sprintf("RCRegHomog.*inst = %s\\)[RC][12]\\.\\Q%s\\E\\|\\Q%s\\E",
                                        nd+1, vars[1], vars[2]))) > 0)
       nd <- nd + 1
 
   # One dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("(RCRegHomog|RCTransHomog).*\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[1], vars[2],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
 
-      mu1 <- coef(model)[pickCoef(model, sprintf("(RCRegHomog|RCTransHomog).*\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu1 <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                  vars[1], vars[2],
                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
 
-      phi <- coef(model)[pickCoef(model, sprintf("(RCRegHomog|RCTransHomog).*\\)\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+      phi <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*\\)\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       if(length(mu) == nr && length(mu1) == nr && length(phi) == nl) {
@@ -481,15 +420,15 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- coef(model)[pickCoef(model, sprintf("(RCRegHomog|RCTransHomog).*inst = %i\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*inst = %i\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
 
-          mu1 <- coef(model)[pickCoef(model, sprintf("(RCRegHomog|RCTransHomog).*inst = %i\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu1 <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*inst = %i\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
 
-          phi <- coef(model)[pickCoef(model, sprintf("(RCRegHomog|RCTransHomog).*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[3],
                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -525,41 +464,18 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
   sc1 <- sweep(sc1, 2, colSums(sweep(sc1, 1, p/sum(p), "*")), "-")
 
 
-  ## Prepare objects
-  if(any(grepl("RCTrans", names(coef(model))))) {
-      # Scale
-      phi <- sqrt(colSums(sweep(sc^2, 1, p, "*")))
-      sc <- sweep(sc, 2, phi, "/")
+   # Compute layer scores and scale
+   sc <- array(sc, dim=c(nrow(sc), nd, nl)) +
+             sweep(array(sc1, dim=c(nrow(sc1), nd, nl)), 3:2, layer, "*")
 
-      phi1 <- sqrt(colSums(sweep(sc1^2, 1, p, "*")))
-      sc1 <- sweep(sc1, 2, phi1, "/")
+  phi <- sqrt(margin.table(sweep(sc^2, 1, p, "*"), 2:3))
+  sc <- sweep(sc, 2:3, phi, "/")
+  layer <- t(phi)
 
-      layer <- cbind(sweep(1 - layer, 2, phi, "*"), sweep(layer, 2, phi1, "*"))
-      colnames(layer) <- c(paste("Dim", 1:nd, " S", sep=""), paste("Dim", 1:nd, " E", sep=""))
-      rownames(layer) <- dimnames(tab)[[3]]
-
-      sc <- array(cbind(sc, sc1), dim=c(nrow(sc), 2 * nd, 1), dimnames=list(rownames(tab), colnames(layer)))
-  }
-  else if(any(grepl("RCReg", names(coef(model))))) {
-      sc <- array(sc, dim=c(nrow(sc), nd, nl)) +
-                sweep(array(sc1, dim=c(nrow(sc1), nd, nl)), 3:2, layer, "*")
-
-      phi <- sqrt(margin.table(sweep(sc^2, 1, p, "*"), 2:3))
-      sc <- sweep(sc, 2:3, phi, "/")
-      layer <- t(phi)
-
-      # Order dimensions according to phi on first layer category
-      ord <- order(abs(layer[1,]), decreasing=TRUE)
-      layer <- layer[,ord, drop=FALSE]
-      sc <- sc[,ord,, drop=FALSE]
-
-      colnames(layer) <- colnames(sc) <- paste("Dim", 1:nd, sep="")
-      rownames(sc) <- rownames(tab)
-      rownames(layer) <- dimnames(sc)[[3]] <- dimnames(tab)[[3]]
-  }
-  else {
-      stop("Invalid model")
-  }
+  # Order dimensions according to phi on first layer category
+  ord <- order(abs(layer[1,]), decreasing=TRUE)
+  layer <- layer[,ord, drop=FALSE]
+  sc <- sc[,ord,, drop=FALSE]
 
 
   # Since the sign of scores is arbitrary, conventionally choose positive scores
@@ -577,6 +493,11 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
       chg <- ifelse(diag(as.matrix(cor(sc[,,i+1], sc[,,1]))) >= 0, 1, -1)
       sc[,,i+1] <- sweep(sc[,,i+1, drop=FALSE], 2, chg, "*")
   }
+
+  ## Prepare objects
+  colnames(layer) <- colnames(sc) <- paste("Dim", 1:nd, sep="")
+  rownames(sc) <- rownames(tab)
+  rownames(layer) <- dimnames(sc)[[3]] <- dimnames(tab)[[3]]
 
   if(length(dg) > 0) {
       colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)

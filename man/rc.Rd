@@ -91,7 +91,7 @@
   Goodman, L.A. (1979). Simple Models for the Analysis of Association in Cross-Classifications
     having Ordered Categories. \emph{J. of the Am. Stat. Association} 74(367), 537-552.
 
-  Becker, M.P., and Clogg, C.C. 1989. Analysis of Sets of Two-Way Contingency Tables Using
+  Becker, M.P., and Clogg, C.C. (1989). Analysis of Sets of Two-Way Contingency Tables Using
     Association Models. \emph{Journal of the American Statistical Association} 84(405), 142-151.
 
   Goodman, L.A. (1985). The Analysis of Cross-Classified Data Having Ordered and/or Unordered
