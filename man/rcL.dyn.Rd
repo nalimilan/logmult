@@ -1,18 +1,18 @@
-\name{rcL.dyn}
-\alias{rcL.dyn}
-\title{Fitting Row-Column Association Models With Regression-Type Layer Effect}
+\name{rcL.trans}
+\alias{rcL.trans}
+\title{Fitting Row-Column Association Models With Transitional Layer Effect}
 \description{
-  \code{rcL.dyn} fits log-multiplicative row-column association models with regression-type,
+  \code{rcL.trans} fits log-multiplicative row-column association models with transitional
   layer effect with one or several dimensions. Supported variants include (for square tables)
   symmetric (homogeneous) row and column scores, and separate diagonal parameters.
 }
 \usage{
-  rcL.dyn(tab, nd = 1,
-          symmetric = FALSE,
-          diagonal = c("none", "heterogeneous", "homogeneous"),
-          weighting = c("marginal", "uniform", "none"),
-          std.err = c("none", "jackknife"), family = poisson,
-          start = NA, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
+  rcL.trans(tab, nd = 1,
+            symmetric = FALSE,
+            diagonal = c("none", "heterogeneous", "homogeneous"),
+            weighting = c("marginal", "uniform", "none"),
+            std.err = c("none", "jackknife"), family = poisson,
+            start = NA, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -46,7 +46,7 @@
 \details{
   This function fits log-multiplicative row-column association models with regression-type layer effect, which are
   and experimental model combining the principles behind RC(M)-L (Wong, 2010; see \code{\link{rcL}}) and regression-type
-  models (Goodman & Hout, 1983). More specifically, like RC(M)-L models, row and column scores are allowed to vary accross
+  models (Goodman & Hout, 1998). More specifically, like RC(M)-L models, row and column scores are allowed to vary accross
   a layer variable, and the pattern of this variation follows the regression-type inspiration: for each dimension, a set of
   scores describes the first layer, another set describes the total variation of these scores need to describe the
   association observed for the last layer, and one parameter per layer describes the position of the layer between the

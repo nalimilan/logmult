@@ -1,6 +1,6 @@
-## RC(M) with regression-type and transitional variation
+## RC(M) with transitional layer effect
 
-RCReg <- function(row, col, layer, inst=NULL) {
+RCTrans <- function(row, col, layer, inst=NULL) {
   list(predictors = list(R1=substitute(row), C1=substitute(col), substitute(layer), R2=substitute(row), C2=substitute(col)),
        term = function(predLabels, varLabels) {
            sprintf("(%s + %s * (%s)^2) * (%s + %s * (%s)^2)",
@@ -14,9 +14,9 @@ RCReg <- function(row, col, layer, inst=NULL) {
            theta
        })
    }
-class(RCReg) <- "nonlin"
+class(RCTrans) <- "nonlin"
 
-RCRegHomog <- function(row, col, layer, inst=NULL) {
+RCTransHomog <- function(row, col, layer, inst=NULL) {
   list(predictors = list(R1=substitute(row), C1=substitute(col), substitute(layer), R2=substitute(row), C2=substitute(col)),
        term = function(predLabels, varLabels) {
            sprintf("(%s + %s * (%s)^2) * (%s + %s * (%s)^2)",
@@ -31,13 +31,12 @@ RCRegHomog <- function(row, col, layer, inst=NULL) {
            theta
        })
    }
-class(RCRegHomog) <- "nonlin"
+class(RCTransHomog) <- "nonlin"
 
 
-rcL.dyn <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
-                    weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                    family=poisson, start=NA, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
-  type <- match.arg(type)
+rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
+                      weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                      family=poisson, start=NA, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
@@ -70,9 +69,6 @@ rcL.dyn <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneou
       diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
   else
       diagstr <- ""
-
-  if(symmetric)
-      variation <- paste(variation, "Homog", sep="")
 
 
   if(!is.null(start) && is.na(start)) {
@@ -109,13 +105,13 @@ rcL.dyn <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneou
 
   f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(%s(%s, %s, %s), %i)",
                vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
-               variation, vars[1], vars[2], vars[3], nd)
+               if(symmetric) "RCTransHomog" else "RCTrans", vars[1], vars[2], vars[3], nd)
 
   args <- list(formula=eval(as.formula(f)), data=substitute(tab),
                family=substitute(family),
-               # For RCReg, both constraints are really needed: the computed scores are wrong without them
+               # Both constraints are really needed: the computed scores are wrong without them
                # (rows are ordered along an oblique axis, and columns get weird values)
-               constrain=sprintf("RCReg.*\\).\\Q%s\\E(\\Q%s\\E|\\Q%s\\E)$",
+               constrain=sprintf("RCTrans.*\\).\\Q%s\\E(\\Q%s\\E|\\Q%s\\E)$",
                                  vars[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1), nd),
                constrainTo=rep(0:1, nd),
                start=start,
@@ -129,7 +125,7 @@ rcL.dyn <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneou
   if(is.null(model))
       return(NULL)
 
-  newclasses <- if(symmetric) c("rcL.dyn.symm", "rcL.dyn", "rcL") else c("rcL.dyn", "rcL")
+  newclasses <- if(symmetric) c("rcL.trans.symm", "rcL.trans", "rcL") else c("rcL.trans", "rcL")
   class(model) <- c(newclasses, class(model))
 
   model$assoc <- assoc(model, weighting=weighting)
@@ -161,8 +157,8 @@ rcL.dyn <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneou
 #   - two layer coefficients (normally already present in the model)
 #   - two for each dimension of the start scores
 #   - two for each dimension of the end scores
-assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
-    if(!inherits(model, "gnm"))
+assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none")) {
+  if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
   # gnm doesn't include coefficients for NA row/columns, so get rid of them too
@@ -197,22 +193,22 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
 
   # Find out the number of dimensions
   nd <- 0
-  while(length(pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.[RC][12]%s", nd+1, vars[1]))) > 0)
+  while(length(pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.[RC][12]%s", nd+1, vars[1]))) > 0)
       nd <- nd + 1
 
   # One dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.R1\\Q%s\\E(\\Q%s\\E)$", vars[1],
+      mu <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.R1\\Q%s\\E(\\Q%s\\E)$", vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.C1\\Q%s\\E(\\Q%s\\E)$", vars[2],
+      nu <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.C1\\Q%s\\E(\\Q%s\\E)$", vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
 
-      mu1 <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.R2\\Q%s\\E(\\Q%s\\E)",vars[1],
+      mu1 <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.R2\\Q%s\\E(\\Q%s\\E)",vars[1],
                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu1 <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.C2\\Q%s\\E(\\Q%s\\E)", vars[2],
+      nu1 <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.C2\\Q%s\\E(\\Q%s\\E)", vars[2],
                                                  paste(colnames(tab), collapse="\\E|\\Q")))]
 
-      phi <- coef(model)[pickCoef(model, sprintf("RCReg.*\\)\\.\\Q%s\\E(\\Q%s\\E)", vars[3],
+      phi <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.\\Q%s\\E(\\Q%s\\E)", vars[3],
                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       if(length(mu) == nr && length(nu) == nc
@@ -227,7 +223,7 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
           layer <- matrix(phi, nl, 1)
       }
       else {
-          stop("No dimensions found. Are you sure this is a row-column association model with regression-type layer effect?")
+          stop("No dimensions found. Are you sure this is a row-column association model with transitional layer effect?")
       }
   }
   else {
@@ -239,21 +235,21 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.R1\\Q%s\\E(\\Q%s\\E)$",
+          mu <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.R1\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
-          nu <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.C1\\Q%s\\E(\\Q%s\\E)$",
+          nu <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.C1\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[2],
                                                     paste(colnames(tab), collapse="\\E|\\Q")))]
 
-          mu1 <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.R2\\Q%s\\E(\\Q%s\\E)$",
+          mu1 <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.R2\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
-          nu1 <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.C2\\Q%s\\E(\\Q%s\\E)$",
+          nu1 <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.C2\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[2],
                                                     paste(colnames(tab), collapse="\\E|\\Q")))]
 
-          phi <- coef(model)[pickCoef(model, sprintf("RCReg.*inst = %s\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[3],
                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -267,7 +263,7 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
               layer[,i] <- phi
           }
           else {
-              stop("Invalid dimensions found. Are you sure this is a row-column association model with regression-type layer effect?")
+              stop("Invalid dimensions found. Are you sure this is a row-column association model with transitional layer effect?")
           }
       }
   }
@@ -281,7 +277,7 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
   }
 
 
-  # Layer coefficients are squared internally by RCReg
+  # Layer coefficients are squared internally by RCTrans
   layer <- layer^2
 
   # Replace constrained coefficients
@@ -347,13 +343,13 @@ assoc.rcL.dyn <- function(model, weighting=c("marginal", "uniform", "none")) {
   obj <- list(phi = layer, row = row, col = col, diagonal = dg,
               weighting = weighting, row.weights = rp, col.weights = cp)
 
-  class(obj) <- c("assoc.rcL.dyn", "assoc.rcL", "assoc")
+  class(obj) <- c("assoc.rcL.trans", "assoc.rcL", "assoc")
   obj
 }
 
 
-assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")) {
-    if(!inherits(model, "gnm"))
+assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none")) {
+  if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
   # gnm doesn't include coefficients for NA row/columns, so get rid of them too
@@ -385,21 +381,21 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
 
   # Find out the number of dimensions
   nd <- 0
-  while(length(pickCoef(model, sprintf("RCRegHomog.*inst = %s\\)[RC][12]\\.\\Q%s\\E\\|\\Q%s\\E",
+  while(length(pickCoef(model, sprintf("RCTransHomog.*inst = %s\\)[RC][12]\\.\\Q%s\\E\\|\\Q%s\\E",
                                        nd+1, vars[1], vars[2]))) > 0)
       nd <- nd + 1
 
   # One dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[1], vars[2],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
 
-      mu1 <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu1 <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                  vars[1], vars[2],
                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
 
-      phi <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*\\)\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+      phi <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*\\)\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       if(length(mu) == nr && length(mu1) == nr && length(phi) == nl) {
@@ -410,7 +406,7 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
           layer <- matrix(phi, nl, 1)
       }
       else {
-          stop("No dimensions found. Are you sure this is a row-column association model with regression-type layer effect?")
+          stop("No dimensions found. Are you sure this is a row-column association model with transitional layer effect?")
       }
   }
   else {
@@ -420,15 +416,15 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*inst = %i\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
 
-          mu1 <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*inst = %i\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu1 <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
 
-          phi <- coef(model)[pickCoef(model, sprintf("RCRegHomog.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[3],
                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -438,7 +434,7 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
               layer[,i] <- phi
           }
           else {
-              stop("Invalid dimensions found. Are you sure this is a row-column association model with regression-type layer effect?")
+              stop("Invalid dimensions found. Are you sure this is a row-column association model with transitional layer effect?")
           }
       }
   }
@@ -452,7 +448,7 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
   }
 
 
-  # Layer coefficients are squared internally by RCReg
+  # Layer coefficients are squared internally by RCTrans
   layer <- layer^2
 
   # Replace constrained coefficients
@@ -508,6 +504,6 @@ assoc.rcL.dyn.symm <- function(model, weighting=c("marginal", "uniform", "none")
   obj <- list(phi = layer, row = sc, col = sc, diagonal = dg,
               weighting = weighting, row.weights = p, col.weights = p)
 
-  class(obj) <- c("assoc.rcL.dyn", "assoc.rcL", "assoc.symm", "assoc")
+  class(obj) <- c("assoc.rcL.trans", "assoc.rcL", "assoc.symm", "assoc")
   obj
 }
