@@ -37,8 +37,9 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       diagstr <- ""
 
 
-  f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s",
-                vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3])
+  # Interaction between dimensions 1 and 3 is passed via eliminate
+  f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s",
+                vars[1], vars[2], vars[3], vars[2], vars[3])
 
   base <- NULL
 
@@ -47,8 +48,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=eval(as.formula(paste(f1, diagstr))), data=tab,
-                   family=family,
-                   tolerance=1e-3, iterMax=iterMax)
+                   family=family, eliminate=eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3]))),
+                   tolerance=1e-6, iterMax=iterMax)
       dots <- as.list(substitute(list(...)))[-1]
       args <- c(args, dots)
 
@@ -64,7 +65,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                                       vars[3], vars[1], vars[2], i))
 
           if(!is.null(start) && is.na(start))
-              start <- c(coef(base), rep(NA, nd * (dim(tab)[3] + nrow(tab))))
+              start <- c(coef(base), rep(NA, nd * (dim(tab)[3] + nrow(tab) + ncol(tab))))
       }
       else if(layer.effect == "heterogeneous") {
           stop("Symmetric association with heterogeneous layer effect is currently not supported")
@@ -117,6 +118,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(paste(f1, diagstr, f2)),
                    data=tab, family=family, start=start,
+                   eliminate=eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3]))),
                    tolerance=1e-3, iterMax=iterMax, trace=trace)
       dots <- as.list(substitute(list(...)))[-1]
       args <- c(args, dots)
@@ -137,6 +139,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=eval(as.formula(paste(f1, diagstr, f2))), data=substitute(tab),
                family=substitute(family), start=start,
+               eliminate=eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3]))),
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
   args <- c(args, dots)
