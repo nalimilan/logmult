@@ -1,0 +1,193 @@
+anoas <- function(tab, nd=3, symmetric=FALSE, diagonal=FALSE, ...) {
+  tab <- as.table(tab)
+
+  if(length(dim(tab)) < 2)
+      stop("tab must have (at least) two dimensions")
+
+  if(is.na(nd) || nd < 1)
+      stop("nd should be at least 1")
+
+  if(symmetric && nd/2 > min(nrow(tab), ncol(tab)) - 1)
+      stop("Number of dimensions of symmetric model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
+
+  if(!symmetric && nd > min(nrow(tab), ncol(tab)) - 1)
+      stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
+
+  if(length(dim(tab)) > 2)
+      tab <- margin.table(tab, 1:2)
+
+
+  models <- vector("list", nd + 1)
+  names(models) <- c("indep", paste("rc", 1:nd, sep=""))
+
+
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2")
+
+  if(diagonal)
+      diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
+  else
+      diagstr <- ""
+
+
+
+  cat("Fitting independence model...\n")
+
+  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+  args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
+               data=tab, family=poisson)
+  dots <- as.list(substitute(list(...)))[-1]
+  args <- c(args, dots)
+
+  models[[1]] <- do.call("gnm", args)
+
+
+  cat("Fitting model with 1 dimension...\n")
+
+  models[[2]] <- rc(tab, nd=1, symmetric=symmetric, diagonal=diagonal, ...)
+
+  npar <- if(symmetric) nrow(tab) else nrow(tab) + ncol(tab)
+
+  for(i in 2:nd) {
+      if(is.null(models[[i]]))
+          stop(sprintf("Model with %i dimensions could not be fitted.", i-1))
+
+      cat(sprintf("Fitting model with %i dimensions...\n", i))
+
+      models[[i+1]] <- rc(tab, nd=i, symmetric=symmetric, diagonal=diagonal,
+                          start=c(rep(NA, length(coef(models[[i]])) - (i-1) * npar),
+                                  tail(parameters(models[[i]]), (i-1) * npar), rep(NA, npar)),
+                          ...)
+  }
+
+  class(models) <- "anoas"
+  attr(models, "symmetric") <- symmetric
+
+  models
+}
+
+anoasL <- function(tab, nd=3, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
+                   symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"), ...) {
+  layer.effect <- match.arg(layer.effect)
+  diagonal <- match.arg(diagonal)
+
+  tab <- as.table(tab)
+
+  if(length(dim(tab)) < 3)
+      stop("tab must have (at least) three dimensions")
+
+  if(is.na(nd) || nd < 1)
+      stop("nd should be at least 1")
+
+  if(symmetric && nd/2 > min(nrow(tab), ncol(tab)) - 1)
+      stop("Number of dimensions of symmetric model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
+
+  if(!symmetric && nd > min(nrow(tab), ncol(tab)) - 1)
+      stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
+
+  if(length(dim(tab)) > 3)
+      tab <- margin.table(tab, 1:3)
+
+
+  models <- vector("list", nd + 1)
+  names(models) <- c("indep", paste("rcL", 1:nd, sep=""))
+
+
+  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
+  # with a fallback if both names are empty
+  vars <- make.names(names(dimnames(tab)))
+  if(length(vars) == 0)
+      vars <- c("Var1", "Var2", "Var3")
+
+  if(diagonal == "heterogeneous")
+      diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
+  else if(diagonal == "homogeneous")
+      diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
+  else
+      diagstr <- ""
+
+
+  cat("Fitting conditional independence model...\n")
+
+  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+  args <- list(formula=as.formula(sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
+                                          vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)),
+               data=tab, family=poisson)
+  dots <- as.list(substitute(list(...)))[-1]
+  args <- c(args, dots)
+
+  models[[1]] <- do.call("gnm", args)
+
+
+  cat("Fitting model with 1 dimension...\n")
+
+  models[[2]] <- rcL(tab, nd=1, layer.effect=layer.effect, symmetric=symmetric, diagonal=diagonal, ...)
+
+  npar <- if(layer.effect == "homogeneous.scores") {
+              if(symmetric) dim(tab)[3] + nrow(tab) else dim(tab)[3] + nrow(tab) + ncol(tab)
+          }
+          else if (layer.effect == "heterogeneous") {
+              if(symmetric) dim(tab)[3] * nrow(tab) else dim(tab)[3] * (nrow(tab) + ncol(tab))
+          }
+          else {
+              if(symmetric) nrow(tab) else nrow(tab) + ncol(tab)
+          }
+
+  for(i in 2:nd) {
+      if(is.null(models[[i]]))
+          stop(sprintf("Model with %i dimensions could not be fitted.", i-1))
+
+      cat(sprintf("Fitting model with %i dimensions...\n", i))
+
+      models[[i+1]] <- rcL(tab, nd=i, layer.effect=layer.effect, symmetric=symmetric, diagonal=diagonal,
+                           start=c(rep(NA, length(coef(models[[i]])) - (i-1) * npar),
+                                   tail(parameters(models[[i]]), (i-1) * npar), rep(NA, npar)),
+                           ...)
+  }
+
+  class(models) <- c("anoas", "anoasL")
+  attr(models, "symmetric") <- symmetric
+
+  models
+}
+
+print.anoas <- function(x, ...) {
+    result <- summary.anoas(x)
+    print(result, ...)
+
+    invisible(result)
+}
+
+summary.anoas <- function(object, ...) {
+  df <- sapply(object, function(model) if(!is.null(model)) model$df.residual else NA)
+  dev <- sapply(object, function(model) if(!is.null(model)) model$deviance else NA)
+  diss <- sapply(object, function(model) {
+      if(!is.null(model)) sum(abs(fitted(model) - model$data))/sum(abs(fitted(model)))*100/2
+      else NA })
+  bic <- sapply(object, function(model) if(!is.null(model)) model$deviance - log(sum(model$data)) * model$df.residual else NA)
+  aic <- sapply(object, function(model) if(!is.null(model)) model$deviance - 2 * model$df.residual else NA)
+
+  result <- data.frame(df, dev, dev/dev[1] * 100, diss, bic, aic, c(NA, diff(dev)), c(NA, diff(df)))
+
+  names(result) <- c("Res. Df", "Resid. Dev", "Dev./Indep. (%)", "Dissim. (%)", "BIC", "AIC", "Deviance", "Df")
+
+  if(inherits(object, "anoasL"))
+      rownames(result) <- c("Conditional indep.", paste("RC(", seq(1, length(object) - 1), ")-L",
+                                                        if(attr(object, "symmetric")) " symmetric" else "", sep=""))
+  else
+      rownames(result) <- c("Independence", paste("RC(", seq(1, length(object) - 1), ")",
+                                                  if(attr(object, "symmetric")) " symmetric" else "", sep=""))
+
+  class(result) <- c("summary.anoas", "data.frame")
+
+  result
+}
+
+print.summary.anoas <- function(x, digits=1, nsmall=2, scientific=FALSE, ...) {
+  print(format(x, digits=digits, scientific=scientific, ...), ...)
+
+  invisible(x)
+}
