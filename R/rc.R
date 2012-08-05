@@ -35,16 +35,18 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
       diagstr <- ""
 
 
+  nastart <- length(start) == 1 && is.na(start)
+
   if(symmetric) {
       f <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
 
 
-      if(!is.null(start) && is.na(start))
+      if(nastart)
           start <- NULL
   }
   else {
-      if(!is.null(start) && is.na(start)) {
+      if(nastart) {
           cat("Running base model to find starting values...\n")
 
           # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
