@@ -74,9 +74,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
       base <- do.call("gnm", args)
 
-      coefs <- coef(base)
-      coefs[base$constrain] <- base$constrainTo
-      start <- c(coefs, rep(NA, nd.skew * (nrow(tab) + 1)))
+      start <- c(parameters(base), rep(NA, nd.skew * (nrow(tab) + 1)))
 
       if(is.null(etastart))
           etastart <- as.numeric(predict(base))
@@ -188,7 +186,7 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
   nd <- 0
   while(TRUE) {
-      musk <- coef(model)[pickCoef(model, sprintf("YRCSkew\\(.*inst = %i\\)(\\Q%s\\E)",
+      musk <- parameters(model)[pickCoef(model, sprintf("YRCSkew\\(.*inst = %i\\)(\\Q%s\\E)",
                                                   nd+1, paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(length(musk) != nrow(tab))
@@ -201,7 +199,7 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
   }
 
   if(nd <= 0) {
-      musk <- coef(model)[pickCoef(model, sprintf("YRCSkew.*\\)(\\Q%s\\E)$",
+      musk <- parameters(model)[pickCoef(model, sprintf("YRCSkew.*\\)(\\Q%s\\E)$",
                                                   paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(length(musk) == nrow(tab)) {
@@ -213,14 +211,14 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
       }
   }
 
-  skew <- coef(model)[pickCoef(model, "YRCSkew.*\\)skew")]
+  skew <- parameters(model)[pickCoef(model, "YRCSkew.*\\)skew")]
   if(length(skew) != nd)
       stop("Skew coefficients not found. Are you sure this is a Yamaguchi RC_SK model?")
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
   else
       dg <- numeric(0)
 
@@ -288,7 +286,7 @@ assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
 
   nd <- 0
   while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("MultHomog\\(.*inst = %s\\)", nd+1))]
+      mu <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*inst = %s\\)", nd+1))]
 
       if(!(length(mu) == nrow(tab)))
           break
@@ -300,7 +298,7 @@ assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
   }
 
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, "MultHomog\\(")]
+      mu <- parameters(model)[pickCoef(model, "MultHomog\\(")]
 
       if(length(mu) == nrow(tab)) {
           nd <- 1
@@ -316,7 +314,7 @@ assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
 
   ndsk <- 0
   while(TRUE) {
-      musk <- coef(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*inst = %i\\)\\)(\\Q%s\\E)",
+      musk <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*inst = %i\\)\\)(\\Q%s\\E)",
                                                   nd + 1, paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(!(length(musk) == nrow(tab)))
@@ -329,7 +327,7 @@ assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
   }
 
   if(ndsk <= 0) {
-      musk <- coef(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*\\)(\\Q%s\\E)$",
+      musk <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*\\)(\\Q%s\\E)$",
                                                   paste(rownames(tab), collapse="\\E|\\Q")))]
 
       if(length(musk) == nrow(tab)) {
@@ -341,14 +339,14 @@ assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
       }
   }
 
-  skew <- coef(model)[pickCoef(model, "MultHomog\\(.*skew\\)$")]
+  skew <- parameters(model)[pickCoef(model, "MultHomog\\(.*skew\\)$")]
   if(length(skew) != ndsk)
       stop("skew coefficients not found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
   else
       dg <- numeric(0)
 

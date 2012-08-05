@@ -69,9 +69,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
       base <- do.call("gnm", args)
 
-      coefs <- coef(base)
-      coefs[base$constrain] <- base$constrainTo
-      start <- c(coefs, rep(NA, 2 * nrow(tab)))
+      start <- c(parameters(base), rep(NA, 2 * nrow(tab)))
 
       if(is.null(etastart))
           etastart <- as.numeric(predict(base))
@@ -150,7 +148,7 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"), ...)
   else
       p <- rep(1, nrow(tab))
 
-  mu <- coef(model)[pickCoef(model, sprintf("HMSkew.*(\\Q%s\\E)",
+  mu <- parameters(model)[pickCoef(model, sprintf("HMSkew.*(\\Q%s\\E)",
                                             paste(rownames(tab), collapse="\\E|\\Q")))]
   mu1 <- mu[1:nrow(tab)]
   mu2 <- mu[-(1:nrow(tab))]
@@ -162,9 +160,9 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"), ...)
   sc <- cbind(mu1, mu2)
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], dim(tab)[3], nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], dim(tab)[3], nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
   else
       dg <- numeric(0)
 

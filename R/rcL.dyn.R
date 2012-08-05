@@ -81,9 +81,9 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                                          vars[1], vars[2], nd)),
                       family=family, data=tab)
 
-          start <- coef(base)[seq(1, length(coef(base)) - nrow(tab) * nd)]
+          start <- parameters(base)[seq(1, length(parameters(base)) - nrow(tab) * nd)]
           for(i in 1:nd)
-              start <- c(start, coef(base)[pickCoef(base, paste("Mult.*inst =", i))],
+              start <- c(start, parameters(base)[pickCoef(base, paste("Mult.*inst =", i))],
                          sqrt(seq(0, 1, length.out=dim(tab)[3])), rep(NA, nrow(tab)))
       }
       else {
@@ -93,9 +93,9 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                                          vars[1], vars[2], nd)),
                       family=family, data=tab)
 
-          start <- coef(base)[seq(1, length(coef(base)) - (nrow(tab) + ncol(tab)) * nd)]
+          start <- parameters(base)[seq(1, length(parameters(base)) - (nrow(tab) + ncol(tab)) * nd)]
           for(i in 1:nd)
-              start <- c(start, coef(base)[pickCoef(base, paste("Mult.*inst =", i))],
+              start <- c(start, parameters(base)[pickCoef(base, paste("Mult.*inst =", i))],
                          sqrt(seq(0, 1, length.out=dim(tab)[3])), rep(NA, nrow(tab) + ncol(tab)))
 
       }
@@ -198,17 +198,17 @@ assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none")) {
 
   # One dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.R1\\Q%s\\E(\\Q%s\\E)$", vars[1],
+      mu <- parameters(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.R1\\Q%s\\E(\\Q%s\\E)$", vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.C1\\Q%s\\E(\\Q%s\\E)$", vars[2],
+      nu <- parameters(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.C1\\Q%s\\E(\\Q%s\\E)$", vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
 
-      mu1 <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.R2\\Q%s\\E(\\Q%s\\E)",vars[1],
+      mu1 <- parameters(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.R2\\Q%s\\E(\\Q%s\\E)",vars[1],
                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu1 <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.C2\\Q%s\\E(\\Q%s\\E)", vars[2],
+      nu1 <- parameters(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.C2\\Q%s\\E(\\Q%s\\E)", vars[2],
                                                  paste(colnames(tab), collapse="\\E|\\Q")))]
 
-      phi <- coef(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.\\Q%s\\E(\\Q%s\\E)", vars[3],
+      phi <- parameters(model)[pickCoef(model, sprintf("RCTrans.*\\)\\.\\Q%s\\E(\\Q%s\\E)", vars[3],
                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       if(length(mu) == nr && length(nu) == nc
@@ -235,21 +235,21 @@ assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none")) {
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.R1\\Q%s\\E(\\Q%s\\E)$",
+          mu <- parameters(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.R1\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
-          nu <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.C1\\Q%s\\E(\\Q%s\\E)$",
+          nu <- parameters(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.C1\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[2],
                                                     paste(colnames(tab), collapse="\\E|\\Q")))]
 
-          mu1 <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.R2\\Q%s\\E(\\Q%s\\E)$",
+          mu1 <- parameters(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.R2\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
-          nu1 <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.C2\\Q%s\\E(\\Q%s\\E)$",
+          nu1 <- parameters(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.C2\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[2],
                                                     paste(colnames(tab), collapse="\\E|\\Q")))]
 
-          phi <- coef(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- parameters(model)[pickCoef(model, sprintf("RCTrans.*inst = %s\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[3],
                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -270,7 +270,7 @@ assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none")) {
 
   if(length(pickCoef(model, "Diag\\(") > 0)) {
       dg <- matrix(NA, nl, nr)
-      dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
+      dg[] <- parameters(model)[pickCoef(model, "Diag\\(")]
   }
   else {
       dg <- numeric(0)
@@ -279,10 +279,6 @@ assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none")) {
 
   # Layer coefficients are squared internally by RCTrans
   layer <- layer^2
-
-  # Replace constrained coefficients
-  layer[1,] <- 0
-  layer[nrow(layer),] <- 1
 
   # Center
   row <- sweep(row, 2, colSums(sweep(row, 1, rp/sum(rp), "*")), "-")
@@ -387,15 +383,15 @@ assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none
 
   # One dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[1], vars[2],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
 
-      mu1 <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu1 <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                  vars[1], vars[2],
                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
 
-      phi <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*\\)\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+      phi <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*\\)\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       if(length(mu) == nr && length(mu1) == nr && length(phi) == nl) {
@@ -416,15 +412,15 @@ assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
 
-          mu1 <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu1 <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
 
-          phi <- coef(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[3],
                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -441,7 +437,7 @@ assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none
 
   if(length(pickCoef(model, "Diag\\(") > 0)) {
       dg <- matrix(NA, nl, nr)
-      dg[] <- coef(model)[pickCoef(model, "Diag\\(")]
+      dg[] <- parameters(model)[pickCoef(model, "Diag\\(")]
   }
   else {
       dg <- numeric(0)
@@ -450,10 +446,6 @@ assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none
 
   # Layer coefficients are squared internally by RCTrans
   layer <- layer^2
-
-  # Replace constrained coefficients
-  layer[1,] <- 0
-  layer[nrow(layer),] <- 1
 
   # Center
   sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")

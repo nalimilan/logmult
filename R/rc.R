@@ -61,7 +61,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
           # residSVD evaluates the variable names in parent.frame(), which uses any object
           # called "vars" in the global environment if not handled like this
           res <- eval(parse(text=sprintf("residSVD(base, %s, %s, %i)", vars[1], vars[2], nd)))
-          start <- c(coef(base), res)
+          start <- c(parameters(base), res)
 
           if(is.null(etastart))
               etastart <- as.numeric(predict(base))
@@ -152,10 +152,10 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
 
   nd <- 0
   while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(\\., \\Q%s\\E, inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+      mu <- parameters(model)[pickCoef(model, sprintf("Mult\\(\\., \\Q%s\\E, inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[2], nd + 1, vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(\\Q%s\\E, \\., inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+      nu <- parameters(model)[pickCoef(model, sprintf("Mult\\(\\Q%s\\E, \\., inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[1], nd + 1, vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
 
@@ -170,10 +170,10 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   }
 
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(\\., \\Q%s\\E)\\.\\Q%s\\E(\\Q%s\\E)$",
+      mu <- parameters(model)[pickCoef(model, sprintf("Mult\\(\\., \\Q%s\\E)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[2], vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(\\Q%s\\E, \\.)\\.\\Q%s\\E(\\Q%s\\E)$",
+      nu <- parameters(model)[pickCoef(model, sprintf("Mult\\(\\Q%s\\E, \\.)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[1], vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
 
@@ -189,9 +189,9 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   }
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
   else
       dg <- numeric(0)
 
@@ -280,7 +280,7 @@ assoc.rc.symm <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
   nd <- 0
   while(TRUE) {
-      mu <- coef(model)[pickCoef(model, sprintf("MultHomog\\(\\Q%s\\E\\, \\Q%s\\E\\, inst = %i\\)(\\Q%s\\E)$",
+      mu <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(\\Q%s\\E\\, \\Q%s\\E\\, inst = %i\\)(\\Q%s\\E)$",
                                                 vars[1], vars[2], nd + 1,
                                                 paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
 
@@ -294,7 +294,7 @@ assoc.rc.symm <- function(model, weighting=c("marginal", "uniform", "none"), ...
   }
 
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("MultHomog\\(\\Q%s\\E\\, \\Q%s\\E\\)(\\Q%s\\E)$",
+      mu <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(\\Q%s\\E\\, \\Q%s\\E\\)(\\Q%s\\E)$",
                                                 vars[1], vars[2],
                                                 paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
 
@@ -308,9 +308,9 @@ assoc.rc.symm <- function(model, weighting=c("marginal", "uniform", "none"), ...
   }
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
   else
       dg <- numeric(0)
 

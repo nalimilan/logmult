@@ -69,7 +69,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                                       vars[3], vars[1], vars[2], i))
 
           if(nastart)
-              start <- c(coef(base), rep(NA, nd * (dim(tab)[3] + nrow(tab) + ncol(tab))))
+              start <- c(parameters(base), rep(NA, nd * (dim(tab)[3] + nrow(tab) + ncol(tab))))
       }
       else if(layer.effect == "heterogeneous") {
           stop("Symmetric association with heterogeneous layer effect is currently not supported")
@@ -81,13 +81,13 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                                       vars[3], vars[1], vars[3], vars[2], i))
 
           if(nastart)
-              start <- c(coef(base), rep(NA, nd * nrow(tab)))
+              start <- c(parameters(base), rep(NA, nd * nrow(tab)))
       }
       else {
           f2 <- sprintf("+ instances(MultHomog(%s, %s), %i)", vars[1], vars[2], nd)
 
           if(nastart)
-              start <- c(coef(base), rep(NA, nd * nrow(tab)))
+              start <- c(parameters(base), rep(NA, nd * nrow(tab)))
       }
   }
   else {
@@ -96,21 +96,21 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                         vars[3], vars[1], vars[2], nd)
 
           if(nastart)
-              start <- c(coef(base), rep(NA, nd * (nrow(tab) + ncol(tab) + dim(tab)[3])))
+              start <- c(parameters(base), rep(NA, nd * (nrow(tab) + ncol(tab) + dim(tab)[3])))
       }
       else if(layer.effect == "heterogeneous") {
           f2 <- sprintf("+ instances(Mult(%s:%s, %s:%s), %i)",
                         vars[3], vars[1], vars[3], vars[2], nd)
 
           if(nastart)
-              start <- c(coef(base), rep(NA, nd * dim(tab)[3] * (nrow(tab) + ncol(tab))))
+              start <- c(parameters(base), rep(NA, nd * dim(tab)[3] * (nrow(tab) + ncol(tab))))
       }
       else {
           f2 <- sprintf("+ instances(Mult(%s, %s), %i)",
                         vars[1], vars[2], nd)
 
           if(nastart)
-              start <- c(coef(base), rep(NA, nd * (nrow(tab) + ncol(tab))))
+              start <- c(parameters(base), rep(NA, nd * (nrow(tab) + ncol(tab))))
       }
   }
 
@@ -122,7 +122,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(paste(f1, diagstr, f2)),
                    data=tab, family=family,
-                   eliminate=eliminate, constrain=seq(1, length(coef(base))), constrainTo=parameters(base),
+                   eliminate=eliminate, constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
                    tolerance=1e-3, iterMax=iterMax, trace=trace)
       dots <- as.list(substitute(list(...)))[-1]
       args <- c(args, dots)
@@ -242,13 +242,13 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
 
   # Only one dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*\\).*[.:]\\Q%s\\E(\\Q%s\\E)$",
+      mu <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*\\).*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[3], vars[1],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
-      nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*\\).*[.:]\\Q%s\\E(\\Q%s\\E)$",
+      nu <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*\\).*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[3], vars[2],
                                                 paste(colnames(tab), collapse="\\E|\\Q")))]
-      phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+      phi <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                                  vars[3],
                                                  paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -296,13 +296,13 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+          mu <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                                     vars[3], i, vars[1],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
-          nu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+          nu <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*inst = %i.*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                                     vars[3], i, vars[2],
                                                     paste(colnames(tab), collapse="\\E|\\Q")))]
-          phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
                                                      i, vars[3],
                                                      paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -342,9 +342,9 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   }
 
   if(length(pickCoef(model, "Diag\\(")) > nr)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], nl, nr)
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], nl, nr)
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nr)
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nr)
   else
       dg <- numeric(0)
 
@@ -471,10 +471,10 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
 
   # Only one dimension, or none
   if(nd <= 0) {
-      mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[1], vars[2],
                                                 paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
-      phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+      phi <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
                                                  paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       # Homogeneous scores
@@ -509,10 +509,10 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- coef(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*MultHomog\\(.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*inst = %i.*MultHomog\\(.*\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
-          phi <- coef(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*MultHomog\\(.*inst = %i.*\\.\\Q%s\\E(\\Q%s\\E)$",
                                                      i, vars[3],
                                                      paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
@@ -542,9 +542,9 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
   }
 
   if(length(pickCoef(model, "Diag\\(")) > nr)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], nl, nr)
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], nl, nr)
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(coef(model)[pickCoef(model, "Diag\\(")], 1, nr)
+      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nr)
   else
       dg <- numeric(0)
 

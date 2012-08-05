@@ -87,17 +87,15 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
       tab[] <- -1
       tab[x] <- 0
 
-      model <- update(model, data=data+tab, start=coef(model), verbose=FALSE, trace=TRUE)
+      model <- update(model, data=data+tab, start=parameters(model), verbose=FALSE, trace=TRUE)
 
       if(!model$converged && !is.null(base)) {
           cat("Model for cell ", which(!1:length(data) %in% x),
               " did not converge, starting again with random values...\n")
           # If we don't specify start, old values are used, which can give very bad initial fits
-          base <- update(base, data=data, start=rep(NA, length(coef(base))))
-          coefs <- coef(base)
-          coefs[base$constrain] <- base$constrainTo
+          base <- update(base, data=data, start=rep(NA, length(parameters(base))))
           model <- update(model, iterMax=5 * model$iterMax,
-                          start=c(coefs, rep(NA, length(coef(model)) - length(coefs))),
+                          start=c(parameters(base), rep(NA, length(parameters(model)) - length(parameters(base)))),
                           verbose=TRUE, trace=TRUE)
       }
 
@@ -162,17 +160,15 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
 #   if(sum(data[-x,"Freq"]) > 0) {
 #       data[-x,"Freq"] <- data[-x,"Freq"] - 1
 # 
-#       model <- update(model, data=data, start=coef(model), verbose=FALSE, trace=TRUE)
+#       model <- update(model, data=data, start=parameters(model), verbose=FALSE, trace=TRUE)
 # 
 #       if(!model$converged && !is.null(base)) {
 #           cat("Model for cell ", which(!1:nrow(data) %in% x),
 #               " did not converge, starting again with random values...\n")
 #           # If we don't specify start, old values are used, which can give very bad initial fits
-#           base <- update(base, data=data, start=rep(NA, length(coef(base))))
-#           coefs <- coef(base)
-#           coefs[base$constrain] <- base$constrainTo
+#           base <- update(base, data=data, start=rep(NA, length(parameters(base))))
 #           model <- update(model, iterMax=5 * model$iterMax,
-#                           start=c(coefs, rep(NA, length(coef(model)) - length(coefs))),
+#                           start=c(parameters(base), rep(NA, length(parameters(model)) - length(parameters(base)))),
 #                           verbose=TRUE, trace=TRUE)
 #       }
 # 

@@ -58,7 +58,7 @@ anoas <- function(tab, nd=3, symmetric=FALSE, diagonal=FALSE, ...) {
       cat(sprintf("Fitting model with %i dimensions...\n", i))
 
       models[[i+1]] <- rc(tab, nd=i, symmetric=symmetric, diagonal=diagonal,
-                          start=c(rep(NA, length(coef(models[[i]])) - (i-1) * npar),
+                          start=c(rep(NA, length(parameters(models[[i]])) - (i-1) * npar),
                                   tail(parameters(models[[i]]), (i-1) * npar), rep(NA, npar)),
                           ...)
   }
@@ -143,7 +143,7 @@ anoasL <- function(tab, nd=3, layer.effect=c("homogeneous.scores", "heterogeneou
       cat(sprintf("Fitting model with %i dimensions...\n", i))
 
       models[[i+1]] <- rcL(tab, nd=i, layer.effect=layer.effect, symmetric=symmetric, diagonal=diagonal,
-                           start=c(rep(NA, length(coef(models[[i]])) - (i-1) * npar),
+                           start=c(rep(NA, length(parameters(models[[i]])) - (i-1) * npar),
                                    tail(parameters(models[[i]]), (i-1) * npar), rep(NA, npar)),
                            ...)
   }
