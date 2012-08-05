@@ -120,9 +120,6 @@
 \seealso{
   \code{\link{plot.rcL}}, \code{\link{gnm}}
 }
-\examples{
-
-}
 
 \keyword{ models }
 \keyword{ nonlinear }
