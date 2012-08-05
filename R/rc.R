@@ -2,7 +2,8 @@
 
 rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-               family=poisson, start=NA, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
+               family=poisson, start=NA, etastart=NULL, tolerance=1e-12, iterMax=5000,
+               trace=TRUE, ...) {
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
@@ -60,6 +61,9 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
           res <- eval(parse(text=sprintf("residSVD(base, %s, %s, %i)", vars[1], vars[2], nd)))
           start <- c(coef(base), res)
 
+          if(is.null(etastart))
+              etastart <- as.numeric(predict(base))
+
           cat("Running real model...\n")
       }
 
@@ -69,7 +73,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=eval(as.formula(f)), data=substitute(tab),
-               family=substitute(family), start=start,
+               family=substitute(family), start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
   args <- c(args, dots)

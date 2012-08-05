@@ -12,7 +12,8 @@
 yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
         weighting = c("marginal", "uniform", "none"),
         std.err = c("none", "jackknife"), family = poisson,
-        start = NA, tolerance = 1e-12, iterMax = 15000, trace = TRUE, ...)
+        start = NA, etastart = NULL, tolerance = 1e-12,
+        iterMax = 15000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -33,6 +34,8 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   \item{start}{either \code{NA} (the default) to use reasonable starting values, \code{NULL} to use
      random starting values, or a vector of starting values for the parameters in the model;
      if a starting value is \code{NA}, the default starting value will be used.}
+  \item{etastart}{ starting values for the linear predictor; set to \code{NULL} to use either default
+     starting values (if \code{start = NA}), or random starting values (in all other cases).}
   \item{tolerance}{ a positive numeric value specifying the tolerance level for
      convergence; higher values will speed up the fitting process, but beware of numerical
      instability of estimated scores!}

@@ -14,7 +14,8 @@ class(YRCSkew) <- "nonlin"
 
 yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                     weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                    family=poisson, start=NA, tolerance=1e-12, iterMax=15000, trace=TRUE, ...) {
+                    family=poisson, start=NA, etastart=NULL, tolerance=1e-12, iterMax=15000,
+                    trace=TRUE, ...) {
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)
   tab <- as.table(tab)
@@ -77,6 +78,9 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       coefs[base$constrain] <- base$constrainTo
       start <- c(coefs, rep(NA, nd.skew * (nrow(tab) + 1)))
 
+      if(is.null(etastart))
+          etastart <- as.numeric(predict(base))
+
       cat("Running real model...\n")
   }
 
@@ -98,7 +102,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=eval(as.formula(f)), data=substitute(tab),
-               family=substitute(family), start=start,
+               family=substitute(family), start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
   args <- c(args, dots)

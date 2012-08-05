@@ -3,7 +3,7 @@
 rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
                 symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                 weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                family=poisson, start=NA, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
+                family=poisson, start=NA, etastart=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
   layer.effect <- match.arg(layer.effect)
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
@@ -31,15 +31,16 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(length(vars) == 0)
       vars <- c("Var1", "Var2", "Var3")
 
-  if(diagonal != "none")
+  if(diagonal == "heterogeneous")
+      diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
+  else if(diagonal == "homogeneous")
       diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
   else
       diagstr <- ""
 
-
-  # Interaction between dimensions 1 and 3 is passed via eliminate
-  f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s",
-                vars[1], vars[2], vars[3], vars[2], vars[3])
+  f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s",
+                vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3])
+  eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
   base <- NULL
 
@@ -48,7 +49,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=eval(as.formula(paste(f1, diagstr))), data=tab,
-                   family=family, eliminate=eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3]))),
+                   family=family, eliminate=eliminate,
                    tolerance=1e-6, iterMax=iterMax)
       dots <- as.list(substitute(list(...)))[-1]
       args <- c(args, dots)
@@ -112,34 +113,39 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   # Heterogeneous diagonal parameters can make the convergence really slow unless
   # correct starting values are used
-  if(!is.null(base) && diagonal == "heterogeneous") {
-      cat("Running model with homogeneous diagonal parameters...\n")
+  if(!is.null(base)) {
+      cat("Running second base model to find starting values...\n")
 
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(paste(f1, diagstr, f2)),
-                   data=tab, family=family, start=start,
-                   eliminate=eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3]))),
+                   data=tab, family=family,
+                   eliminate=eliminate, constrain=seq(1, length(coef(base))), constrainTo=parameters(base),
                    tolerance=1e-3, iterMax=iterMax, trace=trace)
       dots <- as.list(substitute(list(...)))[-1]
       args <- c(args, dots)
 
       base2 <- do.call("gnm", args)
 
-      start <- c(head(coef(base2), length(coef(base)) - nrow(tab)),
-                 rep(NA, nrow(tab) * dim(tab)[3]), tail(coef(base2),
-                 length(start) - length(coef(base))))
+      # If model fails (can always happen), do not fail completely but start with random values
+      if(is.null(base2))
+          start <- NULL
+      else
+          start <- parameters(base2)
+
+      if(is.null(etastart))
+          etastart <- as.numeric(predict(base2))
   }
 
-  if(diagonal == "heterogeneous")
-      diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
+  if(!is.null(base) && is.null(etastart))
+      etastart <- as.numeric(predict(base))
 
   if(!is.null(base))
       cat("Running real model...\n")
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=eval(as.formula(paste(f1, diagstr, f2))), data=substitute(tab),
-               family=substitute(family), start=start,
-               eliminate=eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3]))),
+               family=substitute(family), start=start, etastart=etastart,
+               eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
   args <- c(args, dots)
