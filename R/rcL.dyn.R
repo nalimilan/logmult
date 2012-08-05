@@ -157,7 +157,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
 #   - two layer coefficients (normally already present in the model)
 #   - two for each dimension of the start scores
 #   - two for each dimension of the end scores
-assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none")) {
+assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
@@ -344,7 +344,7 @@ assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none")) {
 }
 
 
-assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none")) {
+assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
