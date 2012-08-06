@@ -179,9 +179,9 @@
       # Our results are very close for the unweighted solution;
       # but for marginal weighting their errors are probably not in the same unit,
       # as they are larger than the unweighted ones, while phi are much smaller.
-      stopifnot(isTRUE(all.equal(c(round(se.rc(caithness.unweighted)$phi, d=3)),
+      stopifnot(isTRUE(all.equal(c(round(se(caithness.unweighted)$phi, d=3)),
                                  c(0.282, 0.052))))
-      stopifnot(isTRUE(all.equal(c(round(se.rc(aberdeen.unweighted)$phi, d=3)),
+      stopifnot(isTRUE(all.equal(c(round(se(aberdeen.unweighted)$phi, d=3)),
                                  c(0.221, 0.040))))
   }
 
@@ -247,7 +247,7 @@
                                  c(0.765,  0.020, -0.322, -0.55, 0.088,
                                   -0.137, -0.549, -0.120, -0.01, 0.816))))
   }
-  se.rc(model) # Jackknife standard errors are slightly different
+  se(model) # Jackknife standard errors are slightly different
                # from their asymptotic counterparts
   plot(model, conf.ellipses=TRUE)
 }

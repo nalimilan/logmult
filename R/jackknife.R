@@ -192,58 +192,62 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
 #   ret
 # }
 
-se.rc <- function(model, type=c("se", "quasi.se")) {
-  if(!inherits(model, "rc")) 
-      stop("model must be a rc object")
+se <- function(x, ...) UseMethod("se", x)
 
-  if(length(model$assoc) == 0)
-      stop("model must have an association component")
+se.default <- function(x, ...) gnm::se(x)
 
-  se.assoc(model$assoc)
+se.rc <- function(x, type=c("se", "quasi.se")) {
+  if(!inherits(x, "rc")) 
+      stop("x must be a rc object")
+
+  if(length(x$assoc) == 0)
+      stop("x must have an association component")
+
+  se.assoc(x$assoc)
 }
 
-se.rcL <- function(model, type=c("se", "quasi.se")) {
-  if(!inherits(model, "rcL")) 
-      stop("model must be a rcL object")
+se.rcL <- function(x, type=c("se", "quasi.se")) {
+  if(!inherits(x, "rcL")) 
+      stop("x must be a rcL object")
 
-  if(length(model$assoc) == 0)
-      stop("model must have an association component")
+  if(length(x$assoc) == 0)
+      stop("x must have an association component")
 
-  se.assoc(model$assoc)
+  se.assoc(x$assoc)
 }
 
-se.hmskew <- function(model, type=c("se", "quasi.se")) {
-  if(!inherits(model, "hmskew")) 
-      stop("model must be a hmskew object")
+se.hmskew <- function(x, type=c("se", "quasi.se")) {
+  if(!inherits(x, "hmskew"))
+      stop("x must be a hmskew object")
 
-  if(length(model$assoc) > 0 && length(model$assoc.hmskew) > 0)
-      return(list(assoc=se.assoc(model$assoc), assoc.hmskew=se.assoc(model$assoc.hmskew)))
-  if(length(model$assoc) > 0)
-      return(se.assoc(model$assoc))
-  else if(length(model$assoc.hmskew) > 0)
-      return(se.assoc(model$assoc.hmskew))
+  if(length(x$assoc) > 0 && length(x$assoc.hmskew) > 0)
+      return(list(assoc=se.assoc(x$assoc), assoc.hmskew=se.assoc(x$assoc.hmskew)))
+  if(length(x$assoc) > 0)
+      return(se.assoc(x$assoc))
+  else if(length(x$assoc.hmskew) > 0)
+      return(se.assoc(x$assoc.hmskew))
   else
-      stop("model must have an association or a skew-association component")
+      stop("x must have an association or a skew-association component")
 }
 
-se.assoc <- function(ass, type=c("se", "quasi.se")) {
+se.assoc <- function(x, type=c("se", "quasi.se")) {
   type <- match.arg(type)
 
-  if(!inherits(ass, "assoc"))
-      stop("ass must be an assoc object")
+  if(!inherits(x, "assoc"))
+      stop("x must be an assoc object")
 
-  if(ass$covtype == "none" || length(ass$covmat) == 0)
+  if(x$covtype == "none" || length(x$covmat) == 0)
       stop("No covariance matrix found: use the 'se' argument when fitting model")
 
-  if(!(ncol(ass$row) == ncol(ass$col) &&
-       ncol(ass$phi) == ncol(ass$row)))
+  if(!(ncol(x$row) == ncol(x$col) &&
+       ncol(x$phi) == ncol(x$row)))
       stop("Invalid component length")
 
-  nd <- ncol(ass$phi)
-  nl <- nrow(ass$phi)
+  nd <- ncol(x$phi)
+  nl <- nrow(x$phi)
 
-  if(nrow(ass$covmat) != ncol(ass$covmat) ||
-     nrow(ass$covmat) != nl * nd + 2 * nl * nd * (nrow(ass$row) + nrow(ass$col)))
+  if(nrow(x$covmat) != ncol(x$covmat) ||
+     nrow(x$covmat) != nl * nd + 2 * nl * nd * (nrow(x$row) + nrow(x$col)))
       stop("Covariance matrix dimensions do not match association structure")
 
   std.errs <- list()
@@ -255,13 +259,13 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
       get.se <- function(covmat) sqrt(diag(covmat))
   }
 
-  covmat <- ass$covmat
+  covmat <- x$covmat
 
-  std.errs$phi <- ass$phi
+  std.errs$phi <- x$phi
   for(i in 1:nl)
       std.errs$phi[i,] <- get.se(covmat[seq((i - 1) * nd + 1, i * nd), seq((i - 1) * nd + 1, i * nd)])
 
-  std.errs$row <- ass$row
+  std.errs$row <- x$row
   n <- nrow(std.errs$row)
   for(i in 1:dim(std.errs$row)[3]) {
       for(j in 1:nd) {
@@ -270,8 +274,8 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
       }
   }
 
-  std.errs$col <- ass$col
-  if(inherits(ass, "assoc.symm")) {
+  std.errs$col <- x$col
+  if(inherits(x, "assoc.symm")) {
       std.errs$col <- std.errs$row
   }
   else {

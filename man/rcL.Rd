@@ -111,7 +111,7 @@
   }
   model <- rcL(gss7590, nd=2, weighting="none", se="jackknife")
   model
-  se.rcL(model) # Jackknife standard errors are slightly different
+  se(model) # Jackknife standard errors are slightly different
                 # from their asymptotic counterparts
   # See ?plot.rcL for plotting
   \dontshow{
