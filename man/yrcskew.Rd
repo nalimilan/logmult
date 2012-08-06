@@ -12,7 +12,7 @@
 yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
         weighting = c("marginal", "uniform", "none"),
         std.err = c("none", "jackknife"), family = poisson,
-        start = NA, etastart = NULL, tolerance = 1e-12,
+        start = NA, etastart = NULL, tolerance = 1e-6,
         iterMax = 15000, trace = TRUE, ...)
 }
 \arguments{

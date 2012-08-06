@@ -12,7 +12,7 @@
   rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
      weighting = c("marginal", "uniform", "none"),
      std.err = c("none", "jackknife"), family = poisson,
-     start = NA, etastart = NULL, tolerance = 1e-12,
+     start = NA, etastart = NULL, tolerance = 1e-6,
      iterMax = 5000, trace = TRUE, ...)
 }
 \arguments{
@@ -81,14 +81,6 @@
     sqrt(phi) * row/column scores.}
   \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only
     \dQuote{jackknife} is supported.}
-}
-\note{
-  Default \code{tolerance} value is very low to ensure the model converges to the right point and that
-  coefficients are stable even in most complex cases. This comes at a cost, in particular with high-dimensional
-  tables and/or when computing jackknife standard errors. If you know what you are doing, raising \code{tolerance}
-  to 1e-6 or an intermediate value can lead to substantial computing time reductions; in that case, be sure to run the
-  model several times to check for numerical instability of the scores. (Very large jackknife standard errors are
-  a good sign that proper convergence was not attained at the chosen tolerance level.)
 }
 \references{
   Goodman, L.A. (1979). Simple Models for the Analysis of Association in Cross-Classifications

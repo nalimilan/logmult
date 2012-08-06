@@ -3,7 +3,7 @@
 rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
                 symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                 weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                family=poisson, start=NA, etastart=NULL, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
+                family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000, trace=TRUE, ...) {
   layer.effect <- match.arg(layer.effect)
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)

@@ -2,7 +2,7 @@
 
 rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-               family=poisson, start=NA, etastart=NULL, tolerance=1e-12, iterMax=5000,
+               family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
                trace=TRUE, ...) {
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)

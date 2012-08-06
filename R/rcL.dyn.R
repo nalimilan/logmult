@@ -36,7 +36,7 @@ class(RCTransHomog) <- "nonlin"
 
 rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                       weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
-                      family=poisson, start=NA, tolerance=1e-12, iterMax=5000, trace=TRUE, ...) {
+                      family=poisson, start=NA, tolerance=1e-6, iterMax=5000, trace=TRUE, ...) {
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
   std.err <- match.arg(std.err)

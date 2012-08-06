@@ -12,7 +12,7 @@
             diagonal = c("none", "heterogeneous", "homogeneous"),
             weighting = c("marginal", "uniform", "none"),
             std.err = c("none", "jackknife"), family = poisson,
-            start = NA, tolerance = 1e-12, iterMax = 5000, trace = TRUE, ...)
+            start = NA, tolerance = 1e-6, iterMax = 5000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -99,14 +99,6 @@
     sqrt(phi) * row/column scores.}
   \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only
     \dQuote{jackknife} is supported.}
-}
-\note{
-  Default \code{tolerance} value is very low to ensure the model converges to the right point and that
-  coefficients are stable even in most complex cases. This comes at a cost, in particular with high-dimensional
-  tables and/or when computing jackknife standard errors. If you know what you are doing, raising \code{tolerance}
-  to 1e-6 or an intermediate value can lead to substantial computing time reductions; in that case, be sure to run the
-  model several times to check for numerical instability of the scores. (Very large jackknife standard errors are
-  a good sign that proper convergence was not attained at the chosen tolerance level.)
 }
 \references{
   Goodman, L.A., and Hout, M. (1998). Statistical Methods and Graphical Displays for Analyzing How the Association
