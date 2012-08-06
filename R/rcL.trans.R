@@ -16,7 +16,7 @@ RCTrans <- function(row, col, layer, inst=NULL) {
    }
 class(RCTrans) <- "nonlin"
 
-RCTransHomog <- function(row, col, layer, inst=NULL) {
+RCTransSymm <- function(row, col, layer, inst=NULL) {
   list(predictors = list(R1=substitute(row), C1=substitute(col), substitute(layer), R2=substitute(row), C2=substitute(col)),
        term = function(predLabels, varLabels) {
            sprintf("(%s + %s * (%s)^2) * (%s + %s * (%s)^2)",
@@ -31,7 +31,7 @@ RCTransHomog <- function(row, col, layer, inst=NULL) {
            theta
        })
    }
-class(RCTransHomog) <- "nonlin"
+class(RCTransSymm) <- "nonlin"
 
 
 rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
@@ -105,7 +105,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
 
   f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s+ instances(%s(%s, %s, %s), %i)",
                vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
-               if(symmetric) "RCTransHomog" else "RCTrans", vars[1], vars[2], vars[3], nd)
+               if(symmetric) "RCTransSymm" else "RCTrans", vars[1], vars[2], vars[3], nd)
 
   args <- list(formula=eval(as.formula(f)), data=substitute(tab),
                family=substitute(family),
@@ -377,21 +377,21 @@ assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none
 
   # Find out the number of dimensions
   nd <- 0
-  while(length(pickCoef(model, sprintf("RCTransHomog.*inst = %s\\)[RC][12]\\.\\Q%s\\E\\|\\Q%s\\E",
+  while(length(pickCoef(model, sprintf("RCTransSymm.*inst = %s\\)[RC][12]\\.\\Q%s\\E\\|\\Q%s\\E",
                                        nd+1, vars[1], vars[2]))) > 0)
       nd <- nd + 1
 
   # One dimension, or none
   if(nd <= 0) {
-      mu <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu <- parameters(model)[pickCoef(model, sprintf("RCTransSymm.*\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                 vars[1], vars[2],
                                                 paste(rownames(tab), collapse="\\E|\\Q")))]
 
-      mu1 <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+      mu1 <- parameters(model)[pickCoef(model, sprintf("RCTransSymm.*\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                  vars[1], vars[2],
                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
 
-      phi <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*\\)\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
+      phi <- parameters(model)[pickCoef(model, sprintf("RCTransSymm.*\\)\\.\\Q%s\\E(\\Q%s\\E)$", vars[3],
                                                 paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
       if(length(mu) == nr && length(mu1) == nr && length(phi) == nl) {
@@ -412,15 +412,15 @@ assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none
       layer <- matrix(NA, nl, nd)
 
       for(i in 1:nd) {
-          mu <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu <- parameters(model)[pickCoef(model, sprintf("RCTransSymm.*inst = %i\\)[RC]1\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
 
-          mu1 <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
+          mu1 <- parameters(model)[pickCoef(model, sprintf("RCTransSymm.*inst = %i\\)[RC]2\\.\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[1], vars[2],
                                                     paste(rownames(tab), collapse="\\E|\\Q")))]
 
-          phi <- parameters(model)[pickCoef(model, sprintf("RCTransHomog.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
+          phi <- parameters(model)[pickCoef(model, sprintf("RCTransSymm.*inst = %i\\)\\.\\Q%s\\E(\\Q%s\\E)$",
                                                     i, vars[3],
                                                     paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 

@@ -7,6 +7,8 @@
 \alias{assoc.yrcskew.symm}
 \alias{assoc.rcL}
 \alias{assoc.rcL.symm}
+\alias{assoc.rcL.trans}
+\alias{assoc.rcL.trans.symm}
 \title{Identifying Scores from Association Models}
 \description{Identify log-multiplicative association scores from over-parameterized gnm models}
 \usage{\method{assoc}{rc}(model, weighting = c("marginal", "uniform", "none"), ...)
@@ -15,10 +17,12 @@
        \method{assoc}{yrcskew}(model, weighting = c("marginal", "uniform", "none"), ...)
        \method{assoc}{rcL}(model, weighting = c("marginal", "uniform", "none"), ...)
        \method{assoc}{rcL.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
+       \method{assoc}{rcL.trans}(model, weighting = c("marginal", "uniform", "none"), ...)
+       \method{assoc}{rcL.trans.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
 }
 \arguments{
-  \item{model}{a \code{\link{gnm}} object, usually obtained using \code{\link{rc}}, \code{\link{hmskew}} or
-               \code{\link{yrcskew}}, but not necessarily.}
+  \item{model}{a \code{\link{gnm}} object, usually obtained using \code{\link{rc}}, \code{\link{hmskew}},
+               \code{\link{yrcskew}}, \code{\link{rcL}}, or \code{\link{rcL.trans}}, but not necessarily.}
   \item{weighting}{the weights to be used when normalizing scores (see \sQuote{Details}).}
   \item{...}{currently unused.}
 }
@@ -53,4 +57,5 @@
   \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only
     \dQuote{jackknife} is supported.}
 }
-\seealso{\code{\link{rc}}, \code{\link{hmskew}}, \code{\link{yrcskew}}, \code{\link{rcL}}}
+\seealso{\code{\link{rc}}, \code{\link{hmskew}}, \code{\link{yrcskew}}, \code{\link{rcL}},
+         \code{\link{rcL.trans}} }
