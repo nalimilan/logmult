@@ -267,152 +267,152 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
 
 ## Model with skew-symmetric association homogeneous to symmetric association (HM_(S+SK))
-assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
-  if(!"gnm" %in% class(model)) stop("model must be a gnm object")
-
-  # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-  tab <- as.table(model$data[!is.na(rownames(model$data)), !is.na(colnames(model$data))])
-
-  weighting <- match.arg(weighting)
-
-  # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, et Becker & Clogg (1989), p. 144.
-  if(weighting == "marginal")
-      p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
-  else
-      p <- rep(1/nrow(tab), nrow(tab))
-
-  ## Get symmetric association coefficients
-  sc <- matrix(NA, nrow(tab), 0)
-
-  nd <- 0
-  while(TRUE) {
-      mu <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*inst = %s\\)", nd+1))]
-
-      if(!(length(mu) == nrow(tab)))
-          break
-
-      # This is a correct dimension, add it
-      nd <- nd + 1
-
-      sc <- cbind(sc, mu)
-  }
-
-  if(nd <= 0) {
-      mu <- parameters(model)[pickCoef(model, "MultHomog\\(")]
-
-      if(length(mu) == nrow(tab)) {
-          nd <- 1
-          sc <- cbind(sc, mu)
-      }
-      else {
-          stop("No dimensions found. Are you sure this is a row-column association model with symmetric row and column scores?")
-      }
-  }
-
-  ## Get skew association coefficients
-  scsk <- matrix(NA, nrow(tab), 0)
-
-  ndsk <- 0
-  while(TRUE) {
-      musk <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*inst = %i\\)\\)(\\Q%s\\E)",
-                                                  nd + 1, paste(rownames(tab), collapse="\\E|\\Q")))]
-
-      if(!(length(musk) == nrow(tab)))
-          break
-
-      # This is a correct dimension, add it
-      ndsk <- ndsk + 1
-
-      scsk <- cbind(scsk, musk)
-  }
-
-  if(ndsk <= 0) {
-      musk <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*\\)(\\Q%s\\E)$",
-                                                  paste(rownames(tab), collapse="\\E|\\Q")))]
-
-      if(length(musk) == nrow(tab)) {
-          ndsk <- 1
-          scsk <- cbind(scsk, musk)
-      }
-      else {
-          stop("No skew dimensions found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
-      }
-  }
-
-  skew <- parameters(model)[pickCoef(model, "MultHomog\\(.*skew\\)$")]
-  if(length(skew) != ndsk)
-      stop("skew coefficients not found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
-
-  if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
-  else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
-  else
-      dg <- numeric(0)
-
-
-  ## Normalize, cf. Clogg & Shihadeh (1994), eq. 5.3 et 5.4 (p. 83)
-  ## Symmetric part
-  # Center
-  sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
-
-  # Technique proposed in Goodman (1991), Appendix 4
-  # We use eigen() here rather than svd() because matrix is square and symmetric
-  lambda <- matrix(0, nrow(tab), ncol(tab))
-  for(i in 1:nd)
-      lambda <- lambda + sc[,i] %o% sc[,i]
-  lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
-  eigen <- eigen(lambda0, symmetric=TRUE)
-  sc[,1:nd] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
-  phi <- eigen$values[1:nd]
-
-  ## Skew part
-  # Center
-  scsk <- sweep(scsk, 2, colSums(sweep(scsk, 1, p, "*")), "-")
-
-  # Integrate skew coefficient, changing sign if needed
-  if(skew < 0) {
-      skew <- -skew
-      scsk <- -scsk
-  }
-  scsk <- sweep(scsk, 2, sqrt(skew), "*")
-
-  # Technique proposed in Goodman (1991), Appendix 4
-  # We use eigen() here rather than svd() because matrix is square and symmetric
-  lambda <- matrix(0, nrow(tab), ncol(tab))
-  for(i in 1:ndsk)
-      lambda <- lambda + scsk[,i] %o% scsk[,i]
-  lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
-  eigen <- eigen(lambda0, symmetric=TRUE)
-  scsk[,1:ndsk] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:ndsk] # Eq. A.4.7
-  phisk <- eigen$values[1:ndsk]
-
-
-  ## Prepare objects
-  phi <- rbind(c(phi))
-  dim(sc)[3] <- dim(scsk)[3] <- 1
-  colnames(sc) <- colnames(phi) <- paste("Dim", 1:nd, sep="")
-  colnames(scsk) <- paste("Dim", 1:ndsk, sep="")
-  rownames(sc) <- rownames(scsk) <- rownames(tab)
-
-  if(length(dg) > 0) {
-      # Diag() sorts coefficients alphabetically!
-      dg[,order(rownames(tab))] <- dg
-
-      colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
-                      else paste(rownames(tab), colnames(tab), sep=":")
-
-      if(nrow(dg) > 1)
-          rownames(dg) <- dimnames(tab)[[3]]
-      else
-          rownames(dg) <- "All levels"
-  }
-
-  obj <- list(phi = phi, row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk,
-              diagonal = dg, weighting = weighting, row.weights = p, col.weights = p)
-
-  class(obj) <- c("assoc.yrcskew.homog", "assoc.symm", "assoc")
-  obj
-}
+# assoc.yrcskew.homog <- function(model, weighting=c("marginal", "unit"), ...) {
+#   if(!"gnm" %in% class(model)) stop("model must be a gnm object")
+# 
+#   # gnm doesn't include coefficients for NA row/columns, so get rid of them too
+#   tab <- as.table(model$data[!is.na(rownames(model$data)), !is.na(colnames(model$data))])
+# 
+#   weighting <- match.arg(weighting)
+# 
+#   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, et Becker & Clogg (1989), p. 144.
+#   if(weighting == "marginal")
+#       p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
+#   else
+#       p <- rep(1/nrow(tab), nrow(tab))
+# 
+#   ## Get symmetric association coefficients
+#   sc <- matrix(NA, nrow(tab), 0)
+# 
+#   nd <- 0
+#   while(TRUE) {
+#       mu <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*inst = %s\\)", nd+1))]
+# 
+#       if(!(length(mu) == nrow(tab)))
+#           break
+# 
+#       # This is a correct dimension, add it
+#       nd <- nd + 1
+# 
+#       sc <- cbind(sc, mu)
+#   }
+# 
+#   if(nd <= 0) {
+#       mu <- parameters(model)[pickCoef(model, "MultHomog\\(")]
+# 
+#       if(length(mu) == nrow(tab)) {
+#           nd <- 1
+#           sc <- cbind(sc, mu)
+#       }
+#       else {
+#           stop("No dimensions found. Are you sure this is a row-column association model with symmetric row and column scores?")
+#       }
+#   }
+# 
+#   ## Get skew association coefficients
+#   scsk <- matrix(NA, nrow(tab), 0)
+# 
+#   ndsk <- 0
+#   while(TRUE) {
+#       musk <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*inst = %i\\)\\)(\\Q%s\\E)",
+#                                                   nd + 1, paste(rownames(tab), collapse="\\E|\\Q")))]
+# 
+#       if(!(length(musk) == nrow(tab)))
+#           break
+# 
+#       # This is a correct dimension, add it
+#       ndsk <- ndsk + 1
+# 
+#       scsk <- cbind(scsk, musk)
+#   }
+# 
+#   if(ndsk <= 0) {
+#       musk <- parameters(model)[pickCoef(model, sprintf("MultHomog\\(.*skew.*\\)(\\Q%s\\E)$",
+#                                                   paste(rownames(tab), collapse="\\E|\\Q")))]
+# 
+#       if(length(musk) == nrow(tab)) {
+#           ndsk <- 1
+#           scsk <- cbind(scsk, musk)
+#       }
+#       else {
+#           stop("No skew dimensions found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
+#       }
+#   }
+# 
+#   skew <- parameters(model)[pickCoef(model, "MultHomog\\(.*skew\\)$")]
+#   if(length(skew) != ndsk)
+#       stop("skew coefficients not found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
+# 
+#   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
+#       dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+#   else if(length(pickCoef(model, "Diag\\(")) > 0)
+#       dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+#   else
+#       dg <- numeric(0)
+# 
+# 
+#   ## Normalize, cf. Clogg & Shihadeh (1994), eq. 5.3 et 5.4 (p. 83)
+#   ## Symmetric part
+#   # Center
+#   sc <- sweep(sc, 2, colSums(sweep(sc, 1, p/sum(p), "*")), "-")
+# 
+#   # Technique proposed in Goodman (1991), Appendix 4
+#   # We use eigen() here rather than svd() because matrix is square and symmetric
+#   lambda <- matrix(0, nrow(tab), ncol(tab))
+#   for(i in 1:nd)
+#       lambda <- lambda + sc[,i] %o% sc[,i]
+#   lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
+#   eigen <- eigen(lambda0, symmetric=TRUE)
+#   sc[,1:nd] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
+#   phi <- eigen$values[1:nd]
+# 
+#   ## Skew part
+#   # Center
+#   scsk <- sweep(scsk, 2, colSums(sweep(scsk, 1, p, "*")), "-")
+# 
+#   # Integrate skew coefficient, changing sign if needed
+#   if(skew < 0) {
+#       skew <- -skew
+#       scsk <- -scsk
+#   }
+#   scsk <- sweep(scsk, 2, sqrt(skew), "*")
+# 
+#   # Technique proposed in Goodman (1991), Appendix 4
+#   # We use eigen() here rather than svd() because matrix is square and symmetric
+#   lambda <- matrix(0, nrow(tab), ncol(tab))
+#   for(i in 1:ndsk)
+#       lambda <- lambda + scsk[,i] %o% scsk[,i]
+#   lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
+#   eigen <- eigen(lambda0, symmetric=TRUE)
+#   scsk[,1:ndsk] <- diag(1/sqrt(p)) %*% eigen$vectors[,1:ndsk] # Eq. A.4.7
+#   phisk <- eigen$values[1:ndsk]
+# 
+# 
+#   ## Prepare objects
+#   phi <- rbind(c(phi))
+#   dim(sc)[3] <- dim(scsk)[3] <- 1
+#   colnames(sc) <- colnames(phi) <- paste("Dim", 1:nd, sep="")
+#   colnames(scsk) <- paste("Dim", 1:ndsk, sep="")
+#   rownames(sc) <- rownames(scsk) <- rownames(tab)
+# 
+#   if(length(dg) > 0) {
+#       # Diag() sorts coefficients alphabetically!
+#       dg[,order(rownames(tab))] <- dg
+# 
+#       colnames(dg) <- if(all(rownames(tab) == colnames(tab))) rownames(tab)
+#                       else paste(rownames(tab), colnames(tab), sep=":")
+# 
+#       if(nrow(dg) > 1)
+#           rownames(dg) <- dimnames(tab)[[3]]
+#       else
+#           rownames(dg) <- "All levels"
+#   }
+# 
+#   obj <- list(phi = phi, row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk,
+#               diagonal = dg, weighting = weighting, row.weights = p, col.weights = p)
+# 
+#   class(obj) <- c("assoc.yrcskew.homog", "assoc.symm", "assoc")
+#   obj
+# }
 
 assoc <- function(model, weighting, ...) UseMethod("assoc", model)
