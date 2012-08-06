@@ -1,2 +1,41 @@
-exportPattern("^[^\\.]")
+export(rc, hmskew, yrcskew, rcL, rcL.trans)
+
+export(HMSkew, YRCSkew, RCTrans, RCTransSymm)
+
+S3method(assoc, rc)
+S3method(assoc, rc.symm)
+S3method(assoc, hmskew)
+S3method(assoc, yrcskew)
+S3method(assoc, rcL)
+S3method(assoc, rcL.symm)
+S3method(assoc, rcL.trans)
+S3method(assoc, rcL.trans.symm)
+
+export(se)
+S3method(se, assoc)
+S3method(se, rc)
+S3method(se, hmskew)
+S3method(se, yrcskew)
+S3method(se, rcL)
+
+S3method(print, rc)
+S3method(print, rc.symm)
+S3method(print, hmskew)
+S3method(print, yrcskew)
+S3method(print, rcL)
+S3method(print, rcL.symm)
+
+S3method(plot, assoc)
+S3method(plot, rc)
+S3method(plot, rc.symm)
+S3method(plot, hmskew)
+S3method(plot, yrcskew)
+S3method(plot, rcL)
+S3method(plot, rcL.symm)
+
+export(anoas)
+S3method(print, anoas)
+S3method(summary, anoas)
+S3method(print, summary.anoas)
+
 import(gnm)
