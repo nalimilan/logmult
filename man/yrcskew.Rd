@@ -79,10 +79,10 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
     \code{nd.symm} is \code{NA}. In addition to this class, it contains a \code{assoc.yrcskew} component
     holding information about the \emph{skew-symmetric} association:
   \item{phi }{The intrisic association parameters, one per dimension.}
-  \item{row }{Row scores, normalized so that their (weighted) mean is 0, their (weighted)
-    sum is 1, and their (weighted) cross-dimensional correlation is null.}
-  \item{col }{Column scores, normalized so that their (weighted) mean is 0, their (weighted)
-    sum is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
+    sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{col }{Column scores, normalized so that their (weighted) sum is 0, their (weighted)
+    sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}
   \item{row.weights }{The row weights used for the identification of scores, as specified by the
     \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the

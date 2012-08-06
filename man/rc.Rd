@@ -66,10 +66,10 @@
   A \code{rc} object, with all the components of a \code{\link{gnm}} object, plus an
     \code{assoc.rc} component holding the most relevant association information:
   \item{phi }{The intrisic association parameters, one per dimension.}
-  \item{row }{Row scores, normalized so that their (weighted) mean is 0, their (weighted)
-    sum is 1, and their (weighted) cross-dimensional correlation is null.}
-  \item{col }{Column scores, normalized so that their (weighted) mean is 0, their (weighted)
-    sum is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
+    sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{col }{Column scores, normalized so that their (weighted) sum is 0, their (weighted)
+    sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}
   \item{weighting }{The name of the weighting method used, reflected by \code{row.weights}
     and \code{col.weights}.}
   \item{row.weights }{The row weights used for the identification of scores, as specified by the

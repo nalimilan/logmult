@@ -34,4 +34,23 @@
   other model specifications. \code{assoc} can be used to identify the scores, the rest of the
   coefficients being extracted manually by the caller.
 }
-\seealso{\code{\link{rc}}, \code{\link{hmskew}}, \code{\link{yrcskew}}}
+\value{
+  An \code{assoc} object with the following components:
+  \item{phi }{The intrisic association parameters, one per dimension.}
+  \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
+    sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{col }{Column scores, normalized so that their (weighted) sum is 0, their (weighted)
+    sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}
+  \item{weighting }{The name of the weighting method used, reflected by \code{row.weights}
+    and \code{col.weights}.}
+  \item{row.weights }{The row weights used for the identification of scores, as specified by the
+    \code{weighting} argument.}
+  \item{col.weights }{The column weights used for the identification of scores, as specified by the
+    \code{weighting} argument.}
+  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{se}
+    was set. It contains first phi coefficients, then normalized row and column scores, then
+    sqrt(phi) * row/column scores.}
+  \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only
+    \dQuote{jackknife} is supported.}
+}
+\seealso{\code{\link{rc}}, \code{\link{hmskew}}, \code{\link{yrcskew}}, \code{\link{rcL}}}
