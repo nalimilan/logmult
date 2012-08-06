@@ -13,11 +13,11 @@ YRCSkew <- function(mincat, maxcat, skew, inst=NULL) {
 class(YRCSkew) <- "nonlin"
 
 yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
-                    weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                    weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
                     family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=15000,
                     trace=TRUE, ...) {
   weighting <- match.arg(weighting)
-  std.err <- match.arg(std.err)
+  se <- match.arg(se)
   tab <- as.table(tab)
 
   if(length(dim(tab)) < 2)
@@ -120,7 +120,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   model$assoc.yrcskew <- assoc.yrcskew(model, weighting=weighting)
 
 
-  if(std.err == "jackknife") {
+  if(se == "jackknife") {
       assoc1 <- if(is.na(nd.symm)) assoc.yrcskew else assoc.rc.symm
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.yrcskew
 

@@ -233,7 +233,7 @@ se.assoc <- function(ass, type=c("se", "quasi.se")) {
       stop("ass must be an assoc object")
 
   if(ass$covtype == "none" || length(ass$covmat) == 0)
-      stop("No covariance matrix found: use the 'std.err' argument when fitting model")
+      stop("No covariance matrix found: use the 'se' argument when fitting model")
 
   if(!(ncol(ass$row) == ncol(ass$col) &&
        ncol(ass$phi) == ncol(ass$row)))

@@ -11,7 +11,7 @@
 \usage{
 yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
         weighting = c("marginal", "uniform", "none"),
-        std.err = c("none", "jackknife"), family = poisson,
+        se = c("none", "jackknife"), family = poisson,
         start = NA, etastart = NULL, tolerance = 1e-6,
         iterMax = 15000, trace = TRUE, ...)
 }
@@ -25,7 +25,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model.}
   \item{weighting}{ what weights should be used when normalizing the scores.}
-  \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
+  \item{se}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
   \item{family}{ a specification of the error distribution and link function
      to be used in the model. This can be a character string naming
@@ -87,7 +87,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
     \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
     \code{weighting} argument.}
-  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{std.err}
+  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{se}
     was set. It contains first phi coefficients, then normalized row and column scores, then
     sqrt(phi) * row/column scores.}
   \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only

@@ -35,11 +35,11 @@ class(RCTransHomog) <- "nonlin"
 
 
 rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
-                      weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                      weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
                       family=poisson, start=NA, tolerance=1e-6, iterMax=5000, trace=TRUE, ...) {
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
-  std.err <- match.arg(std.err)
+  se <- match.arg(se)
   tab <- as.table(tab)
 
   if(length(dim(tab)) < 3)
@@ -130,7 +130,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
 
   model$assoc <- assoc(model, weighting=weighting)
 
-  if(std.err == "jackknife") {
+  if(se == "jackknife") {
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,

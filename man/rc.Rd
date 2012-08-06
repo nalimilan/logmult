@@ -11,7 +11,7 @@
 \usage{
   rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
      weighting = c("marginal", "uniform", "none"),
-     std.err = c("none", "jackknife"), family = poisson,
+     se = c("none", "jackknife"), family = poisson,
      start = NA, etastart = NULL, tolerance = 1e-6,
      iterMax = 5000, trace = TRUE, ...)
 }
@@ -25,7 +25,7 @@
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model. Valid only for square tables.}
   \item{weighting}{ what weights should be used when normalizing the scores.}
-  \item{std.err}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
+  \item{se}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
   \item{family}{ a specification of the error distribution and link function
      to be used in the model. This can be a character string naming
@@ -76,7 +76,7 @@
     \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
     \code{weighting} argument.}
-  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{std.err}
+  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{se}
     was set. It contains first phi coefficients, then normalized row and column scores, then
     sqrt(phi) * row/column scores.}
   \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only
@@ -163,13 +163,13 @@
   # "Uniform weights" in the authors' terms mean "no weighting"
   # Average marginals are currently not supported
   caithness.unweighted <- rc(color[,,1], nd=2, weighting="none",
-                             std.err="jackknife")
+                             se="jackknife")
   caithness.marginal <- rc(color[,,1], nd=2, weighting="marginal",
-                           std.err="jackknife")
+                           se="jackknife")
   aberdeen.unweighted <- rc(color[,,2], nd=2, weighting="none",
-                            std.err="jackknife")
+                            se="jackknife")
   aberdeen.marginal <- rc(color[,,2], nd=2, weighting="marginal",
-                          std.err="jackknife")
+                          se="jackknife")
   caithness.unweighted
   caithness.marginal
   aberdeen.unweighted
@@ -234,7 +234,7 @@
   # with that of Wong (2001)
   tab <- margin.table(gss8590[,,c(2,4)], 1:2)
   tab[2,4] <- 49
-  model <- rc(tab, nd=2, weighting="none", std.err="jackknife")
+  model <- rc(tab, nd=2, weighting="none", se="jackknife")
   model
   \dontshow{
       # A few scores differ from reported results by .001

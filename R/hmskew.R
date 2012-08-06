@@ -13,11 +13,11 @@ HMSkew <- function(row, col, inst=NULL) {
 class(HMSkew) <- "nonlin"
 
 hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
-                   weighting=c("marginal", "uniform", "none"), std.err=c("none", "jackknife"),
+                   weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
                    family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=15000,
                    trace=TRUE, ...) {
   weighting <- match.arg(weighting)
-  std.err <- match.arg(std.err)
+  se <- match.arg(se)
   tab <- as.table(tab)
 
   if(length(dim(tab)) < 2)
@@ -103,7 +103,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   model$assoc.hmskew <- assoc.hmskew(model, weighting=weighting)
 
 
-  if(std.err == "jackknife") {
+  if(se == "jackknife") {
       assoc1 <- if(is.na(nd.symm)) assoc.hmskew else assoc.rc.symm
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskew
 
