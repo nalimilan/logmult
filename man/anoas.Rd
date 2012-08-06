@@ -8,10 +8,10 @@
   using scores from the previous model as starting values for the next one.
 }
 \usage{
-  anoas(tab, nd = 3, symmetric = FALSE, diagonal = FALSE, ...)
+anoas(tab, nd = 3, symmetric = FALSE, diagonal = FALSE, ...)
 
-  anoasL(tab, nd = 3, layer.effect = c("homogeneous.scores", "heterogeneous", "none"),
-         symmetric = FALSE, diagonal = c("none", "heterogeneous", "homogeneous"), ...)
+anoasL(tab, nd = 3, layer.effect = c("homogeneous.scores", "heterogeneous", "none"),
+       symmetric = FALSE, diagonal = c("none", "heterogeneous", "homogeneous"), ...)
 }
 \arguments{
   \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;

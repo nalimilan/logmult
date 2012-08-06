@@ -7,12 +7,12 @@
   symmetric (homogeneous) row and column scores, and separate diagonal parameters.
 }
 \usage{
-  rcL.trans(tab, nd = 1,
-            symmetric = FALSE,
-            diagonal = c("none", "heterogeneous", "homogeneous"),
-            weighting = c("marginal", "uniform", "none"),
-            se = c("none", "jackknife"), family = poisson,
-            start = NA, tolerance = 1e-6, iterMax = 5000, trace = TRUE, ...)
+rcL.trans(tab, nd = 1,
+          symmetric = FALSE,
+          diagonal = c("none", "heterogeneous", "homogeneous"),
+          weighting = c("marginal", "uniform", "none"),
+          se = c("none", "jackknife"), family = poisson,
+          start = NA, tolerance = 1e-6, iterMax = 5000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;

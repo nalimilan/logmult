@@ -10,14 +10,14 @@
   row and column scores, possibly combined with separate diagonal parameters.
 }
 \usage{
-  rcL(tab, nd = 1,
-      layer.effect = c("homogeneous.scores", "heterogeneous", "none"),
-      symmetric = FALSE,
-      diagonal = c("none", "heterogeneous", "homogeneous"),
-      weighting = c("marginal", "uniform", "none"),
-      se = c("none", "jackknife"), family = poisson,
-      start = NA, etastart = NULL, tolerance = 1e-6,
-      iterMax = 5000, trace = TRUE, ...)
+rcL(tab, nd = 1,
+    layer.effect = c("homogeneous.scores", "heterogeneous", "none"),
+    symmetric = FALSE,
+    diagonal = c("none", "heterogeneous", "homogeneous"),
+    weighting = c("marginal", "uniform", "none"),
+    se = c("none", "jackknife"), family = poisson,
+    start = NA, etastart = NULL, tolerance = 1e-6,
+    iterMax = 5000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;

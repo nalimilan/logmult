@@ -11,14 +11,22 @@
 \alias{assoc.rcL.trans.symm}
 \title{Identifying Scores from Association Models}
 \description{Identify log-multiplicative association scores from over-parameterized gnm models}
-\usage{\method{assoc}{rc}(model, weighting = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{rc.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{hmskew}(model, weighting = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{yrcskew}(model, weighting = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{rcL}(model, weighting = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{rcL.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{rcL.trans}(model, weighting = c("marginal", "uniform", "none"), ...)
-       \method{assoc}{rcL.trans.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
+\usage{
+\method{assoc}{rc}(model, weighting = c("marginal", "uniform", "none"), ...)
+
+\method{assoc}{rc.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
+
+\method{assoc}{hmskew}(model, weighting = c("marginal", "uniform", "none"), ...)
+
+\method{assoc}{yrcskew}(model, weighting = c("marginal", "uniform", "none"), ...)
+
+\method{assoc}{rcL}(model, weighting = c("marginal", "uniform", "none"), ...)
+
+\method{assoc}{rcL.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
+
+\method{assoc}{rcL.trans}(model, weighting = c("marginal", "uniform", "none"), ...)
+
+\method{assoc}{rcL.trans.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
 }
 \arguments{
   \item{model}{a \code{\link{gnm}} object, usually obtained using \code{\link{rc}}, \code{\link{hmskew}},

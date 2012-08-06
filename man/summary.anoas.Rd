@@ -7,11 +7,11 @@
   These functions print the summary of a list of models fitted using the \code{\link{anoas}} function.
 }
 \usage{
-  \method{summary}{anoas}(object, ...)
+\method{summary}{anoas}(object, ...)
 
-  \method{print}{anoas}(x, ...)
+\method{print}{anoas}(x, ...)
 
-  \method{print}{summary.anoas}(x, digits = 1, nsmall = 2, scientific = FALSE, ...)
+\method{print}{summary.anoas}(x, digits = 1, nsmall = 2, scientific = FALSE, ...)
 }
 \arguments{
   \item{object}{ an \code{anoas} object.}

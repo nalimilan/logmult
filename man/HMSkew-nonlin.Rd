@@ -6,7 +6,7 @@
   association in the formula argument to \code{\link{gnm}}.
 }
 \usage{
-  HMSkew(row, col, inst = NULL)
+HMSkew(row, col, inst = NULL)
 }
 \arguments{
   \item{row}{the levels of the row variable}

@@ -9,11 +9,11 @@
   include symmetric (homogeneous) row and column scores, and separate diagonal parameters.
 }
 \usage{
-  rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
-     weighting = c("marginal", "uniform", "none"),
-     se = c("none", "jackknife"), family = poisson,
-     start = NA, etastart = NULL, tolerance = 1e-6,
-     iterMax = 5000, trace = TRUE, ...)
+rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
+   weighting = c("marginal", "uniform", "none"),
+   se = c("none", "jackknife"), family = poisson,
+   start = NA, etastart = NULL, tolerance = 1e-6,
+   iterMax = 5000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;

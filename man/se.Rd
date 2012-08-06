@@ -9,12 +9,17 @@
 \description{Get standard errors for log-multiplicative association scores and intrinsic
              association coefficients.}
 \usage{
-  se(x, ...)
-  \method{se}{assoc}(x, type = c("se", "quasi.se"), ...)
-  \method{se}{rc}(x, type = c("se", "quasi.se"), ...)
-  \method{se}{hmskew}(x, type = c("se", "quasi.se"), ...)
-  \method{se}{yrcskew}(x, type = c("se", "quasi.se"), ...)
-  \method{se}{rcL}(x, type = c("se", "quasi.se"), ...)
+se(x, ...)
+
+\method{se}{assoc}(x, type = c("se", "quasi.se"), ...)
+
+\method{se}{rc}(x, type = c("se", "quasi.se"), ...)
+
+\method{se}{hmskew}(x, type = c("se", "quasi.se"), ...)
+
+\method{se}{yrcskew}(x, type = c("se", "quasi.se"), ...)
+
+\method{se}{rcL}(x, type = c("se", "quasi.se"), ...)
 }
 \arguments{
   \item{x}{an \code{\link{assoc}} object with a non-null \code{covmat} component (for \code{se.assoc});.
