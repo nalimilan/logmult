@@ -196,7 +196,7 @@ se <- function(x, ...) UseMethod("se", x)
 
 se.default <- function(x, ...) gnm::se(x)
 
-se.rc <- function(x, type=c("se", "quasi.se")) {
+se.rc <- function(x, type=c("se", "quasi.se"), ...) {
   if(!inherits(x, "rc")) 
       stop("x must be a rc object")
 
@@ -206,7 +206,7 @@ se.rc <- function(x, type=c("se", "quasi.se")) {
   se.assoc(x$assoc)
 }
 
-se.rcL <- function(x, type=c("se", "quasi.se")) {
+se.rcL <- function(x, type=c("se", "quasi.se"), ...) {
   if(!inherits(x, "rcL")) 
       stop("x must be a rcL object")
 
@@ -216,7 +216,7 @@ se.rcL <- function(x, type=c("se", "quasi.se")) {
   se.assoc(x$assoc)
 }
 
-se.hmskew <- function(x, type=c("se", "quasi.se")) {
+se.hmskew <- function(x, type=c("se", "quasi.se"), ...) {
   if(!inherits(x, "hmskew"))
       stop("x must be a hmskew object")
 
@@ -230,7 +230,7 @@ se.hmskew <- function(x, type=c("se", "quasi.se")) {
       stop("x must have an association or a skew-association component")
 }
 
-se.yrcskew <- function(x, type=c("se", "quasi.se")) {
+se.yrcskew <- function(x, type=c("se", "quasi.se"), ...) {
   if(!inherits(x, "se.yrcskew"))
       stop("x must be a se.yrcskew object")
 
@@ -244,7 +244,7 @@ se.yrcskew <- function(x, type=c("se", "quasi.se")) {
       stop("x must have an association or a skew-association component")
 }
 
-se.assoc <- function(x, type=c("se", "quasi.se")) {
+se.assoc <- function(x, type=c("se", "quasi.se"), ...) {
   type <- match.arg(type)
 
   if(!inherits(x, "assoc"))
