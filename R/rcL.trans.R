@@ -36,7 +36,7 @@ class(RCTransSymm) <- "nonlin"
 
 rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                       weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
-                      family=poisson, start=NA, tolerance=1e-6, iterMax=5000, trace=TRUE, ...) {
+                      family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000, trace=TRUE, ...) {
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
   se <- match.arg(se)
@@ -70,16 +70,24 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
   else
       diagstr <- ""
 
+  f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
+                vars[1], vars[2], vars[3],
+                vars[1], vars[3], vars[2], vars[3], diagstr)
+
+  eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
   if(!is.null(start) && is.na(start)) {
       cat("Running base model to find starting values...\n")
 
       if(symmetric) {
-          base <- gnm(as.formula(sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s + instances(MultHomog(%s, %s), %i)",
-                                         vars[1], vars[2], vars[3],
-                                         vars[1], vars[3], vars[2], vars[3], diagstr,
-                                         vars[1], vars[2], nd)),
-                      family=family, data=tab)
+          # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+          args <- list(formula=as.formula(sprintf("%s + instances(MultHomog(%s, %s), %i)", f1, vars[1], vars[2], nd)),
+                       data=tab, family=family, eliminate=eliminate,
+                       tolerance=1e-6, iterMax=iterMax)
+          dots <- as.list(substitute(list(...)))[-1]
+          args <- c(args, dots)
+
+          base <- do.call("gnm", args)
 
           start <- parameters(base)[seq(1, length(parameters(base)) - nrow(tab) * nd)]
           for(i in 1:nd)
@@ -87,18 +95,23 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                          sqrt(seq(0, 1, length.out=dim(tab)[3])), rep(NA, nrow(tab)))
       }
       else {
-          base <- gnm(as.formula(sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s + instances(Mult(%s, %s), %i)",
-                                         vars[1], vars[2], vars[3],
-                                         vars[1], vars[3], vars[2], vars[3], diagstr,
-                                         vars[1], vars[2], nd)),
-                      family=family, data=tab)
+          # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
+          args <- list(formula=as.formula(sprintf("%s + instances(Mult(%s, %s), %i)", f1, vars[1], vars[2], nd)),
+                       data=tab, family=family, eliminate=eliminate,
+                       tolerance=1e-6, iterMax=iterMax)
+          dots <- as.list(substitute(list(...)))[-1]
+          args <- c(args, dots)
+
+          base <- do.call("gnm", args)
 
           start <- parameters(base)[seq(1, length(parameters(base)) - (nrow(tab) + ncol(tab)) * nd)]
           for(i in 1:nd)
               start <- c(start, parameters(base)[pickCoef(base, paste("Mult.*inst =", i))],
                          sqrt(seq(0, 1, length.out=dim(tab)[3])), rep(NA, nrow(tab) + ncol(tab)))
-
       }
+
+      if(!is.null(etastart))
+          etastart <- as.numeric(predict(base))
 
       cat("Running real model...\n")
     }
@@ -107,14 +120,13 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
                if(symmetric) "RCTransSymm" else "RCTrans", vars[1], vars[2], vars[3], nd)
 
-  args <- list(formula=eval(as.formula(f)), data=substitute(tab),
-               family=substitute(family),
+  args <- list(formula=as.formula(f), data=tab,  family=family,
                # Both constraints are really needed: the computed scores are wrong without them
                # (rows are ordered along an oblique axis, and columns get weird values)
                constrain=sprintf("RCTrans.*\\).\\Q%s\\E(\\Q%s\\E|\\Q%s\\E)$",
                                  vars[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1), nd),
                constrainTo=rep(0:1, nd),
-               start=start,
+               start=start, etastart=etastart, eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
   args <- c(args, dots)
@@ -127,6 +139,8 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
 
   newclasses <- if(symmetric) c("rcL.trans.symm", "rcL.trans", "rcL") else c("rcL.trans", "rcL")
   class(model) <- c(newclasses, class(model))
+
+  model$call <- match.call()
 
   model$assoc <- assoc(model, weighting=weighting)
 

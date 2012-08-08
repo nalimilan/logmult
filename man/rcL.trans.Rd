@@ -12,7 +12,8 @@ rcL.trans(tab, nd = 1,
           diagonal = c("none", "heterogeneous", "homogeneous"),
           weighting = c("marginal", "uniform", "none"),
           se = c("none", "jackknife"), family = poisson,
-          start = NA, tolerance = 1e-6, iterMax = 5000, trace = TRUE, ...)
+          start = NA, etastart = NULL, tolerance = 1e-6,
+          iterMax = 5000, trace = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -34,6 +35,8 @@ rcL.trans(tab, nd = 1,
   \item{start}{either \code{NA} (the default) to use reasonable starting values, \code{NULL} to use
      random starting values, or a vector of starting values for the parameters in the model;
      if a starting value is \code{NA}, the default starting value will be used.}
+  \item{etastart}{ starting values for the linear predictor; set to \code{NULL} to use either default
+     starting values (if \code{start = NA}), or random starting values (in all other cases).}
   \item{tolerance}{ a positive numeric value specifying the tolerance level for
      convergence; higher values will speed up the fitting process, but beware of numerical
      instability of estimated scores!}
