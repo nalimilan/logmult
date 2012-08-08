@@ -74,8 +74,8 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   }
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
-  args <- list(formula=eval(as.formula(f)), data=substitute(tab),
-               family=substitute(family), start=start, etastart=etastart,
+  args <- list(formula=as.formula(f), data=tab,
+               family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
   args <- c(args, dots)
@@ -88,7 +88,10 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   newclasses <- if(symmetric) c("rc.symm", "rc") else "rc"
   class(model) <- c(newclasses, class(model))
 
+  model$call <- match.call()
+
   model$assoc <- assoc(model, weighting=weighting)
+
 
   if(se == "jackknife") {
       cat("Computing jackknife standard errors...\n")

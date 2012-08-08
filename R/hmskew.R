@@ -80,8 +80,8 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   f <- sprintf("%s + HMSkew(%s, %s)", basef, vars[1], vars[2])
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
-  args <- list(formula=eval(as.formula(f)), data=substitute(tab),
-               family=substitute(family), start=start, etastart=etastart,
+  args <- list(formula=as.formula(f), data=tab,
+               family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
   args <- c(args, dots)
@@ -99,6 +99,8 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       model$assoc <- list()
       class(model) <- c("hmskew", class(model))
   }
+
+  model$call <- match.call()
 
   model$assoc.hmskew <- assoc.hmskew(model, weighting=weighting)
 

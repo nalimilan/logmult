@@ -51,7 +51,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       cat("Running base model to find starting values...\n")
 
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
-      args <- list(formula=eval(as.formula(paste(f1, diagstr))), data=tab,
+      args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
                    family=family, eliminate=eliminate,
                    tolerance=1e-6, iterMax=iterMax)
       dots <- as.list(substitute(list(...)))[-1]
@@ -146,8 +146,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       cat("Running real model...\n")
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
-  args <- list(formula=eval(as.formula(paste(f1, diagstr, f2))), data=substitute(tab),
-               family=substitute(family), start=start, etastart=etastart,
+  args <- list(formula=as.formula(paste(f1, diagstr, f2)), data=tab,
+               family=family, start=start, etastart=etastart,
                eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
@@ -160,6 +160,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   newclasses <- if(symmetric) c("rcL.symm", "rcL") else "rcL"
   class(model) <- c(newclasses, class(model))
+
+  model$call <- match.call()
 
   if(layer.effect == "none") {
       if(symmetric)

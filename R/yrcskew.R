@@ -99,8 +99,8 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                                        vars[2], vars[1], nd.skew)
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
-  args <- list(formula=eval(as.formula(f)), data=substitute(tab),
-               family=substitute(family), start=start, etastart=etastart,
+  args <- list(formula=eval(as.formula(f)), data=tab,
+               family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
   dots <- as.list(substitute(list(...)))[-1]
   args <- c(args, dots)
@@ -111,6 +111,8 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       return(NULL)
 
   class(model) <- c("yrcskew", "rc.symm", "rc", class(model))
+
+  model$call <- match.call()
 
   if(!is.na(nd.symm))
       model$assoc <- assoc.rc.symm(model, weighting=weighting)
