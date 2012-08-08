@@ -269,10 +269,10 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
           }
 
           if(length(nu) == nc) {
-              row <- array(nu, dim=c(nc, 1, 1))
+              col <- array(nu, dim=c(nc, 1, 1))
           }
           else {
-              row <- array(nu, dim=c(nc, nl, 1))
+              col <- array(nu, dim=c(nc, nl, 1))
               homogeneous <- FALSE
           }
 
