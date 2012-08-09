@@ -1,4 +1,4 @@
-export(rc, hmskew, yrcskew, rcL, rcL.trans)
+export(rc, hmskew, yrcskew, rcL, rcL.trans, hmskewL)
 
 export(HMSkew, YRCSkew, RCTrans, RCTransSymm)
 
@@ -10,6 +10,7 @@ S3method(assoc, rcL)
 S3method(assoc, rcL.symm)
 S3method(assoc, rcL.trans)
 S3method(assoc, rcL.trans.symm)
+#S3method(assoc, hmskewL)
 
 export(se)
 S3method(se, assoc)
@@ -24,6 +25,7 @@ S3method(print, hmskew)
 S3method(print, yrcskew)
 S3method(print, rcL)
 S3method(print, rcL.symm)
+S3method(print, hmskewL)
 
 S3method(plot, assoc)
 S3method(plot, rc)
@@ -32,6 +34,7 @@ S3method(plot, hmskew)
 S3method(plot, yrcskew)
 S3method(plot, rcL)
 S3method(plot, rcL.symm)
+S3method(plot, hmskewL)
 
 export(anoas)
 S3method(print, anoas)

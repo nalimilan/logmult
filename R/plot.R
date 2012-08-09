@@ -143,6 +143,39 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer=1,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
+
+plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symmetric"),
+                         mass=TRUE, luminosity=length(x$assoc.hmskew$diagonal > 0), arrow=45,
+                         conf.ellipses=FALSE, coords=c("polar", "cartesian"),
+                         rev.axes = c(FALSE, FALSE), cex=par("cex"), col="blue",
+                         groups=NULL, xlim, ylim, asp, xlab, ylab, main, ...) {
+  if(!inherits(x, "hmskewL"))
+      stop("x must be a hmskewL object")
+
+  what <- match.arg(what)
+  coords <- match.arg(coords)
+
+  if(what == "symmetric" && length(x$assoc) == 0)
+      stop("model must contain a symmetric association component for what=\"symmetric\": see \'nd.symm\' argument of hmskewL()")
+  else if(length(x$assoc.hmskew) == 0)
+      stop("model must contain a skew association component")
+
+  ass <- if(what == "symmetric") x$assoc else x$assoc.hmskew
+
+
+  # Axes do not have a real meaning for skew-symmetric part
+  if(what == "skew-symmetric" && missing(xlab))
+      xlab <- ""
+
+  if(what == "skew-symmetric" && missing(ylab))
+      ylab <- ""
+
+  plot.assoc(ass, dim=dim, layer=layer, what="rows", mass=mass, luminosity=luminosity,
+             arrow=arrow, conf.ellipses=conf.ellipses, coords=coords,
+             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
+}
+
 plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
                        mass=TRUE, luminosity=length(x$diagonal > 0), arrow=NULL,
                        conf.ellipses=FALSE, coords=c("cartesian", "polar"),
