@@ -3,7 +3,7 @@
 rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
                family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
-               trace=TRUE, ...) {
+               trace=TRUE, verbose=TRUE, ...) {
   weighting <- match.arg(weighting)
   se <- match.arg(se)
   tab <- as.table(tab)
@@ -97,7 +97,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weighting)$jack.vcov
+                                      family, weighting, verbose=verbose)$jack.vcov
       scnames <- c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
                    t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep="")))
       rownames(model$assoc$covmat) <- colnames(model$assoc$covmat) <-

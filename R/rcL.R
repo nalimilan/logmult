@@ -3,7 +3,8 @@
 rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
                 symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                 weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
-                family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000, trace=TRUE, ...) {
+                family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
+                trace=TRUE, verbose=TRUE, ...) {
   layer.effect <- match.arg(layer.effect)
   diagonal <- match.arg(diagonal)
   weighting <- match.arg(weighting)
@@ -181,7 +182,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weighting)$jack.vcov
+                                      family, weighting,
+                                      verbose=verbose)$jack.vcov
       scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),
                          c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
                            t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep=""))),

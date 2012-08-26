@@ -15,7 +15,7 @@ class(YRCSkew) <- "nonlin"
 yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                     weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
                     family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=15000,
-                    trace=TRUE, ...) {
+                    trace=TRUE, verbose=TRUE, ...) {
   weighting <- match.arg(weighting)
   se <- match.arg(se)
   tab <- as.table(tab)
@@ -128,7 +128,8 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
       cat("Computing jackknife standard errors...\n")
       covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model, assoc1, assoc2,
-                          family, weighting, YRCSkew=YRCSkew, base=base)$jack.vcov
+                          family, weighting, YRCSkew=YRCSkew,
+                          base=base, verbose=verbose)$jack.vcov
 
       if(!is.na(nd.symm)) {
           lim <- nd.symm + nd.symm * nrow(tab) + nd.symm * ncol(tab)

@@ -51,6 +51,8 @@ hmskewL(tab, nd.symm = NA,
      consider raising this value if your model does not converge.}
   \item{trace}{ a logical value indicating whether the deviance
      should be printed after each iteration.}
+  \item{verbose}{ a logical value indicating whether progress indicators should be printed,
+     including a diagnostic error message if the algorithm restarts.}
   \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
 }
 \details{

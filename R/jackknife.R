@@ -77,9 +77,9 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
   if(verbose) {
       iter <- which(!1:length(data) %in% x)
       if(length(iter) == 1)
-          cat("Iteration for cell", iter, "\n")
+          cat(sprintf("Iteration for cell %i of %i\n", iter, length(data)))
       else
-          cat("Ending iteration\n")
+          cat("Initial iteration\n")
   }
 
   if(sum(data[-x]) > 0) {

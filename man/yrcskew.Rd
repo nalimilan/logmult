@@ -13,7 +13,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
         weighting = c("marginal", "uniform", "none"),
         se = c("none", "jackknife"), family = poisson,
         start = NA, etastart = NULL, tolerance = 1e-6,
-        iterMax = 15000, trace = TRUE, ...)
+        iterMax = 15000, trace = TRUE, verbose = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -43,6 +43,8 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
      consider raising this value if your model does not converge.}
   \item{trace}{ a logical value indicating whether the deviance
      should be printed after each iteration.}
+  \item{verbose}{ a logical value indicating whether progress indicators should be printed,
+     including a diagnostic error message if the algorithm restarts.}
   \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
 }
 \details{
