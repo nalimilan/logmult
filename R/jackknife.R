@@ -87,15 +87,20 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
       tab[] <- -1
       tab[x] <- 0
 
-      model <- update(model, tab=data+tab, start=parameters(model), verbose=FALSE, trace=TRUE, se="none")
+      model <- update(model, tab=data+tab,
+                      start=parameters(model), etastart=as.numeric(predict(model)),
+                      verbose=FALSE, trace=TRUE, se="none")
 
       if(!model$converged && !is.null(base)) {
           cat("Model for cell ", which(!1:length(data) %in% x),
               " did not converge, starting again with random values...\n")
           # If we don't specify start, old values are used, which can give very bad initial fits
-          base <- update(base, tab=data, start=rep(NA, length(parameters(base))))
+          base <- update(base, tab=data,
+                         start=rep(NA, length(parameters(base))),
+                         etastart=as.numeric(predict(base)))
           model <- update(model, iterMax=5 * model$iterMax,
                           start=c(parameters(base), rep(NA, length(parameters(model)) - length(parameters(base)))),
+                          etastart=as.numeric(predict(model)),
                           verbose=TRUE, trace=TRUE, se="none")
       }
 

@@ -227,7 +227,8 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weighting, verbose=verbose)$jack.vcov
+                                      family, weighting, base=if(!is.null(base2)) base2 else base,
+                                      verbose=verbose)$jack.vcov
       scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),
                          c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
                            t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep=""))),

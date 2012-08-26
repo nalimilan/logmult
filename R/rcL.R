@@ -182,7 +182,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weighting,
+                                      family, weighting, base=if(!is.null(base2)) base2 else base,
                                       verbose=verbose)$jack.vcov
       scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),
                          c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),

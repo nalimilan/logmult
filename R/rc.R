@@ -97,7 +97,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
       cat("Computing jackknife standard errors...\n")
       model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
                                       getS3method("assoc", class(model)), NULL,
-                                      family, weighting, verbose=verbose)$jack.vcov
+                                      family, weighting, base=base, verbose=verbose)$jack.vcov
       scnames <- c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
                    t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep="")))
       rownames(model$assoc$covmat) <- colnames(model$assoc$covmat) <-
