@@ -49,6 +49,12 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
   if(is.na(nd) || nd <= 0)
       stop("nd must be strictly positive")
 
+  if(symmetric && nrow(tab) != ncol(tab))
+      stop("tab must be a square table for symmetric model")
+
+  if(symmetric && !all(rownames(tab) == colnames(tab)))
+      stop("tab must have identical row and column names for symmetric model")
+
   if(symmetric && nd/2 > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions of symmetric model cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
 

@@ -4,6 +4,12 @@ anoas <- function(tab, nd=3, symmetric=FALSE, diagonal=FALSE, ...) {
   if(length(dim(tab)) < 2)
       stop("tab must have (at least) two dimensions")
 
+  if(symmetric && nrow(tab) != ncol(tab))
+      stop("tab must be a square table for symmetric model")
+
+  if(symmetric && !all(rownames(tab) == colnames(tab)))
+      stop("tab must have identical row and column names for symmetric model")
+
   if(is.na(nd) || nd < 1)
       stop("nd should be at least 1")
 

@@ -20,6 +20,9 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   if(nrow(tab) != ncol(tab))
       stop("tab must be a square table for asymmetry models")
 
+  if(!all(rownames(tab) == colnames(tab)))
+      stop("tab must have identical row and column names for asymmetry models")
+
   if(!is.na(nd.symm) && nd.symm <= 0)
       stop("nd.symm must be NA or strictly positive")
 

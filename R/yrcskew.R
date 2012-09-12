@@ -23,8 +23,11 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   if(length(dim(tab)) < 2)
       stop("tab must have (at least) two dimensions")
 
-  if(nrow(tab) != ncol(tab) || !all(rownames(tab) == colnames(tab)))
+  if(nrow(tab) != ncol(tab))
       stop("tab must be a square table for asymmetry models")
+
+  if(!all(rownames(tab) == colnames(tab)))
+      stop("tab must have identical row and column names for symmetric model")
 
   if(!is.na(nd.symm) && nd.symm <= 0)
       stop("nd.symm must be NA or strictly positive")
