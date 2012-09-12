@@ -287,7 +287,7 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
   mu2 <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*\\)HMSkew.*\\)[.:]\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)\\.1$",
                                                    vars[3], vars[1], vars[2],
                                                    paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
-  phi <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*[.:]\\Q%s\\E(\\Q%s\\E)$",
+  phi <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*HMSkew\\(.*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                              vars[3],
                                              paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
 
