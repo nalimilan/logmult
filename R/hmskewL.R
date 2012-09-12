@@ -110,7 +110,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       }
   }
   else {
-      if(layer.effect.symm == "homogeneous.scores") {
+      if(layer.effect.symm == "uniform") {
           # Handled at the top of the function
           stop()
       }
@@ -123,14 +123,14 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       }
       else if(layer.effect.symm == "heterogeneous") {
           f2 <- sprintf("+ instances(MultHomog(%s:%s, %s:%s), %i)",
-                        vars[3], vars[1], vars[3], vars[2], nd)
+                        vars[3], vars[1], vars[3], vars[2], nd.symm)
 
           if(nastart)
               start <- c(parameters(base), rep(NA, nd.symm * dim(tab)[3] * nrow(tab) + 2 * dim(tab)[3] * nrow(tab)))
       }
       else {
           f2 <- sprintf("+ instances(MultHomog(%s, %s), %i)",
-                        vars[1], vars[2], nd)
+                        vars[1], vars[2], nd.symm)
 
           if(nastart)
               start <- c(parameters(base), rep(NA, nd.symm * nrow(tab) + 2 * dim(tab)[3] * nrow(tab)))
@@ -228,23 +228,44 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   if(se == "jackknife") {
       cat("Computing jackknife standard errors...\n")
-      model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
-                                      getS3method("assoc", class(model)), NULL,
-                                      family, weighting, base=if(!is.null(base2)) base2 else base,
-                                      verbose=verbose)$jack.vcov
-      scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),
-                         c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
-                           t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep=""))),
-                         paste))
-      rownames(model$assoc$covmat) <- colnames(model$assoc$covmat) <-
-          c(t(outer(paste(vars[3], dimnames(tab)[[3]], sep=""), paste("Dim", 1:nd, sep=""), paste)),
-              scnames, paste(scnames, "*", sep=""))
+      assoc1 <- if(is.na(nd.symm)) assoc.hmskewL
+                else if(!is.na(nd.symm) && layer.effect.symm == "none") assoc.rc.symm
+                else assoc.rcL.symm
+      assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskewL
 
-      model$assoc$covtype <- "jackknife"
+      covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model, assoc1, assoc2,
+                          family, weighting, HMSkew=HMSkew,
+                          base=if(!is.null(base2)) base2 else base, verbose=verbose)$jack.vcov
+
+
+      if(!is.na(nd.symm)) {
+          if(layer.effect.symm == "heterogeneous")
+              lim <- nd.symm * dim(tab)[3] + nd.symm * nrow(tab) * dim(tab)[3] + nd.symm * ncol(tab) * dim(tab)[3]
+          else if(layer.effect.symm == "homogeneous.scores")
+              lim <- nd.symm * dim(tab)[3] + nd.symm * nrow(tab) + nd.symm * ncol(tab)
+          else if(layer.effect.symm == "none")
+              lim <- nd.symm + nd.symm * nrow(tab) + nd.symm * ncol(tab)
+          else # "uniform", handled at the top of the function
+              stop()
+
+          model$assoc$covmat <- covmat[1:lim, 1:lim]
+          model$assoc$covtype <- "jackknife"
+      }
+      else {
+          lim <- 0
+      }
+
+      model$assoc.hmskew$covmat <- covmat[seq(lim + 1, nrow(covmat)), seq(lim + 1, ncol(covmat))]
+      model$assoc.hmskew$covtype <- "jackknife"
   }
   else {
-      model$assoc$covmat <- numeric(0)
-      model$assoc$covtype <- "none"
+      if(!is.na(nd.symm)) {
+          model$assoc$covmat <- numeric(0)
+          model$assoc$covtype <- "none"
+      }
+
+      model$assoc.hmskew$covmat <- numeric(0)
+      model$assoc.hmskew$covtype <- "none"
   }
 
   model
