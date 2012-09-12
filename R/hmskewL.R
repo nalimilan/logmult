@@ -115,25 +115,30 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
           stop()
       }
       else if(layer.effect.symm == "homogeneous.scores") {
-          f2 <- sprintf("+ MultHomog(%s, %s:%s))",
-                        vars[3], vars[1], vars[2])
+          f2 <- ""
+
+          for(i in 1:nd.symm)
+              f2 <- paste(f2, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)",
+                                      vars[3], vars[1], vars[2], i))
 
           if(nastart)
-              start <- c(parameters(base), rep(NA, nd.symm * (nrow(tab) + dim(tab)[3] + 2 * dim(tab)[3] * nrow(tab))))
+              start <- c(parameters(base), rep(NA, nd.symm * (nrow(tab) + dim(tab)[3])))
       }
       else if(layer.effect.symm == "heterogeneous") {
+          stop("Symmetric association with heterogeneous layer effect is currently not supported")
+
           f2 <- sprintf("+ instances(MultHomog(%s:%s, %s:%s), %i)",
                         vars[3], vars[1], vars[3], vars[2], nd.symm)
 
           if(nastart)
-              start <- c(parameters(base), rep(NA, nd.symm * dim(tab)[3] * nrow(tab) + 2 * dim(tab)[3] * nrow(tab)))
+              start <- c(parameters(base), rep(NA, nd.symm * dim(tab)[3] * nrow(tab)))
       }
       else {
           f2 <- sprintf("+ instances(MultHomog(%s, %s), %i)",
                         vars[1], vars[2], nd.symm)
 
           if(nastart)
-              start <- c(parameters(base), rep(NA, nd.symm * nrow(tab) + 2 * dim(tab)[3] * nrow(tab)))
+              start <- c(parameters(base), rep(NA, nd.symm * nrow(tab)))
       }
   }
 
