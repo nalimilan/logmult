@@ -225,9 +225,9 @@ se.hmskew <- function(x, type=c("se", "quasi.se"), ...) {
   if(!inherits(x, "hmskew"))
       stop("x must be a hmskew object")
 
-  if(length(x$assoc) > 0 && length(x$assoc.hmskew) > 0)
+  if(length(x[["assoc"]]) > 0 && length(x$assoc.hmskew) > 0)
       return(list(assoc=se.assoc(x$assoc), assoc.hmskew=se.assoc(x$assoc.hmskew)))
-  if(length(x$assoc) > 0)
+  if(length(x[["assoc"]]) > 0)
       return(se.assoc(x$assoc))
   else if(length(x$assoc.hmskew) > 0)
       return(se.assoc(x$assoc.hmskew))
@@ -239,9 +239,9 @@ se.yrcskew <- function(x, type=c("se", "quasi.se"), ...) {
   if(!inherits(x, "se.yrcskew"))
       stop("x must be a se.yrcskew object")
 
-  if(length(x$assoc) > 0 && length(x$assoc.yrcskew) > 0)
+  if(length(x[["assoc"]]) > 0 && length(x$assoc.yrcskew) > 0)
       return(list(assoc=se.assoc(x$assoc), assoc.yrcskew=se.assoc(x$assoc.yrcskew)))
-  if(length(x$assoc) > 0)
+  if(length(x[["assoc"]]) > 0)
       return(se.assoc(x$assoc))
   else if(length(x$assoc.yrcskew) > 0)
       return(se.assoc(x$assoc.yrcskew))

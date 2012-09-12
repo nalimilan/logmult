@@ -50,7 +50,7 @@ plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
   what <- match.arg(what)
   coords <- match.arg(coords)
 
-  if(what == "symmetric" && length(x$assoc) == 0)
+  if(what == "symmetric" && length(x[["assoc"]]) == 0)
       stop("model must contain a symmetric association component for what=\"symmetric\": see \'nd.symm\' argument of hmskew()")
   else if(length(x$assoc.hmskew) == 0)
       stop("model must contain a skew association component")
@@ -82,7 +82,7 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
   what <- match.arg(what)
   coords <- match.arg(coords)
 
-  if(what == "symmetric" && length(x$assoc) == 0)
+  if(what == "symmetric" && length(x[["assoc"]]) == 0)
       stop("model must contain a symmetric association component for what=\"symmetric\": see \'nd.symm\' argument of hmskew()")
   else if(length(x$assoc.yrcskew) == 0)
       stop("model must contain a skew association component")
@@ -155,7 +155,7 @@ plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symm
   what <- match.arg(what)
   coords <- match.arg(coords)
 
-  if(what == "symmetric" && length(x$assoc) == 0)
+  if(what == "symmetric" && length(x[["assoc"]]) == 0)
       stop("model must contain a symmetric association component for what=\"symmetric\": see \'nd.symm\' argument of hmskewL()")
   else if(length(x$assoc.hmskew) == 0)
       stop("model must contain a skew association component")
