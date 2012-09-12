@@ -18,20 +18,21 @@ hmskewL(tab, nd.symm = NA,
         weighting = c("marginal", "uniform", "none"),
         se = c("none", "jackknife"), family = poisson,
         start = NA, etastart = NULL, tolerance = 1e-6,
-        iterMax = 5000, trace = TRUE, ...)
+        iterMax = 5000, trace = TRUE, verbose = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
-    if present, dimensions above three will be collapsed as appropriate.}
-  \item{nd}{ the number of dimensions to include in the model. Cannot exceed
-    \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
-    and twice this threshold otherwise (quasi-symmetry model).}
-  \item{layer.effect}{ determines the form of the interaction between row-column association and layers.
-     See \dQuote{Details} below.}
-  \item{symmetric}{ should row and column scores be constrained to be equal? Valid only for square tables.}
-  \item{diagonal}{ what type of diagonal-specific parameters to include in the model, if any. This amounts to
-    taking quasi-conditional independence, rather than conditional independence, as the baseline model.
-    Valid only for square tables.}
+    if present, dimensions above three will be collapsed as appropriate. First two dimensions must be symmetric
+    (i.e. of the same length).}
+  \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
+    \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (the model is already saturated at that point).
+    If \code{NA}, a quasi-symmetric association is used instead of a RC(M) model.}
+  \item{layer.effect.skew}{ determines the form of the interaction between skew-symmetric association and layers.
+    See \dQuote{Details} below.}
+  \item{layer.effect.symm}{ determines the form of the interaction between symmetric row-column association,
+     or quasi-symmetric association (if \code{nd.symm = NA}) and layers. See \dQuote{Details} below.}
+  \item{diagonal}{ what type of diagonal-specific parameters to include in the model, if any. Only makes sense
+     when \code{nd.symm} is not \code{NA} (else, diagonal parameters are already included).}
   \item{weighting}{ what weights should be used when normalizing the scores.}
   \item{se}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
      supported method, and is disabled by default because it increases computation time.}
@@ -62,20 +63,20 @@ hmskewL(tab, nd.symm = NA,
   These models follow the equation:
   \deqn{ log F_{ijk} = q_{ijk} + \phi_k (\nu_{ik} \mu_{jk} - \mu_{jk} \nu_{ik}) }
   where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
-  \code{tab}, and \eqn{q_{ijk}} a quasi-symmetric or a RC(M)-L association. When \code{layer.effect.skew ==
-  "homogeneous.scores"}, \eq{\mu} and \eq{\nu} coefficients are forced to be equal for all layers k.
+  \code{tab}, and \eqn{q_{ijk}} a quasi-symmetric or a RC(M)-L association.
 
-  This function fits log-multiplicative row-column association models with layer effect, usually called (after
-  Wong) RC(M)-L models, typically following the equation:
-  \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k + \sum_{m=1}^M { \phi_{km} \mu_{ikm} \nu_{jkm} } }
-  where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
-  \code{tab}, and M the number of dimensions. If \code{layer.effect} is set to \sQuote{heterogeneous}, different scores
-  will be computed for each level, which is equivalent to fitting separate RC(M) models on the k two-way tables.
-  If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ikm} = \mu_{im}} and \eqn{\nu_{ikm} = \nu_{im}} for all
-  layers k: only the \eqn{\phi_{km}} are allowed to vary accross layers. If it is set to \sQuote{none}, then in addition
+  If \code{layer.effect.skew} is set to \sQuote{heterogeneous}, different scores will be computed for each level,
+  which is equivalent to fitting separate models using \code{\link{hmskew}} on the k two-way tables.
+  If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ik} = \mu_i} and \eqn{\nu_{ik} = \nu_i} for all
+  layers k: only the \eqn{\phi_k} are allowed to vary accross layers. If it is set to \sQuote{none}, then in addition
   to the previous conditions all \eqn{\phi_{km}} are forced to be equal for all layers k, which amounts to a stability
-  of the association accross layers. See references for detailed information about the variants of the model, the degrees
-  of freedom and the identification constraints applied to the scores.
+  of the association accross layers.
+
+  When \code{nd.symm} is different from \code{NA}, the symmetric association works exactly like a call to \code{rcL},
+  with parameters \code{nd.symm} and \code{layer.effect.symm} translated respectively to \code{nd} and
+  \code{layer.effect}. When \code{nd.symm == NA}, symmetric association parameters are either stable accross layers,
+  are multiplied by a layer coefficient (cf. UNIDIFF model), or are different for each layer, when
+  \code{layer.effect.symm} is respectively \code{none}, \code{uniform} and \code{heterogeneous}.
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
@@ -115,9 +116,5 @@ hmskewL(tab, nd.symm = NA,
 \seealso{
   \code{\link{plot.hmskewL}}, \code{\link{hmskew}}, \code{\link{gnm}}
 }
-\examples{
-  }
-}
-
 \keyword{ models }
 \keyword{ nonlinear }

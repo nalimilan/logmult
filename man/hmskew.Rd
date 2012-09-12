@@ -16,7 +16,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
        iterMax = 15000, trace = TRUE, verbose = TRUE, ...)
 }
 \arguments{
-  \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;
+  \item{tab}{ a square two-way table, or an object (such as a matrix) that can be coerced into a table;
     if present, dimensions above two will be collapsed as appropriate.}
   \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
     \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (the model is already saturated at that point).

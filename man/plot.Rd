@@ -6,6 +6,7 @@
 \alias{plot.yrcskew}
 \alias{plot.rcL}
 \alias{plot.rcL.symm}
+\alias{plot.hmskewL}
 \title{Plotting Scores from Association Models}
 \description{Graphical display of scores from association models in two dimensions}
 \usage{
@@ -52,6 +53,14 @@
      col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
+\method{plot}{hmskewL}(x, dim = c(1, 2), layer = 1,
+     what = c("skew-symmetric", "symmetric"),
+     mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
+     arrow=45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
+     rev.axes = c(FALSE, FALSE), cex = par("cex"),
+     col = "blue", groups = NULL,
+     xlim, ylim, asp, xlab, ylab, main, ...)
+
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"),
      mass = TRUE, luminosity = length(x$diagonal > 0),
@@ -61,8 +70,7 @@
      xlim, ylim, asp, xlab, ylab, main, ...)
 }
 \arguments{
-  \item{x}{an association model returned by \code{\link{rc}}, \code{\link{hmskew}} or
-           \code{\link{yrcskew}}}
+  \item{x}{an association model, or an object inheriting from class \code{assoc}.}
   \item{dim}{numerical vector of length 2 indicating the dimensions to plot on horizontal
              and vertical axes respectively; default is first dimension horizontal and second
              dimension vertical.}
