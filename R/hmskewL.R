@@ -57,9 +57,9 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s",
                 vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3])
   # FIXME: we should be able to eliminate 3:Symm(1, 2) in other cases, but this triggers a "numerically singular system" error in the last model
-  if(is.na(nd.symm) && layer.effect.symm == "none")
-      eliminate <- eval(parse(text=sprintf("quote(Symm(%s, %s))", vars[3], vars[1], vars[2])))
-  else
+  #if(is.na(nd.symm) && layer.effect.symm == "none")
+  #   eliminate <- eval(parse(text=sprintf("quote(Symm(%s, %s))", vars[1], vars[2])))
+  #else
       eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
   base <- NULL
@@ -92,14 +92,14 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                         vars[3], vars[1], vars[2])
 
           if(nastart)
-              start <- c(parameters(base), rep(NA, dim(tab)[3] * (nrow(tab)^2 + nrow(tab))/2 - 1))
+              start <- c(parameters(base), rep(NA, dim(tab)[3] * ((nrow(tab)^2 + nrow(tab))/2 - 1)))
       }
       else if(layer.effect.symm == "uniform") {
           f2 <- sprintf("+ Mult(Exp(%s), Symm(%s, %s))", 
                         vars[3], vars[1], vars[2])
 
           if(nastart)
-              start <- c(parameters(base), rep(NA, dim(tab)[3] + (nrow(tab)^2 + nrow(tab))/2 - 1))
+              start <- c(parameters(base), rep(NA, dim(tab)[3] + (nrow(tab)^2 + nrow(tab))/2))
       }
       else {
           f2 <- sprintf("+ Symm(%s, %s)", 
