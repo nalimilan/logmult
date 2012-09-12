@@ -1,4 +1,4 @@
-## RC(M)-L model Wong(2010))
+## RC(M)-L model (Wong, 2010)
 
 rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
                 symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),

@@ -1,3 +1,5 @@
+## Skew-symmetric association model with layer effect (extension of van der Heijden & Mooijaart, 1995)
+
 hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "heterogeneous", "none"),
                     layer.effect.symm=c("uniform", "homogeneous.scores", "heterogeneous", "none"),
                     diagonal=c("none", "heterogeneous", "homogeneous"),

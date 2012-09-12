@@ -1,4 +1,4 @@
-## RC(M) model with skew-symmetric association (van der Heijden & Mooijaart, 1995)
+## Skew-symmetric association model (van der Heijden & Mooijaart, 1995)
 
 HMSkew <- function(row, col, inst=NULL) {
   list(predictors = list(substitute(row), substitute(col), substitute(row), substitute(col)),
