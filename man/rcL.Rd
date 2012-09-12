@@ -129,28 +129,31 @@ rcL(tab, nd = 1,
 
      # Check scores of heterogeneous model (scores not given by Wong)
      model.heterog <- rcL(gss7590, nd=2, layer.effect="heterogeneous",
-                          weighting="none", tolerance=1e-8)
-     sep.models <- lapply(1:4, function(i)
-         rc(gss7590[,,i], nd=2, weighting="none", tolerance=1e-8))
+                          weighting="none")
+     sep.models <- lapply(1:4, function(i) rc(gss7590[,,i], nd=2,
+                                              weighting="none"))
      # Level 2 does not converge properly because there are too few farmers:
      # values are always slightly different and cannot be checked
      stopifnot(isTRUE(all.equal(model.heterog$assoc$phi[-2,],
                                 rbind(sep.models[[1]]$assoc$phi,
                                       sep.models[[3]]$assoc$phi,
                                       sep.models[[4]]$assoc$phi),
-                                check.attributes=FALSE)))
+                                check.attributes=FALSE,
+                                tolerance=1e-6)))
      stopifnot(isTRUE(all.equal(model.heterog$assoc$row[,,-2],
                                 array(c(sep.models[[1]]$assoc$row,
                                       sep.models[[3]]$assoc$row,
                                       sep.models[[4]]$assoc$row),
                                       dim=c(nrow(gss7590), 2, 3)),
-                                check.attributes=FALSE)))
+                                check.attributes=FALSE,
+                                tolerance=1e-6)))
      stopifnot(isTRUE(all.equal(model.heterog$assoc$col[,,-2],
                                 array(c(sep.models[[1]]$assoc$col,
                                       sep.models[[3]]$assoc$col,
                                       sep.models[[4]]$assoc$col),
                                       dim=c(ncol(gss7590), 2, 3)),
-                                check.attributes=FALSE)))
+                                check.attributes=FALSE,
+                                tolerance=1e-6)))
   }
 }
 
