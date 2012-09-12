@@ -137,13 +137,15 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       base2 <- do.call("gnm", args)
 
       # If model fails (can always happen), do not fail completely but start with random values
-      if(is.null(base2))
+      if(is.null(base2)) {
           start <- NULL
-      else
+      }
+      else {
           start <- parameters(base2)
 
-      if(is.null(etastart))
-          etastart <- as.numeric(predict(base2))
+          if(is.null(etastart))
+              etastart <- as.numeric(predict(base2))
+      }
   }
 
   if(!is.null(base) && is.null(etastart))

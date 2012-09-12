@@ -182,11 +182,12 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       # If model fails (can always happen), do not fail completely but start with random values
       if(is.null(base2))
           start <- NULL
-      else
+      else {
           start <- parameters(base2)
 
-      if(is.null(etastart))
-          etastart <- as.numeric(predict(base2))
+          if(is.null(etastart))
+              etastart <- as.numeric(predict(base2))
+      }
   }
 
   if(!is.null(base) && is.null(etastart))
