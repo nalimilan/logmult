@@ -62,6 +62,7 @@ rcL.trans(tab, nd = 1,
 
   The general equation of the model is:
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
+               + \lambda^IK_ik + \lambda^JK_jk
                + \sum_{m=1}^M { \phi_{km} (\mu^S_{im} + \psi_km \mu^V_{im}) (\nu^S_{jm} + \psi_km \nu^V{jm}) }}
   where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
   \code{tab}, and M the number of dimensions. The \eqn{\psi_km} parameter is constrained to be positive, equal to 0
