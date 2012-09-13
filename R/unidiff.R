@@ -1,8 +1,8 @@
 ## UNIDIFF model (Erikson & Goldthorpe, 1992), or uniform layer effect model (Xie, 1992)
 
 unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
-                    constrain="auto", check=identical(constrain, "auto"),
-                    family=poisson, tolerance=1e-6, iterMax=5000,
+                    constrain="auto", family=poisson,
+                    tolerance=1e-6, iterMax=5000,
                     trace=FALSE, verbose=TRUE, ...) {
   diagonal <- match.arg(diagonal)
 
@@ -77,16 +77,39 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
   model$unidiff <- list()
   
   model$unidiff$layer <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\.\\)", vars[3])),
-                                      "first", check=check)
+                                      "first", check=FALSE)
 
-  # Quasi-variances cannot be computed for these coefficients, so hide the warning
-  suppressMessages(model$unidiff$interaction <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\Q%s\\E\\)", vars[3])),
-                                                             ref="first", check=check))
+
+  if(diagonal == "included") {
+      mat <- tab[,,1]
+      nr <- nrow(mat)
+      nc <- ncol(mat)
+      con <- matrix(0, length(coef(model)), length(mat))
+      ind <- pickCoef(model, sprintf("Mult\\(Exp\\(\\Q%s\\E\\)", vars[3]))
+      for(i in 1:nr) {
+          for(j in 1:nc) {
+              mat[] <- 0
+              mat[i,] <- -1/nc
+              mat[,j] <- -1/nr
+              mat[i,j] <- 1 - 1/nc - 1/nr
+              mat <- mat + 1/(nr * nc)
+              con[ind, (j - 1) * nr + i] <- mat
+          }
+      }
+
+      colnames(con) <- names(ind)
+      model$unidiff$interaction <- gnm:::se(model, con)
+  }
+  else {
+      # Quasi-variances cannot be computed for these coefficients, so hide the warning
+      suppressMessages(model$unidiff$interaction <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\Q%s\\E\\)", vars[3])),
+                                                                 ref="first", check=TRUE)$qvframe)
+  }
 
   rownames(model$unidiff$layer$qvframe) <- dimnames(tab)[[3]]
-  rownames(model$unidiff$interaction$qvframe) <- gsub(sprintf("Mult\\(Exp\\(\\Q%s\\E\\), \\.\\)\\.(Diag\\(%s, %s\\))?",
-                                                              vars[3], vars[1], vars[2]), "",
-                                                      rownames(model$unidiff$interaction$qvframe))
+  rownames(model$unidiff$interaction) <- gsub(sprintf("Mult\\(Exp\\(\\Q%s\\E\\), \\.\\)\\.(Diag\\(%s, %s\\))?",
+                                                      vars[3], vars[1], vars[2]), "",
+                                              rownames(model$unidiff$interaction))
 
   if(diagonal == "only") {
      # Diag() sorts levels alphabetically, which is not practical
@@ -114,12 +137,12 @@ print.unidiff <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   if(x$unidiff$diagonal != "only") {
       cat("\nFull two-way interaction coefficients:\n")
       interaction <- x$data[,,1]
-      interaction[] <- x$unidiff$interaction$qvframe[,1]
+      interaction[] <- x$unidiff$interaction[,1]
   }
   else {
       cat("\nDiagonal interaction coefficients:\n")
       interaction <- x$unidiff$interaction$qvframe[,1]
-      names(interaction) <- rownames(x$unidiff$interaction$qvframe)
+      names(interaction) <- rownames(x$unidiff$interaction)
   }
 
   print.default(format(interaction, digits=digits, ...), quote=FALSE)
@@ -134,7 +157,7 @@ print.unidiff <- function(x, digits = max(3, getOption("digits") - 4), ...) {
 
 summary.unidiff <- function(x, ...) {
   layer <- x$unidiff$layer$qvframe[,-4]
-  interaction <- x$unidiff$interaction$qvframe[,-4]
+  interaction <- x$unidiff$interaction
 
   layer <- cbind(layer, 2 * pnorm(-abs(layer[,1]/layer[,2])))
   interaction <- cbind(interaction, 2 * pnorm(-abs(interaction[,1]/interaction[,2])))

@@ -25,8 +25,6 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       a numeric vector of indices, a logical vector, a character vector of names, or "[?]" to
       select from a Tk dialog. The default constrains to 0 the first layer parameter and
       interaction coefficients for the first row and column of the table.}
-  \item{check}{passed to \code{\link{getContrasts}} when extracting coefficients. When \code{constrain}
-      is left to the default, it can safely be set to \code{FALSE} to allow for performance gains.}
   \item{family}{a specification of the error distribution and link function to be used in the model.
       This can be a character string naming a family function; a family function, or the result of
       a call to a family function. See \code{\link{family}} details of family functions.}
@@ -53,7 +51,9 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
 
   Layer coefficients \eqn{\phi_k} are internally exponentiated in the gnm formula, which means the reported
   values are in log scale, with reference 0 for the first year. Interaction coefficients use the
-  \dQuote{treatment} contrast, also known as \dQuote{reference} or \dQuote{dummy} coding.
+  \dQuote{sum} contrast, also known as \dQuote{effect} coding, except when \code{diagonal} is different from
+  \code{included}, in which case \dQuote{treatment} constrast (a.k.a \dQuote{reference} or \dQuote{dummy}
+  coding) is used.
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply allows for direct identification of the log-multiplicative parameters by setting the
@@ -65,8 +65,8 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   \item{diagonal}{the value of the \code{diagonal} argument above.}
   \item{layer}{a \code{\link{qvcalc}} object holding the (log) layer coefficients, their standard
       errors and quasi-standard errors.}
-  \item{interaction}{a \code{\link{qvcalc}} object holding the two-way interaction coefficients, their
-      standard errors and quasi-standard errors.}
+  \item{interaction}{a data frame object holding the two-way interaction coefficients, and their
+      standard errors.}
 }
 \references{
   Erikson, R., and Goldthorpe, J.H. (1992). The Constant Flux: A Study of Class Mobility in Industrial Societies.
@@ -107,6 +107,15 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       stopifnot(all.equal(model$df.residual, 116))
       stopifnot(all.equal(round(model$unidiff$layer$qvframe$estimate, 3),
                           c(0, -0.225, -0.743, -1.039, -2.250)))
+      # Interaction coefficients obtained using LEM
+      stopifnot(all.equal(round(model$unidiff$interaction[,1], 4),
+                          c(0.7084, -0.5925, -0.1608,  0.9027, -0.5433, -0.3146,  1.1473,
+                            0.2729, -0.3248, -1.4509,  0.3526,  0.0029, -0.1734,  0.1755,
+                            0.5605, -0.2185, -0.1669, -0.1772, -0.4809, -0.9644,  0.0862,
+                            1.9604, -0.6909,  0.0896, -0.9153, -0.0035,  0.2453, -0.414,
+                            0.7927,  0.2948, -0.3342,  0.3295,  0.0612, -0.5712,  0.2573,
+                            0.2574,  0.0482,  0.7824, -0.4677, -0.2085, -0.0015, -0.153)))
+
   }
 }
 
