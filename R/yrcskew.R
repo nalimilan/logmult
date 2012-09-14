@@ -93,7 +93,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   # because gnm() does not seem to allow using objects outside of the data argument
   # in formulas called from functions. This seems to be a problem with how the formula's
   # environment is handled, and also happens when calling gnm() directly without eval().
-  f <- sprintf("%s + instances(YRCSkew(%s[ifelse(ordered(%s) < ordered(%s), %s, %s)], %s[ifelse(ordered(%s) > ordered(%s), %s, %s)], sign(as.numeric(%s) - as.numeric(%s))), %s)",
+  f <- sprintf("%s + instances(YRCSkew(levels(%s)[ifelse(ordered(%s) < ordered(%s), %s, %s)], levels(%s)[ifelse(ordered(%s) > ordered(%s), %s, %s)], sign(as.numeric(%s) - as.numeric(%s))), %s)",
                                        basef,
                                        vars[1], vars[1], vars[2], vars[1], vars[2],
                                        vars[1], vars[1], vars[2], vars[1], vars[2],
