@@ -67,7 +67,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       args <- list(formula=as.formula(basef),
                    data=tab, family=family,
                    tolerance=1e-3, iterMax=iterMax, trace=trace)
-      dots <- as.list(substitute(list(...)))[-1]
+      dots <- as.list(list(...))[-1]
       args <- c(args, dots)
 
       base <- do.call("gnm", args)
@@ -86,10 +86,8 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   args <- list(formula=as.formula(f), data=tab,
                family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
 
-  model <- do.call("gnm", args)
+  model <- do.call("gnm", c(args, list(...)))
 
   if(is.null(model))
       return(NULL)

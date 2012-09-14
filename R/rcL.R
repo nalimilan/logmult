@@ -61,10 +61,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
                    family=family, eliminate=eliminate,
                    tolerance=1e-6, iterMax=iterMax)
-      dots <- as.list(substitute(list(...)))[-1]
-      args <- c(args, dots)
 
-      base <- do.call("gnm", args)
+      base <- do.call("gnm", c(args, list(...)))
   }
 
   if(symmetric) {

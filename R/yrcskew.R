@@ -72,10 +72,8 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       args <- list(formula=as.formula(basef),
                    data=tab, family=family,
                    tolerance=1e-3, iterMax=iterMax, trace=trace)
-      dots <- as.list(substitute(list(...)))[-1]
-      args <- c(args, dots)
 
-      base <- do.call("gnm", args)
+      base <- do.call("gnm", c(args, list(...)))
 
       start <- c(parameters(base), rep(NA, nd.skew * (nrow(tab) + 1)))
 
@@ -105,10 +103,8 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   args <- list(formula=eval(as.formula(f)), data=tab,
                family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
 
-  model <- do.call("gnm", args)
+  model <- do.call("gnm", c(args, list(...)))
 
   if(is.null(model))
       return(NULL)

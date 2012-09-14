@@ -76,8 +76,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
                    family=family, eliminate=eliminate,
                    tolerance=1e-6, iterMax=iterMax)
-      dots <- as.list(substitute(list(...)))[-1]
-      args <- c(args, dots)
+      args <- c(args, list(...))
 
       base <- do.call("gnm", args)
 
@@ -176,10 +175,8 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                    data=tab, family=family, start=start,
                    eliminate=eliminate, constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
                    tolerance=1e-3, iterMax=iterMax, trace=trace)
-      dots <- as.list(substitute(list(...)))[-1]
-      args <- c(args, dots)
 
-      base2 <- do.call("gnm", args)
+      base2 <- do.call("gnm", c(args, list(...)))
 
       # If model fails (can always happen), do not fail completely but start with random values
       if(is.null(base2))
@@ -203,10 +200,8 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                family=family, start=start, etastart=etastart,
                eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
 
-  model <- do.call("gnm", args)
+  model <- do.call("gnm", c(args, list(...)))
 
   if(is.null(model))
       return(NULL)

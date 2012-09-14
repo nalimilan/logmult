@@ -91,10 +91,8 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
           args <- list(formula=as.formula(sprintf("%s + instances(MultHomog(%s, %s), %i)", f1, vars[1], vars[2], nd)),
                        data=tab, family=family, eliminate=eliminate,
                        tolerance=1e-6, iterMax=iterMax)
-          dots <- as.list(substitute(list(...)))[-1]
-          args <- c(args, dots)
 
-          base <- do.call("gnm", args)
+          base <- do.call("gnm", c(args, list(...)))
 
           start <- parameters(base)[seq(1, length(parameters(base)) - nrow(tab) * nd)]
           for(i in 1:nd)
@@ -106,10 +104,8 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
           args <- list(formula=as.formula(sprintf("%s + instances(Mult(%s, %s), %i)", f1, vars[1], vars[2], nd)),
                        data=tab, family=family, eliminate=eliminate,
                        tolerance=1e-6, iterMax=iterMax)
-          dots <- as.list(substitute(list(...)))[-1]
-          args <- c(args, dots)
 
-          base <- do.call("gnm", args)
+          base <- do.call("gnm", c(args, list(...)))
 
           start <- parameters(base)[seq(1, length(parameters(base)) - (nrow(tab) + ncol(tab)) * nd)]
           for(i in 1:nd)
@@ -135,10 +131,8 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                constrainTo=rep(0:1, nd),
                start=start, etastart=etastart, eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
 
-  model <- do.call("gnm", args)
+  model <- do.call("gnm", c(args, list(...)))
 
 
   if(is.null(model))

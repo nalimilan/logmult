@@ -65,10 +65,8 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
   args <- list(formula=as.formula(f), data=tab, constrain=constrain,
                family=family, tolerance=tolerance, iterMax=iterMax,
                trace=trace, verbose=verbose)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
 
-  model <- do.call("gnm", args)
+  model <- do.call("gnm", c(args, list(...)))
 
   if(is.null(model))
       return(NULL)

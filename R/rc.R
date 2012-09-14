@@ -59,10 +59,8 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
           args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
                        data=tab, family=family,
                        tolerance=tolerance, iterMax=iterMax)
-          dots <- as.list(substitute(list(...)))[-1]
-          args <- c(args, dots)
 
-          base <- do.call("gnm", args)
+          base <- do.call("gnm", c(args, list(...)))
 
           # residSVD evaluates the variable names in parent.frame(), which uses any object
           # called "vars" in the global environment if not handled like this
@@ -83,10 +81,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   args <- list(formula=as.formula(f), data=tab,
                family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
-
-  model <- do.call("gnm", args)
+  model <- do.call("gnm", c(args, list(...)))
 
   if(is.null(model))
       return(NULL)
