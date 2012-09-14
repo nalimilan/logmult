@@ -103,6 +103,9 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   plot(model)
 
   \dontshow{
+      # The last layer coefficient can sometimes be rounded to -2.249 without this, which breaks the test
+      model <- unidiff(yaish, tolerance=1e-8)
+
       stopifnot(all.equal(round(model$deviance, 3), 200.326))
       stopifnot(all.equal(model$df.residual, 116))
       stopifnot(all.equal(round(model$unidiff$layer$qvframe$estimate, 3),
