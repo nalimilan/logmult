@@ -157,42 +157,42 @@ print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
   invisible(x)
 }
 
-summary.unidiff <- function(x, ...) {
-  layer <- x$unidiff$layer$qvframe[,-4]
-  interaction <- x$unidiff$interaction
+summary.unidiff <- function(object, ...) {
+  layer <- object$unidiff$layer$qvframe[,-4]
+  interaction <- object$unidiff$interaction
 
   layer <- cbind(exp(layer[,1]), layer, 2 * pnorm(-abs(layer[,1]/layer[,2])))
   colnames(layer) <- c("Exp(Estimate)", "Estimate", "Std. Error", "Quasi SE", "Pr(>|z|)")
-  rownames(layer) <- paste(names(dimnames(x$data))[3], rownames(layer), sep="")
+  rownames(layer) <- paste(names(dimnames(object$data))[3], rownames(layer), sep="")
 
-  if(x$unidiff$diagonal != "excluded") {
+  if(object$unidiff$diagonal != "excluded") {
       interaction <- cbind(interaction, 2 * pnorm(-abs(interaction[,1]/interaction[,2])))
       colnames(interaction) <- c("Estimate", "Std. Error", "Pr(>|z|)")
   }
 
-  res <- list(call=x$call, diagonal=x$unidiff$diagonal,
-              deviance.resid=residuals(x, type="deviance"),
-              chisq=sum(residuals(x, "pearson")^2),
-              dissim=sum(abs(abs(residuals(x, "response"))))/sum(abs(fitted(x)))/2,
+  res <- list(call=object$call, diagonal=object$unidiff$diagonal,
+              deviance.resid=residuals(object, type="deviance"),
+              chisq=sum(residuals(object, "pearson")^2),
+              dissim=sum(abs(abs(residuals(object, "response"))))/sum(abs(fitted(object)))/2,
               layer=layer, interaction=interaction,
-              deviance=x$deviance, df.residual=x$df.residual,
-              bic=extractAIC(x, k=log(sum(x$data)))[2],
-              aic=extractAIC(x)[2])
+              deviance=object$deviance, df.residual=object$df.residual,
+              bic=extractAIC(object, k=log(sum(object$data)))[2],
+              aic=extractAIC(object)[2])
 
   class(res) <- "summary.unidiff"
 
   res
 }
 
-print.summary.unidiff <- function(x, digits = max(3, getOption("digits") - 4), ...) {
-  cat("Call:\n", deparse(x$call), "\n", sep = "", fill = TRUE)
+print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
 
   cat("Deviance Residuals:\n")
   if (x$df.residual > 5) {
       x$deviance.resid <- quantile(x$deviance.resid, na.rm = TRUE)
       names(x$deviance.resid) <- c("Min", "1Q", "Median", "3Q", "Max")
   }
-  print.default(x$deviance.resid, digits = digits, na = "", print.gap=2)
+  print.default(x$deviance.resid, digits=digits, na.print="", print.gap=2)
 
   cat("\nLayer coefficients:\n")
   printCoefmat(x$layer, digits, signif.legend=FALSE, print.gap=2, ...)
@@ -236,7 +236,7 @@ plot.unidiff <- function(x, exponentiate=TRUE, se.type=c("quasi.se", "se"), conf
    }
    else {
       tops <- qv$estimate + w * qv$SE
-      tails <- qv$estimate - w * qvSE
+      tails <- qv$estimate - w * qv$SE
    }
 
   if(exponentiate) {

@@ -75,7 +75,7 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   Xie, Yu (1992). The Log-Multiplicative Layer Effect Model for Comparing Mobility Tables. \emph{Am. Sociol. Rev.}
       57(3):380-395.
 
-  Yaish, M. (1998). Opportunities, Little Change. Class Mobility in Israeli Society, 1974–1991. Ph.D. thesis,
+  Yaish, M. (1998). Opportunities, Little Change. Class Mobility in Israeli Society, 1974-1991. Ph.D. thesis,
       Nuffield College, University of Oxford.
 
   Yaish, M. (2004). Class Mobility Trends in Israeli Society, 1974-1991. Lewiston: Edwin Mellen Press.
@@ -112,7 +112,7 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
                           c(0, -0.225, -0.743, -1.039, -2.250)))
       # Interaction coefficients obtained using LEM
       stopifnot(all.equal(round(model$unidiff$interaction[,1], 4),
-                          c(0.7084, -0.5925, -0.1608,  0.9027, -0.5433, -0.3146,  1.1473,
+                          c(0.7084, -0.5925, -0.1608,  0.9028, -0.5433, -0.3146,  1.1473,
                             0.2729, -0.3248, -1.4509,  0.3526,  0.0029, -0.1734,  0.1755,
                             0.5605, -0.2185, -0.1669, -0.1772, -0.4809, -0.9644,  0.0862,
                             1.9604, -0.6909,  0.0896, -0.9153, -0.0035,  0.2453, -0.414,
