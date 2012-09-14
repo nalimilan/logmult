@@ -1,203 +1,182 @@
-print.rc <- function(x, ...) {
+print.rc <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
-  print(round(ass$phi[1,], digits=3))
+  print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
   cat("\nNormalized row scores:\n")
-  print(round(ass$row[,,1], digits=3))
+  print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   cat("\nNormalized column scores:\n")
-  print(round(ass$col[,,1], digits=3))
+  print(format(ass$col[,,1], digits=digits, ...), quote=FALSE)
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1:nrow(ass$diag),], digits=3))
+    print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
-  cat("Deviance:", round(x$deviance, digits=3), "\n")
-  cat("Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(extractAIC(x, k=log(sum(x$data)))[2]), " - ",
-      "AIC:", round(extractAIC(x)[2]), "\n")
+  printModelStats(x, digits=digits)
 }
 
-print.rc.symm <- function(x, ...) {
+print.rc.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
-  print(round(ass$phi[1,], digits=3))
+  print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
   cat("\nNormalized scores:\n")
-  print(round(ass$row[,,1], digits=3))
+  print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1:nrow(ass$diag),], digits=3))
+    print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
-  cat("Deviance:", round(x$deviance, digits=3), "\n")
-  cat("Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(extractAIC(x, k=log(sum(x$data)))[2]), " - ",
-      "AIC:", round(extractAIC(x)[2]), "\n")
+  printModelStats(x, digits=digits)
 }
 
-print.hmskew <- function(x, ...) {
+print.hmskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   ass <- x$assoc
 
   if(length(ass) > 0) {
       cat("Intrinsic symmetric association coefficients:\n")
-      print(round(ass$phi[1,], digits=3))
+      print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
       cat("\nNormalized symmetric association scores:\n")
-      print(round(ass$row[,,1], digits=3))
+      print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   }
 
   ass <- x$assoc.hmskew
 
   cat("Intrinsic skew association coefficients:\n")
-  print(round(ass$phi[1,], digits=3))
+  print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
   cat("\nNormalized skew association scores:\n")
-  print(round(ass$row[,,1], digits=3))
+  print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1:nrow(ass$diag),], digits=3))
+    print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
-  cat("Deviance:", round(x$deviance, digits=3), "\n")
-  cat("Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(extractAIC(x, k=log(sum(x$data)))[2]), " - ",
-      "AIC:", round(extractAIC(x)[2]), "\n")
+  printModelStats(x, digits=digits)
 }
 
-print.yrcskew <- function(x, ...) {
+print.yrcskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   ass <- x$assoc
 
   if(length(ass) > 0) {
       cat("Intrinsic symmetric association coefficients:\n")
-      print(round(ass$phi[1,], digits=3))
+      print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
       cat("\nNormalized symmetric association scores:\n")
-      print(round(ass$row[,,1], digits=3))
+      print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   }
 
   ass <- x$assoc.yrcskew
 
   cat("Intrinsic skew association coefficients:\n")
-  print(round(ass$phi[1,], digits=3))
+  print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
   cat("\nNormalized skew association scores:\n")
-  print(round(ass$row[,,1], digits=3))
+  print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1:nrow(ass$diag),], digits=3))
+    print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
-  cat("Deviance:", round(x$deviance, digits=3), " - ",
-      "Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(extractAIC(x, k=log(sum(x$data)))[2]), " - ",
-      "AIC:", round(extractAIC(x)[2]), "\n")
+  printModelStats(x, digits=digits)
 }
 
-print.rcL <- function(x, ...) {
+print.rcL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
-  print(round(ass$phi, digits=3))
+  print(format(ass$phi, digits=3))
 
   if(dim(ass$row)[3] == 1) {
       cat("\nNormalized row scores for all layers:\n")
-      print(round(ass$row[,,1], digits=3))
+      print(format(ass$row[,,1], digits=3))
   }
   else {
       cat("\nNormalized row scores:\n")
-      print(round(ass$row, digits=3))
+      print(format(ass$row, digits=3))
   }
 
   if(dim(ass$col)[3] == 1) {
       cat("\nNormalized column scores for all layers:\n")
-      print(round(ass$col[,,1], digits=3))
+      print(format(ass$col[,,1], digits=3))
   }
   else {
       cat("\nNormalized column scores:\n")
-      print(round(ass$col, digits=3))
+      print(format(ass$col, digits=3))
   }
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1:nrow(ass$diag),], digits=3))
+    print(format(ass$diag[1:nrow(ass$diag),], digits=3))
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
-  cat("Deviance:", round(x$deviance, digits=3), "\n")
-  cat("Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(extractAIC(x, k=log(sum(x$data)))[2]), " - ",
-      "AIC:", round(extractAIC(x)[2]), "\n")
+  printModelStats(x, digits=digits)
 }
 
-print.hmskewL <- function(x, ...) {
+print.hmskewL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
-  print(round(ass$phi, digits=3))
+  print(format(ass$phi, digits=digits, ...), quote=FALSE)
 
   if(dim(ass$row)[3] == 1) {
       cat("\nNormalized scores for all layers:\n")
-      print(round(ass$row[,,1], digits=3))
+      print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   }
   else {
       cat("\nNormalized scores:\n")
-      print(round(ass$row, digits=3))
+      print(format(ass$row, digits=digits, ...), quote=FALSE)
   }
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1:nrow(ass$diag),], digits=3))
+    print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
-  cat("Deviance:", round(x$deviance, digits=3), "\n")
-  cat("Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(extractAIC(x, k=log(sum(x$data)))[2]), " - ",
-      "AIC:", round(extractAIC(x)[2]), "\n")
+  printModelStats(x, digits=digits)
 }
 
-print.rcL.symm <- function(x, ...) {
+print.rcL.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   ass <- x$assoc
 
   cat("Intrinsic symmetric association coefficients:\n")
-  print(round(ass$phi, digits=3))
+  print(format(ass$phi, digits=digits, ...), quote=FALSE)
 
   if(dim(ass$row)[3] == 1) {
       cat("\nNormalized symmetric association scores for all layers:\n")
-      print(round(ass$row[,,1], digits=3))
+      print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   }
   else {
       cat("\nNormalized symmetric association scores:\n")
-      print(round(ass$row, digits=3))
+      print(format(ass$row, digits=digits, ...), quote=FALSE)
   }
 
   ass <- x$assoc.hmskew
 
   cat("Intrinsic skew association coefficients:\n")
-  print(round(ass$phi, digits=3))
+  print(format(ass$phi, digits=3))
 
   if(dim(ass$row)[3] == 1) {
       cat("\nNormalized skew association scores for all layers:\n")
-      print(round(ass$row[,,1], digits=3))
+      print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   }
   else {
       cat("\nNormalized skew association scores:\n")
-      print(round(ass$row, digits=3))
+      print(format(ass$row, digits=digits, ...), quote=FALSE)
   }
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(round(ass$diag[1:nrow(ass$diag),], digits=3))
+    print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
   cat("\nNormalization weights:", ass$weighting, "\n")
-  cat("Deviance:", round(x$deviance, digits=3), "\n")
-  cat("Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(extractAIC(x, k=log(sum(x$data)))[2]), " - ",
-      "AIC:", round(extractAIC(x)[2]), "\n")
+  printModelStats(x, digits=digits)
 }
