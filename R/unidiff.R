@@ -42,9 +42,8 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
 
       if(identical(constrain, "auto"))
           # Last pattern matches diagonal coefficients
-          constrain <- sprintf("(Mult\\(Exp\\(.\\), \\Q%s:%s\\E\\)\\Q.%s%s\\E)|(Mult\\(Exp\\(\\Q%s\\E.*\\.(\\Q%s\\E(\\Q%s\\E):)|(:\\Q%s%s\\E$))|(Mult\\(Exp\\(\\Q%s\\E.*\\.(\\Q%s\\E)$)",
+          constrain <- sprintf("(Mult\\(Exp\\(.\\), \\Q%s:%s\\E\\)\\Q.%s%s\\E)|(Mult\\(Exp\\(\\Q%s\\E.*\\.(\\Q%s\\E)$)",
                                vars[1], vars[2], vars[3], dimnames(tab)[[3]][1],
-                               vars[3], vars[1], paste(rownames(tab)[1:2], collapse="\\E|\\Q"), vars[2], colnames(tab)[1],
                                vars[3], paste(paste(vars[1], rownames(tab), ":", vars[2],
                                                     rownames(tab), sep=""), collapse="\\E|\\Q"))
   }
@@ -100,22 +99,26 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       colnames(con) <- names(ind)
       model$unidiff$interaction <- gnm:::se(model, con)
   }
-  else {
+  else if(diagonal == "only"){
       # Quasi-variances cannot be computed for these coefficients, so hide the warning
+      # Also skip the reference level
       suppressMessages(model$unidiff$interaction <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\Q%s\\E\\)", vars[3])),
-                                                                 ref="first", check=TRUE)$qvframe)
+                                                                 ref="first", check=TRUE)$qvframe[-1,])
+
+     # Diag() sorts levels alphabetically, which is not practical
+     model$unidiff$interaction[c(1 + order(rownames(tab))),] <- model$unidiff$interaction
+  }
+  else {
+     # Interaction coefficients cannot be identified for now
+     model$unidiff$interaction <- NULL
   }
 
   rownames(model$unidiff$layer$qvframe) <- dimnames(tab)[[3]]
-  rownames(model$unidiff$interaction) <- gsub(sprintf("Mult\\(Exp\\(\\Q%s\\E\\), \\.\\)\\.(Diag\\(%s, %s\\))?",
-                                                      vars[3], vars[1], vars[2]), "",
-                                              rownames(model$unidiff$interaction))
 
-  if(diagonal == "only") {
-     # Diag() sorts levels alphabetically, which is not practical
-     model$unidiff$interaction$qvframe <- model$unidiff$interaction$qvframe[c(1, 1 + order(rownames(tab))),]
-     model$unidiff$interaction$covmat <- model$unidiff$interaction$covmat[c(1, 1 + order(rownames(tab))),]
-  }
+  if(diagonal != "excluded")
+      rownames(model$unidiff$interaction) <- gsub(sprintf("Mult\\(Exp\\(\\Q%s\\E\\), \\.\\)\\.(Diag\\(%s, %s\\))?",
+                                                          vars[3], vars[1], vars[2]), "",
+                                                  rownames(model$unidiff$interaction))
 
   model$unidiff$diagonal <- diagonal
 
@@ -134,15 +137,19 @@ print.unidiff <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   names(layer) <- paste(names(dimnames(tab))[3], rownames(x$unidiff$layer$qvframe), sep="")
   print.default(format(layer, digits=digits, ...), quote=FALSE)
 
-  if(x$unidiff$diagonal != "only") {
+  if(x$unidiff$diagonal == "included") {
       cat("\nFull two-way interaction coefficients:\n")
       interaction <- x$data[,,1]
       interaction[] <- x$unidiff$interaction[,1]
   }
+  else if(x$unidiff$diagonal == "only") {
+      cat("\nDiagonal interaction coefficients:\n")
+      interaction <- x$unidiff$interaction[,1]
+      names(interaction) <- rownames(x$unidiff$interaction)
+  }
   else {
       cat("\nDiagonal interaction coefficients:\n")
-      interaction <- x$unidiff$interaction$qvframe[,1]
-      names(interaction) <- rownames(x$unidiff$interaction)
+      interaction <- "Not supported."
   }
 
   print.default(format(interaction, digits=digits, ...), quote=FALSE)
@@ -195,7 +202,10 @@ print.summary.unidiff <- function(x, digits = max(3, getOption("digits") - 4), .
   else
       cat("\nDiagonal interaction coefficients:\n")
 
-  printCoefmat(x$interaction, digits, has.Pvalue=TRUE, ...)
+  if(diagonal != "excluded")
+      printCoefmat(x$interaction, digits, has.Pvalue=TRUE, ...)
+  else
+      cat("Not supported.\n")
 
 
   cat("\nDeviance:", round(x$deviance, digits=3), "\n")
