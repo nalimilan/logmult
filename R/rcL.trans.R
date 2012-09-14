@@ -138,7 +138,8 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
   if(is.null(model))
       return(NULL)
 
-  newclasses <- if(symmetric) c("rcL.trans.symm", "rcL.trans", "rcL") else c("rcL.trans", "rcL")
+  newclasses <- if(symmetric) c("rcL.trans.symm", "rcL.trans", "rcL", "assocmod")
+                else c("rcL.trans", "rcL", "assocmod")
   class(model) <- c(newclasses, class(model))
 
   model$call <- match.call()

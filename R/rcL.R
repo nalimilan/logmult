@@ -165,7 +165,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(is.null(model))
       return(NULL)
 
-  newclasses <- if(symmetric) c("rcL.symm", "rcL") else "rcL"
+  newclasses <- if(symmetric) c("rcL.symm", "rcL", "assocmod") else c("rcL", "assocmod")
   class(model) <- c(newclasses, class(model))
 
   model$call <- match.call()

@@ -115,8 +115,8 @@ rcL(tab, nd = 1,
   }
   model <- rcL(gss7590, nd=2, weighting="none", se="jackknife")
   model
-  se(model) # Jackknife standard errors are slightly different
-                # from their asymptotic counterparts
+  summary(model) # Jackknife standard errors are slightly different
+                 # from their asymptotic counterparts
   # See ?plot.rcL for plotting
   \dontshow{
       stopifnot(all.equal(round(c(model$assoc$phi), d=3),

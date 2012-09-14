@@ -128,12 +128,7 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
 }
 
 print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
-  cat("Call:\n", deparse(x$call), "\n", sep = "", fill = TRUE)
-
-  cat("Layer coefficients:\n")
-  layer <- exp(x$unidiff$layer$qvframe[,1])
-  names(layer) <- paste(names(dimnames(x$data))[3], rownames(x$unidiff$layer$qvframe), sep="")
-  print.default(format(layer, digits=digits, ...), quote=FALSE, print.gap=2)
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
 
   if(x$unidiff$diagonal == "included") {
       cat("\nFull two-way interaction coefficients:\n")
@@ -185,14 +180,7 @@ summary.unidiff <- function(object, ...) {
 }
 
 print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
-  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
-
-  cat("Deviance Residuals:\n")
-  if (x$df.residual > 5) {
-      x$deviance.resid <- quantile(x$deviance.resid, na.rm = TRUE)
-      names(x$deviance.resid) <- c("Min", "1Q", "Median", "3Q", "Max")
-  }
-  print.default(x$deviance.resid, digits=digits, na.print="", print.gap=2)
+  printModelHeading(x, digits)
 
   cat("\nLayer coefficients:\n")
   printCoefmat(x$layer, digits, signif.legend=FALSE, print.gap=2, ...)
@@ -208,12 +196,12 @@ print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...
       cat("Not supported.\n")
 
 
-  cat("\nDeviance:           ", format(x$deviance, digits),
-      "\nPearson chi-squared:", format(x$chisq, digits),
-      "\nDissimilarity index:", format(x$dissim * 100, digits), "%",
-      "\nResidual df:        ", x$df.residual,
-      "\nBIC:                ", x$aic,
-      "\nAIC:                ", x$bic, "\n")
+  cat("\nDeviance:            ", format(x$deviance, digits),
+      "\nPearson chi-squared: ", format(x$chisq, digits),
+      "\nDissimilarity index: ", format(x$dissim * 100, digits), "%",
+      "\nResidual df:         ", x$df.residual,
+      "\nBIC:                 ", x$aic,
+      "\nAIC:                 ", x$bic, "\n", sep="")
 }
 
 plot.unidiff <- function(x, exponentiate=TRUE, se.type=c("quasi.se", "se"), conf.int=.95,

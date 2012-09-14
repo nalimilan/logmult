@@ -109,7 +109,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   if(is.null(model))
       return(NULL)
 
-  class(model) <- c("yrcskew", "rc.symm", "rc", class(model))
+  class(model) <- c("yrcskew", "rc.symm", "rc", "assocmod", class(model))
 
   model$call <- match.call()
 

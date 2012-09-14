@@ -2,6 +2,7 @@ export(unidiff, rc, hmskew, yrcskew, rcL, rcL.trans, hmskewL)
 
 export(HMSkew, YRCSkew, RCTrans, RCTransSymm)
 
+export(assoc)
 S3method(assoc, rc)
 S3method(assoc, rc.symm)
 S3method(assoc, hmskew)
@@ -28,8 +29,10 @@ S3method(print, rcL)
 S3method(print, rcL.symm)
 S3method(print, hmskewL)
 
+S3method(summary, assocmod)
 S3method(summary, unidiff)
 
+S3method(print, summary.assocmod)
 S3method(print, summary.unidiff)
 
 S3method(plot, unidiff)

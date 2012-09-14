@@ -94,11 +94,11 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
   if(!is.na(nd.symm)) {
       model$assoc <- assoc.rc.symm(model, weighting=weighting)
-      class(model) <- c("hmskew", "rc.symm", "rc", class(model))
+      class(model) <- c("hmskew", "rc.symm", "rc", "assocmod", class(model))
   }
   else {
       model$assoc <- list()
-      class(model) <- c("hmskew", class(model))
+      class(model) <- c("hmskew", "assocmod", class(model))
   }
 
   model$call <- match.call()

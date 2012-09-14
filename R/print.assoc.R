@@ -1,4 +1,6 @@
 print.rc <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
+
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
@@ -13,11 +15,13 @@ print.rc <- function(x, digits = max(3, getOption("digits") - 4), ...) {
     print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
-  cat("\nNormalization weights:", ass$weighting, "\n")
+  cat("\nNormalization weights:", ass$weighting)
   printModelStats(x, digits=digits)
 }
 
 print.rc.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
+
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
@@ -30,11 +34,13 @@ print.rc.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
     print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
-  cat("\nNormalization weights:", ass$weighting, "\n")
+  cat("\nNormalization weights:", ass$weighting)
   printModelStats(x, digits=digits)
 }
 
 print.hmskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
+
   ass <- x$assoc
 
   if(length(ass) > 0) {
@@ -56,11 +62,13 @@ print.hmskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
     print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
-  cat("\nNormalization weights:", ass$weighting, "\n")
+  cat("\nNormalization weights:", ass$weighting)
   printModelStats(x, digits=digits)
 }
 
 print.yrcskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
+
   ass <- x$assoc
 
   if(length(ass) > 0) {
@@ -82,11 +90,13 @@ print.yrcskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
     print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
-  cat("\nNormalization weights:", ass$weighting, "\n")
+  cat("\nNormalization weights:", ass$weighting)
   printModelStats(x, digits=digits)
 }
 
 print.rcL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
+
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
@@ -94,32 +104,34 @@ print.rcL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
 
   if(dim(ass$row)[3] == 1) {
       cat("\nNormalized row scores for all layers:\n")
-      print(format(ass$row[,,1], digits=3))
+      print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   }
   else {
       cat("\nNormalized row scores:\n")
-      print(format(ass$row, digits=3))
+      print(format(ass$row, digits=digits, ...), quote=FALSE)
   }
 
   if(dim(ass$col)[3] == 1) {
       cat("\nNormalized column scores for all layers:\n")
-      print(format(ass$col[,,1], digits=3))
+      print(format(ass$col[,,1], digits=digits, ...), quote=FALSE)
   }
   else {
       cat("\nNormalized column scores:\n")
-      print(format(ass$col, digits=3))
+      print(format(ass$col, digits=digits, ...), quote=FALSE)
   }
 
   if(length(ass$diag) > 0) {
     cat("\nDiagonal coefficients:\n")
-    print(format(ass$diag[1:nrow(ass$diag),], digits=3))
+    print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
-  cat("\nNormalization weights:", ass$weighting, "\n")
+  cat("\nNormalization weights:", ass$weighting)
   printModelStats(x, digits=digits)
 }
 
 print.hmskewL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
+
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
@@ -139,11 +151,13 @@ print.hmskewL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
     print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
-  cat("\nNormalization weights:", ass$weighting, "\n")
+  cat("\nNormalization weights:", ass$weighting)
   printModelStats(x, digits=digits)
 }
 
 print.rcL.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
+
   ass <- x$assoc
 
   cat("Intrinsic symmetric association coefficients:\n")
@@ -177,6 +191,6 @@ print.rcL.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
     print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
   }
 
-  cat("\nNormalization weights:", ass$weighting, "\n")
+  cat("\nNormalization weights:", ass$weighting)
   printModelStats(x, digits=digits)
 }

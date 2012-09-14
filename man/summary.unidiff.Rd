@@ -1,5 +1,6 @@
 \name{summary.unidiff}
 \alias{summary.unidiff}
+\alias{print.summary.unidiff}
 \title{
   Summarize UNIDIFF Model Fits
 }
@@ -7,12 +8,14 @@
   \code{summary} method for objects of class \code{unidiff}.
 }
 \usage{
-\method{summary}{unidiff}(x, ...)
+\method{summary}{unidiff}(object, ...)
 
-\method{print}{summary.unidiff}(x, digits = max(3, getOption("digits") - 3), ...)
+\method{print}{summary.unidiff}(x, digits = max(3, getOption("digits") - 4), ...)
 }
 \arguments{
-  \item{x}{an object resulting from a call to \code{\link{unidiff}}}
+  \item{object}{an object resulting from a call to \code{\link{unidiff}}}
+  \item{x}{an object of class \code{summary.gnm}.}
+  \item{digits}{the number of siginificant digits to use when printing.}
   \item{\dots}{further arguments passed to \code{\link{printCoefmat}} by
       \code{print.summary.unidiff}, and currently ignored by \code{summary.unidiff}.}
 }
@@ -43,8 +46,8 @@
   \item{dissim}{the dissimilarity index for the model fit.}
   \item{df.residual}{the \code{df.residual} component from object.}
   \item{bic}{the value of the BIC for the model fit (see \code{\link{extractAIC})}.}
-  \item{aic}{the value of the AIC for the model fit (see \code{\link{AIC},
-      \code{\link{extractAIC}})}.}
+  \item{aic}{the value of the AIC for the model fit (see \code{\link{AIC}},
+      \code{\link{extractAIC}}).}
 }
 \author{
   Milan Bouchet-Valat

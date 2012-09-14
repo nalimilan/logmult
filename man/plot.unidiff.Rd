@@ -10,7 +10,7 @@
 \usage{
 \method{plot}{unidiff}(x, exponentiate = TRUE, se.type = c("quasi.se", "se"),
      conf.int = 0.95, numeric.auto = TRUE, type = "o",
-     xlab = names(dimnames(tab))[3], ylab = "Layer coefficient", ...)
+     xlab = names(dimnames(x$data))[3], ylab = "Layer coefficient", ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -136,6 +136,8 @@ Milan Bouchet-Valat
   # indicates a better fit in our version (!)
   model
   \dontshow{
+      summary(model)
+
       # These scores cannot be checked since the author reports a higher deviance:
       # they are simply here to ensure no regressions appear
       stopifnot(isTRUE(all.equal(c(round(model$assoc.yrcskew$row, d=3)),

@@ -86,7 +86,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   if(is.null(model))
       return(NULL)
 
-  newclasses <- if(symmetric) c("rc.symm", "rc") else "rc"
+  newclasses <- if(symmetric) c("rc.symm", "rc", "assocmod") else c("rc", "assocmod")
   class(model) <- c(newclasses, class(model))
 
   model$call <- match.call()

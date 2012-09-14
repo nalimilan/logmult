@@ -105,10 +105,13 @@ Milan Bouchet-Valat
   data(ocg1973)
   # 5:1 is here to take "Farmers" as reference category (angle 0)
   model <- hmskew(ocg1973[5:1, 5:1], weighting="uniform")
+  model
   ass <- model$assoc.hmskew
   # First column of the table
   round(ass$row[,,1] * sqrt(ass$phi[1,1]), d=2)[5:1,]
   \dontshow{
+      summary(model)
+
       # First score for Farmers is slightly different from the original article
       stopifnot(isTRUE(all.equal(round(ass$row[,,1] * sqrt(ass$phi[1,1]), d=2)[5:1,],
                                        matrix(c(-0.08, -0.2, -0.23, -0.11, 0.61,
