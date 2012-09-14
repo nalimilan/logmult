@@ -39,6 +39,8 @@
   \item{interaction}{a \code{data.frame} holding the two-way interaction coefficients
       estimates, standard errors and p-values.}
   \item{deviance}{the \code{deviance} component from object.}
+  \item{chisq}{the Pearson Chi-squared statistic for the model fit.}
+  \item{dissim}{the dissimilarity index for the model fit.}
   \item{df.residual}{the \code{df.residual} component from object.}
   \item{bic}{the value of the BIC for the model fit (see \code{\link{extractAIC})}.}
   \item{aic}{the value of the AIC for the model fit (see \code{\link{AIC},

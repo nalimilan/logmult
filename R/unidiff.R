@@ -129,13 +129,13 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
   model
 }
 
-print.unidiff <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
   cat("Call:\n", deparse(x$call), "\n", sep = "", fill = TRUE)
 
   cat("Layer coefficients:\n")
-  layer <- x$unidiff$layer$qvframe[,1]
-  names(layer) <- paste(names(dimnames(tab))[3], rownames(x$unidiff$layer$qvframe), sep="")
-  print.default(format(layer, digits=digits, ...), quote=FALSE)
+  layer <- exp(x$unidiff$layer$qvframe[,1])
+  names(layer) <- paste(names(dimnames(x$data))[3], rownames(x$unidiff$layer$qvframe), sep="")
+  print.default(format(layer, digits=digits, ...), quote=FALSE, print.gap=2)
 
   if(x$unidiff$diagonal == "included") {
       cat("\nFull two-way interaction coefficients:\n")
@@ -152,12 +152,9 @@ print.unidiff <- function(x, digits = max(3, getOption("digits") - 4), ...) {
       interaction <- "Not supported."
   }
 
-  print.default(format(interaction, digits=digits, ...), quote=FALSE)
+  print.default(format(interaction, digits=digits, ...), quote=FALSE, print.gap=2)
 
-  cat("\nDeviance:", round(x$deviance, digits=3), "\n")
-  cat("Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(extractAIC(x, k=log(sum(x$data)))[2]), " - ",
-      "AIC:", round(extractAIC(x)[2]), "\n")
+  printModelStats(x)
 
   invisible(x)
 }
@@ -166,14 +163,19 @@ summary.unidiff <- function(x, ...) {
   layer <- x$unidiff$layer$qvframe[,-4]
   interaction <- x$unidiff$interaction
 
-  layer <- cbind(layer, 2 * pnorm(-abs(layer[,1]/layer[,2])))
-  interaction <- cbind(interaction, 2 * pnorm(-abs(interaction[,1]/interaction[,2])))
+  layer <- cbind(exp(layer[,1]), layer, 2 * pnorm(-abs(layer[,1]/layer[,2])))
+  colnames(layer) <- c("Exp(Estimate)", "Estimate", "Std. Error", "Quasi SE", "Pr(>|z|)")
+  rownames(layer) <- paste(names(dimnames(x$data))[3], rownames(layer), sep="")
 
-  colnames(layer) <- c("Estimate", "Std. Error", "Quasi SE", "Pr(>|z|)")
-  colnames(interaction) <- c("Estimate", "Std. Error", "Pr(>|z|)")
+  if(x$unidiff$diagonal != "excluded") {
+      interaction <- cbind(interaction, 2 * pnorm(-abs(interaction[,1]/interaction[,2])))
+      colnames(interaction) <- c("Estimate", "Std. Error", "Pr(>|z|)")
+  }
 
   res <- list(call=x$call, diagonal=x$unidiff$diagonal,
               deviance.resid=residuals(x, type="deviance"),
+              chisq=sum(residuals(x, "pearson")^2),
+              dissim=sum(abs(abs(residuals(x, "response"))))/sum(abs(fitted(x)))/2,
               layer=layer, interaction=interaction,
               deviance=x$deviance, df.residual=x$df.residual,
               bic=extractAIC(x, k=log(sum(x$data)))[2],
@@ -192,26 +194,28 @@ print.summary.unidiff <- function(x, digits = max(3, getOption("digits") - 4), .
       x$deviance.resid <- quantile(x$deviance.resid, na.rm = TRUE)
       names(x$deviance.resid) <- c("Min", "1Q", "Median", "3Q", "Max")
   }
-  print.default(x$deviance.resid, digits = digits, na = "", print.gap = 2)
+  print.default(x$deviance.resid, digits = digits, na = "", print.gap=2)
 
   cat("\nLayer coefficients:\n")
-  printCoefmat(x$layer, digits, signif.legend=FALSE, ...)
+  printCoefmat(x$layer, digits, signif.legend=FALSE, print.gap=2, ...)
 
   if(x$diagonal != "only")
       cat("\nFull two-way interaction coefficients:\n")
   else
       cat("\nDiagonal interaction coefficients:\n")
 
-  if(diagonal != "excluded")
-      printCoefmat(x$interaction, digits, has.Pvalue=TRUE, ...)
+  if(x$diagonal != "excluded")
+      printCoefmat(x$interaction, digits, has.Pvalue=TRUE, print.gap=2, ...)
   else
       cat("Not supported.\n")
 
 
-  cat("\nDeviance:", round(x$deviance, digits=3), "\n")
-  cat("Degrees of freedom:", x$df.residual, "\n")
-  cat("BIC:", round(x$bic), " - ",
-      "AIC:", round(x$aic), "\n")
+  cat("\nDeviance:           ", format(x$deviance, digits),
+      "\nPearson chi-squared:", format(x$chisq, digits),
+      "\nDissimilarity index:", format(x$dissim * 100, digits), "%",
+      "\nResidual df:        ", x$df.residual,
+      "\nBIC:                ", x$aic,
+      "\nAIC:                ", x$bic, "\n")
 }
 
 plot.unidiff <- function(x, exponentiate=TRUE, se.type=c("quasi.se", "se"), conf.int=.95,
