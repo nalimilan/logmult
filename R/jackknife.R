@@ -115,14 +115,14 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
       # Even if the scores are the same for all layers, we replicate them for simplicity's sake
       for(i in 1:nrow(ass1$phi))
            ret <- c(ret, ass1$row[,,1], ass1$col[,,1],
-                    sweep(ass1$row[,,1], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
-                    sweep(ass1$col[,,1], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
+                    sweep(ass1$row[,,1, drop=FALSE], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
+                    sweep(ass1$col[,,1, drop=FALSE], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
   }
   else {
       for(i in 1:dim(ass1$row)[3])
            ret <- c(ret, ass1$row[,,i], ass1$col[,,i],
-                    sweep(ass1$row[,,i], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
-                    sweep(ass1$col[,,i], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
+                    sweep(ass1$row[,,i, drop=FALSE], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
+                    sweep(ass1$col[,,i, drop=FALSE], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
   }
 
   # For double association models like some hmskew and yrcskew variants
@@ -134,68 +134,20 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
           # Even if the scores are the same for all layers, we replicate them for simplicity's sake
           for(i in 1:nrow(ass2$phi))
                ret <- c(ret, ass2$row[,,1], ass2$col[,,1],
-                        sweep(ass2$row[,,1], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
-                        sweep(ass2$col[,,1], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
+                        sweep(ass2$row[,,1, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
+                        sweep(ass2$col[,,1, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
       }
       else {
           for(i in 1:dim(ass2$row)[3])
                ret <- c(ret, ass2$row[,,i], ass2$col[,,i],
-                        sweep(ass2$row[,,i], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
-                        sweep(ass2$col[,,i], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
+                        sweep(ass2$row[,,i, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
+                        sweep(ass2$col[,,i, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
       }
 
   }
 
   ret
 }
-
-# theta.yrcskew <- function(x, model, assoc1, assoc2, family, weighting, ..., base=NULL, verbose=FALSE) {
-#   library(gnm)
-# 
-#   data <- model$data
-# 
-#   if(verbose) {
-#       iter <- which(!1:nrow(data) %in% x)
-#       if(length(iter) == 1)
-#           cat("Iteration for cell", iter, "\n")
-#       else
-#           cat("Ending iteration\n")
-#   }
-# 
-#   if(sum(data[-x,"Freq"]) > 0) {
-#       data[-x,"Freq"] <- data[-x,"Freq"] - 1
-# 
-#       model <- update(model, tab=data, start=parameters(model), verbose=FALSE, trace=TRUE, se="none")
-# 
-#       if(!model$converged && !is.null(base)) {
-#           cat("Model for cell ", which(!1:nrow(data) %in% x),
-#               " did not converge, starting again with random values...\n")
-#           # If we don't specify start, old values are used, which can give very bad initial fits
-#           base <- update(base, tab=data, start=rep(NA, length(parameters(base))))
-#           model <- update(model, iterMax=5 * model$iterMax,
-#                           start=c(parameters(base), rep(NA, length(parameters(model)) - length(parameters(base)))),
-#                           verbose=TRUE, trace=TRUE, se="none")
-#       }
-# 
-#       if(!model$converged)
-#           stop("Model for cell ", which(!1:nrow(data) %in% x), " did not converge!")
-#   }
-# 
-#   ass1 <- assoc1(model, weighting=weighting)
-#   ret <- c(ass1$phi, ass1$row, ass1$col,
-#            sweep(ass1$row, 2, sqrt(ass1$phi), "*"),
-#            sweep(ass1$col, 2, sqrt(ass1$phi), "*"))
-# 
-#   # For double association models like some hmskew and yrcskew variants
-#   if(!is.null(assoc2)) {
-#       ass2 <- assoc2(model, weighting=weighting)
-#       ret <- c(ret, ass2$phi, ass2$row, ass2$col,
-#                     sweep(ass2$row, 2, sqrt(ass2$phi), "*"),
-#                     sweep(ass2$col, 2, sqrt(ass2$phi), "*"))
-#   }
-# 
-#   ret
-# }
 
 se <- function(x, ...) UseMethod("se", x)
 
@@ -236,8 +188,8 @@ se.hmskew <- function(x, type=c("se", "quasi.se"), ...) {
 }
 
 se.yrcskew <- function(x, type=c("se", "quasi.se"), ...) {
-  if(!inherits(x, "se.yrcskew"))
-      stop("x must be a se.yrcskew object")
+  if(!inherits(x, "yrcskew"))
+      stop("x must be a yrcskew object")
 
   if(length(x[["assoc"]]) > 0 && length(x$assoc.yrcskew) > 0)
       return(list(assoc=se.assoc(x$assoc), assoc.yrcskew=se.assoc(x$assoc.yrcskew)))
@@ -282,7 +234,8 @@ se.assoc <- function(x, type=c("se", "quasi.se"), ...) {
 
   std.errs$phi <- x$phi
   for(i in 1:nl)
-      std.errs$phi[i,] <- get.se(covmat[seq((i - 1) * nd + 1, i * nd), seq((i - 1) * nd + 1, i * nd)])
+      std.errs$phi[i,] <- get.se(covmat[seq((i - 1) * nd + 1, i * nd),
+                                        seq((i - 1) * nd + 1, i * nd), drop=FALSE])
 
   std.errs$row <- x$row
   n <- nrow(std.errs$row)

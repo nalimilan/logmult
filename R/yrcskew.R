@@ -132,7 +132,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                           base=base, verbose=verbose)$jack.vcov
 
       if(!is.na(nd.symm)) {
-          lim <- nd.symm + nd.symm * nrow(tab) + nd.symm * ncol(tab)
+          lim <- nd.symm + 2 * nd.symm * (nrow(tab) + ncol(tab))
           model$assoc$covmat <- covmat[1:lim, 1:lim]
           model$assoc$covtype <- "jackknife"
       }
