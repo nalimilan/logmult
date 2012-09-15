@@ -1,13 +1,14 @@
 ## RC(M) models with skew-symmetric association (Yamaguchi, 1990)
 
-YRCSkew <- function(mincat, maxcat, skew, inst=NULL) {
-  list(predictors = list(substitute(mincat), substitute(maxcat), skew=substitute(skew)),
+YRCSkew <- function(row, col, rowinf, rowsup, inst=NULL) {
+  list(predictors = list(substitute(row), substitute(col), substitute(rowinf), substitute(rowsup)),
        term = function(predLabels, varLabels) {
-           sprintf("%s * %s * (%s - %s)",
-                   predLabels[3], predLabels[1], predLabels[2], predLabels[1])
+           sprintf("%s * %s * (%s - %s) - %s * %s * (%s - %s)",
+                   predLabels[3], predLabels[1], predLabels[2], predLabels[1],
+                   predLabels[4], predLabels[2], predLabels[1], predLabels[2])
        },
        call = as.expression(match.call()),
-       common = c(1, 1, 2)
+       common = c(1, 1, 2, 2)
        )
   }
 class(YRCSkew) <- "nonlin"
@@ -75,7 +76,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
       base <- do.call("gnm", c(args, list(...)))
 
-      start <- c(parameters(base), rep(NA, nd.skew * (nrow(tab) + 1)))
+      start <- c(parameters(base), rep(NA, nd.skew * (nrow(tab) + 2)))
 
       if(is.null(etastart))
           etastart <- as.numeric(predict(base))
@@ -93,14 +94,14 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   # because gnm() does not seem to allow using objects outside of the data argument
   # in formulas called from functions. This seems to be a problem with how the formula's
   # environment is handled, and also happens when calling gnm() directly without eval().
-  f <- sprintf("%s + instances(YRCSkew(levels(%s)[ifelse(ordered(%s) < ordered(%s), %s, %s)], levels(%s)[ifelse(ordered(%s) > ordered(%s), %s, %s)], sign(as.numeric(%s) - as.numeric(%s))), %s)",
+  f <- sprintf("%s + instances(YRCSkew(%s, %s, ifelse(as.numeric(%s) < as.numeric(%s), 1, 0), ifelse(as.numeric(%s) > as.numeric(%s), 1, 0)), %s)",
                                        basef,
-                                       vars[1], vars[1], vars[2], vars[1], vars[2],
-                                       vars[1], vars[1], vars[2], vars[1], vars[2],
-                                       vars[2], vars[1], nd.skew)
+                                       vars[1], vars[2],
+                                       vars[1], vars[2], vars[1], vars[2], nd.skew)
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=eval(as.formula(f)), data=tab,
+               constrain="YRCSkew\\(.*\\)0$",
                family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, trace=trace)
 
@@ -213,7 +214,7 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
       }
   }
 
-  skew <- parameters(model)[pickCoef(model, "YRCSkew.*\\)skew")]
+  skew <- parameters(model)[pickCoef(model, "YRCSkew.*\\)1$")]
   if(length(skew) != nd)
       stop("Skew coefficients not found. Are you sure this is a Yamaguchi RC_SK model?")
 

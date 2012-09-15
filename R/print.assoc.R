@@ -80,8 +80,9 @@ print.yrcskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
 
   ass <- x$assoc.yrcskew
 
-  cat("Intrinsic skew association coefficients:\n")
+  cat("\nIntrinsic skew association coefficients:\n")
   print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
+
   cat("\nNormalized skew association scores:\n")
   print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
 

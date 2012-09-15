@@ -23,10 +23,10 @@ assocTable <- function(object, ass, ...) {
       phi <- cbind("Estimate"=c(ass$phi), "Adjusted"=NA,
                    "Std. error"=c(errs$phi), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$phi/errs$phi))))
 
-      row <- cbind("Estimate"=c(ass$row), "Adjusted"=c(sweep(ass$row, 2, sqrt(ass$phi), "*")),
+      row <- cbind("Estimate"=c(ass$row), "Adjusted"=c(sweep(ass$row, 2, sqrt(abs(ass$phi)), "*")),
                    "Std. error"=c(errs$row), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$row/errs$row))))
 
-      col <- cbind("Estimate"=c(ass$col), "Adjusted"=c(sweep(ass$col, 2, sqrt(ass$phi), "*")),
+      col <- cbind("Estimate"=c(ass$col), "Adjusted"=c(sweep(ass$col, 2, sqrt(abs(ass$phi)), "*")),
                    "Std. error"=c(errs$col), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$col/errs$col))))
 
       rownames(phi) <- colnames(ass$phi)

@@ -56,8 +56,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   among them is the HM_RC+RC_SK variant, when \code{nd.symm} is 1.
 
   These models follow the equation:
-  \deqn{ log F_{ij} = q_{ij} + \delta_{i<j} \nu_i (\nu_j - \nu_i) - \delta_{i>j} \nu_j (\nu_i - \nu_j)
-                    = q_{ij} + (\delta_{i<j} - \delta_{i>j}) \nu_{min(i,j)} (\nu_{max(i,j)} - \nu_{min(i,j)})}
+  \deqn{ log F_{ij} = q_{ij} + \delta_{i<j} \nu_i (\nu_j - \nu_i) - \delta_{i>j} \nu_j (\nu_i - \nu_j) }
   where \eqn{F_ij} is the frequency observed in the cell at the intersection of row i and column j of
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric or a RC(M) association. See reference for detailed information
   about the degrees of freedom and the identification constraints applied to the scores.
@@ -126,8 +125,6 @@ Milan Bouchet-Valat
                                  check.attributes=FALSE)))
   }
 
-# Fails with gnm 1.0-3
-\dontrun{
   # Note model does not always converge, several attempts may be needed
   # Here we set known starting values to be sure it works
   set.seed(5)
@@ -145,5 +142,4 @@ Milan Bouchet-Valat
       stopifnot(isTRUE(all.equal(c(round(model$assoc$row, d=3)),
                                    c(0.851, 0.049, -0.246, -0.331, -0.322))))
   }
-}
 }

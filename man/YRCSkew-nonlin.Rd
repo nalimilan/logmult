@@ -6,13 +6,14 @@
   the formula argument to \code{\link{gnm}}.
 }
 \usage{
-YRCSkew(mincat, maxcat, skew, inst = NULL)
+YRCSkew(row, col, rowinf, rowsup, inst = NULL)
 }
 \arguments{
-  \item{mincat}{for each cell in the table, the category (row or column) with the lower level}
-  \item{maxcat}{for each cell in the table, the category (row or column) with the higher level}
-  \item{skew}{1 for cells above the diagonal, -1 for cells below the diagonal, and 0 for diagonal cells}
-  \item{inst}{a positive integer specifying the instance number of the term}
+  \item{row}{for each cell in the table, the row category.}
+  \item{col}{for each cell in the table, the column category.}
+  \item{rowinf}{must be 1 for cells above the diagonal, 0 for cells below and on the diagonal.}
+  \item{rowsup}{must be 1 for cells below the diagonal, 0 for cells above and on the diagonal.}
+  \item{inst}{a positive integer specifying the instance number of the term.}
 }
 \details{
   This function is used by \code{\link{yrcskew}} to fit the \dQuote{row-column-effect skew-symmetric
