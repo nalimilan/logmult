@@ -101,7 +101,7 @@ print.rcL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   ass <- x$assoc
 
   cat("Intrinsic association coefficients:\n")
-  print(format(ass$phi, digits=3))
+  print(format(ass$phi, digits=3), quote=FALSE)
 
   if(dim(ass$row)[3] == 1) {
       cat("\nNormalized row scores for all layers:\n")
