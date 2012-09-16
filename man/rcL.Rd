@@ -15,7 +15,9 @@ rcL(tab, nd = 1,
     symmetric = FALSE,
     diagonal = c("none", "heterogeneous", "homogeneous"),
     weighting = c("marginal", "uniform", "none"),
-    se = c("none", "jackknife"), family = poisson,
+    se = c("none", "jackknife", "bootstrap"),
+    nreplicates = 50, ncpus = getOption("boot.ncpus"),
+    family = poisson, weights = NULL,
     start = NA, etastart = NULL, tolerance = 1e-6,
     iterMax = 5000, trace = TRUE, verbose = TRUE, ...)
 }
@@ -32,12 +34,16 @@ rcL(tab, nd = 1,
     taking quasi-conditional independence, rather than conditional independence, as the baseline model.
     Valid only for square tables.}
   \item{weighting}{ what weights should be used when normalizing the scores.}
-  \item{se}{ whether to compute standard errors for scores. \dQuote{jackknife} is the only currently
-     supported method, and is disabled by default because it increases computation time.}
+  \item{se}{ which method to use to compute standard errors for parameters.}
+  \item{nreplicates}{ the number of bootstrap replicates, if enabled.}
+  \item{ncpus}{ the number of processes to use for jackknife or bootstrap parallel computing. Defaults to
+    the number of cores (see \code{\link[parallel]{detectCores}}), with a maximum of 5, but falls back to 1
+    (no parallelization) if packages \code{parallel} or \code{snow} are not available.}
   \item{family}{ a specification of the error distribution and link function
      to be used in the model. This can be a character string naming
      a family function; a family function, or the result of a call
      to a family function. See \code{\link{family}} details of family functions.}
+  \item{weights}{ an optional vector of weights to be used in the fitting process.}
   \item{start}{either \code{NA} (the default) to use reasonable starting values, \code{NULL} to use
      random starting values, or a vector of starting values for the parameters in the model;
      if a starting value is \code{NA}, the default starting value will be used.}

@@ -1,8 +1,9 @@
 ## RC(M) model
 
 rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
-               weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
-               family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
+               weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
+               nreplicates=50, ncpus=getOption("boot.ncpus"),
+               family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
                trace=TRUE, verbose=TRUE, ...) {
   weighting <- match.arg(weighting)
   se <- match.arg(se)
@@ -57,7 +58,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
 
           # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
           args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
-                       data=tab, family=family,
+                       data=tab, family=family, weights=weights,
                        tolerance=tolerance, iterMax=iterMax)
 
           base <- do.call("gnm", c(args, list(...)))
@@ -94,19 +95,44 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   model$assoc <- assoc(model, weighting=weighting)
 
 
-  if(se == "jackknife") {
-      cat("Computing jackknife standard errors...\n")
-      model$assoc$covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model,
-                                      getS3method("assoc", class(model)), NULL,
-                                      family, weighting, base=base, verbose=verbose)$jack.vcov
+  if(se %in% c("jackknife", "bootstrap")) {
+      cat("Computing", se, "standard errors...\n")
+
+      if(is.null(ncpus))
+          ncpus <- if(require(parallel)) min(parallel::detectCores(), 5) else 1
+
+      if(se == "jackknife") {
+          model$assoc$covmat <- jackknife(1:length(tab), jackknife.assoc, w=tab, ncpus=ncpus,
+                                          model=model, assoc1=getS3method("assoc", class(model)), assoc2=NULL,
+                                          weighting=weighting, family=family, weights=weights, ...,
+                                          base=base, verbose=FALSE)$jack.vcov
+
+          model$assoc$boot.results <- numeric(0)
+      }
+      else {
+          if(!is.null(weights))
+              boot.weights <- rep.int(weights, tab)
+          else
+              boot.weights <- NULL
+
+          model$assoc$boot.results <- boot::boot(1:sum(tab), boot.assoc,
+                                                 R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
+                                                 args=list(model=model, assoc1=getS3method("assoc", class(model)),
+                                                           assoc2=NULL, weighting=weighting, family=family,
+                                                           weights=weights, base=base, ...))
+
+          model$assoc$covmat <- cov(model$assoc$boot.results$t)
+      }
+
       scnames <- c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
                    t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep="")))
       rownames(model$assoc$covmat) <- colnames(model$assoc$covmat) <-
           c(paste("Dim", 1:nd, sep=""), scnames, paste(scnames, "*", sep=""))
 
-      model$assoc$covtype <- "jackknife"
+      model$assoc$covtype <- se
   }
   else {
+      model$assoc$boot.results <- numeric(0)
       model$assoc$covmat <- numeric(0)
       model$assoc$covtype <- "none"
   }

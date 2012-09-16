@@ -14,8 +14,9 @@ YRCSkew <- function(row, col, rowinf, rowsup, inst=NULL) {
 class(YRCSkew) <- "nonlin"
 
 yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
-                    weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
-                    family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=15000,
+                    weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
+                    nreplicates=50, ncpus=getOption("boot.ncpus", if(require(parallel)) min(parallel::detectCores(), 4) else 1),
+                    family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-6, iterMax=15000,
                     trace=TRUE, verbose=TRUE, ...) {
   weighting <- match.arg(weighting)
   se <- match.arg(se)
@@ -122,28 +123,56 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   model$assoc.yrcskew <- assoc.yrcskew(model, weighting=weighting)
 
 
-  if(se == "jackknife") {
+  if(se %in% c("jackknife", "bootstrap")) {
+      cat("Computing", se, "standard errors...\n")
+
+      if(is.null(ncpus))
+          ncpus <- if(require(parallel)) min(parallel::detectCores(), 5)
+                   else if(require(snow)) min(snow::detectCores(), 5)
+                   else 1
+
       assoc1 <- if(is.na(nd.symm)) assoc.yrcskew else assoc.rc.symm
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.yrcskew
 
-      cat("Computing jackknife standard errors...\n")
-      covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model, assoc1, assoc2,
-                          family, weighting, YRCSkew=YRCSkew,
-                          base=base, verbose=verbose)$jack.vcov
+      if(se == "jackknife") {
+          covmat <- jackknife(1:length(tab), jackknife.assoc, w=tab, ncpus=ncpus,
+                              model=model, assoc1=assoc1, assoc2=assoc2,
+                              weighting=weighting, family=family, ...,
+                              base=base, verbose=FALSE)$jack.vcov
+
+          boot.results <- numeric(0)
+      }
+      else {
+          if(!is.null(weights))
+              boot.weights <- rep.int(weights, tab)
+          else
+              boot.weights <- NULL
+
+          boot.results <- boot::boot(1:sum(tab), boot.assoc,
+                                     R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
+                                     args=list(model=model, assoc1=assoc1, assoc2=assoc2,
+                                               weighting=weighting, family=family, ...,
+                                               weights=weights, base=base))
+
+          covmat <- cov(boot.results$t)
+      }
 
       if(!is.na(nd.symm)) {
           lim <- nd.symm + 2 * nd.symm * (nrow(tab) + ncol(tab))
+
+          model$assoc$boot.results <- boot.results
           model$assoc$covmat <- covmat[1:lim, 1:lim]
-          model$assoc$covtype <- "jackknife"
+          model$assoc$covtype <- se
       }
       else {
           lim <- 0
       }
 
       model$assoc.yrcskew$covmat <- covmat[seq(lim + 1, nrow(covmat)), seq(lim + 1, ncol(covmat))]
-      model$assoc.yrcskew$covtype <- "jackknife"
+      model$assoc.yrcskew$covtype <- se
   }
-  else if(length(model$assoc) > 0) {
+  else {
+      model$assoc$boot.results <- numeric(0)
       model$assoc$covmat <- numeric(0)
       model$assoc$covtype <- "none"
   }

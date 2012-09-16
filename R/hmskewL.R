@@ -3,8 +3,9 @@
 hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "heterogeneous", "none"),
                     layer.effect.symm=c("uniform", "homogeneous.scores", "heterogeneous", "none"),
                     diagonal=c("none", "heterogeneous", "homogeneous"),
-                    weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife"),
-                    family=poisson, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
+                    weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
+                    nreplicates=50, ncpus=getOption("boot.ncpus", if(require(parallel)) min(parallel::detectCores(), 4) else 1),
+                    family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
                     trace=TRUE, verbose=TRUE, ...) {
   layer.effect.skew <- match.arg(layer.effect.skew)
   layer.effect.symm <- match.arg(layer.effect.symm)
@@ -229,17 +230,39 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   class(model$assoc.hmskew) <-  c("assoc.hmskewL", "assoc")
 
 
-  if(se == "jackknife") {
-      cat("Computing jackknife standard errors...\n")
+  if(se %in% c("jackknife", "bootstrap")) {
+      cat("Computing", se, "standard errors...\n")
+
+      if(is.null(ncpus))
+          ncpus <- if(require(parallel)) min(parallel::detectCores(), 5) else 1
+
       assoc1 <- if(is.na(nd.symm)) assoc.hmskewL
                 else if(!is.na(nd.symm) && layer.effect.symm == "none") assoc.rc.symm
                 else assoc.rcL.symm
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskewL
 
-      covmat <- jackknife(1:length(tab), w=tab, theta.assoc, model, assoc1, assoc2,
-                          family, weighting, HMSkew=HMSkew,
-                          base=if(!is.null(base2)) base2 else base, verbose=verbose)$jack.vcov
+      if(se == "jackknife") {
+          covmat <- jackknife(1:length(tab), jackknife.assoc, w=tab, ncpus=ncpus,
+                              model=model, assoc1=assoc1, assoc2=assoc2,
+                              weighting=weighting, family=family, ...,
+                              base=if(!is.null(base2)) base2 else base, verbose=FALSE)$jack.vcov
 
+          boot.results <- numeric(0)
+      }
+      else {
+          if(!is.null(weights))
+              boot.weights <- rep.int(weights, tab)
+          else
+              boot.weights <- NULL
+
+          boot.results <- boot::boot(1:sum(tab), boot.assoc,
+                                     R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
+                                     args=list(model=model, assoc1=assoc1, assoc2=assoc2,
+                                               weighting=weighting, family=family, ...,
+                                               weights=weights, base=if(!is.null(base2)) base2 else base))
+
+          covmat <- cov(boot.results$t)
+      }
 
       if(!is.na(nd.symm)) {
           if(layer.effect.symm == "heterogeneous")
@@ -251,24 +274,21 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
           else # "uniform", handled at the top of the function
               stop()
 
+          model$assoc$boot.results <- boot.results
           model$assoc$covmat <- covmat[1:lim, 1:lim]
-          model$assoc$covtype <- "jackknife"
+          model$assoc$covtype <- se
       }
       else {
           lim <- 0
       }
 
       model$assoc.hmskew$covmat <- covmat[seq(lim + 1, nrow(covmat)), seq(lim + 1, ncol(covmat))]
-      model$assoc.hmskew$covtype <- "jackknife"
+      model$assoc.hmskew$covtype <- se
   }
   else {
-      if(!is.na(nd.symm)) {
-          model$assoc$covmat <- numeric(0)
-          model$assoc$covtype <- "none"
-      }
-
-      model$assoc.hmskew$covmat <- numeric(0)
-      model$assoc.hmskew$covtype <- "none"
+      model$assoc$boot.results <- numeric(0)
+      model$assoc$covmat <- numeric(0)
+      model$assoc$covtype <- "none"
   }
 
   model

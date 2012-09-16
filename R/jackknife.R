@@ -13,8 +13,7 @@
 # Objects needed by theta() on the cluster nodes can be passed as arguments and handled
 # in theta(), or simply passed as *named* arguments to jackknife(): they will be exported
 # the the nodes' environments. 
-jackknife <- function(x, theta, ..., w=rep(1, length(x)),
-                      ncpus=if(require(parallel)) getOption("cl.cores", detectCores()) else getOption("cl.cores", 2))
+jackknife <- function(x, theta, ..., w=rep(1, length(x)), ncpus=1)
 {
     call <- match.call()
     stopifnot(length(w) == length(x))
@@ -70,43 +69,68 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)),
 }
 
 # Additional arguments are needed so that update() finds them even when using parLapply
-theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=NULL, verbose=FALSE) {
-  data <- model$data
-  library(gnm)
+jackknife.assoc <- function(x, model, repl.verbose, ...) {
+  tab <- model$data
 
-  if(verbose) {
-      iter <- which(!1:length(data) %in% x)
+  if(repl.verbose) {
+      iter <- which(!1:length(tab) %in% x)
       if(length(iter) == 1)
-          cat(sprintf("Iteration for cell %i of %i\n", iter, length(data)))
+          cat(sprintf("Iteration for cell %i of %i\n", iter, length(tab)))
       else
           cat("Initial iteration\n")
   }
 
-  if(sum(data[-x]) > 0) {
-      tab <- data
-      tab[] <- -1
-      tab[x] <- 0
-
-      model <- update(model, tab=data+tab,
-                      start=parameters(model), etastart=as.numeric(predict(model)),
-                      verbose=FALSE, trace=TRUE, se="none")
-
-      if(!model$converged && !is.null(base)) {
-          cat("Model for cell ", which(!1:length(data) %in% x),
-              " did not converge, starting again with random values...\n")
-          # If we don't specify start, old values are used, which can give very bad initial fits
-          base <- update(base, tab=data,
-                         start=rep(NA, length(parameters(base))),
-                         etastart=as.numeric(predict(base)))
-          model <- update(model, iterMax=5 * model$iterMax,
-                          start=c(parameters(base), rep(NA, length(parameters(model)) - length(parameters(base)))),
-                          etastart=as.numeric(predict(model)),
-                          verbose=TRUE, trace=TRUE, se="none")
-      }
-
-      if(!model$converged)
-          stop("Model for cell ", which(!1:length(data) %in% x), " did not converge!")
+  if(sum(tab[-x]) > 0) {
+      mat <- tab
+      mat[] <- -1
+      mat[x] <- 0
+      tab <- tab + mat
   }
+
+  replicate.assoc(model, tab, repl.verbose=repl.verbose, ...)
+}
+
+boot.assoc <- function(data, indices, args) {
+  tab <- args$model$data
+
+  # Create a table not including the observations identified by indices
+  cs <- cumsum(tab)
+  for(i in setdiff(1:sum(tab), indices)) {
+      index <- min(which(i <= cs))
+      tab[index] <- tab[index] - 1
+  }
+
+
+  # We need to pass all arguments through "args" to prevent them
+  # from being catched by boot(), especially "weights"
+  args$tab <- tab
+  do.call(replicate.assoc, args)
+}
+
+# Replicate model with new data, and combine assoc components into a vector
+replicate.assoc <- function(model, tab, assoc1, assoc2, weighting, ...,
+                            base=NULL, repl.verbose=FALSE) {
+  library(assoc)
+
+  model <- update(model, tab=tab,
+                  start=parameters(model), etastart=as.numeric(predict(model)),
+                  verbose=repl.verbose, trace=repl.verbose, se="none")
+
+  if(!model$converged && !is.null(base)) {
+      cat("Model for cell ", which(!1:length(data) %in% x),
+          " did not converge, starting again with random values...\n")
+      # If we don't specify start, old values are used, which can give very bad initial fits
+      base <- update(base, tab=data,
+                     start=rep(NA, length(parameters(base))),
+                     etastart=as.numeric(predict(base)))
+      model <- update(model, iterMax=5 * model$iterMax,
+                      start=c(parameters(base), rep(NA, length(parameters(model)) - length(parameters(base)))),
+                      etastart=as.numeric(predict(model)),
+                      verbose=TRUE, trace=TRUE, se="none")
+  }
+
+  if(!model$converged)
+      stop("Model for cell ", which(!1:length(data) %in% x), " did not converge!")
 
   ass1 <- assoc1(model, weighting=weighting)
   ret <- c(t(ass1$phi))
@@ -148,6 +172,7 @@ theta.assoc <- function(x, model, assoc1, assoc2, family, weighting, ..., base=N
 
   ret
 }
+
 
 se <- function(x, ...) UseMethod("se", x)
 

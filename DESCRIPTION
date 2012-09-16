@@ -10,7 +10,7 @@ Maintainer: Milan Bouchet-Valat <nalimilan@club.fr>
 Enhances: gnm
 Imports: stats, graphics, qvcalc
 Depends: gnm
-Suggests: ellipse, parallel, snow
+Suggests: boot, ellipse, parallel
 Description: Functions to easily fit and plot several variants of log-multiplicative
   row-column association models, building on the gnm package. Supported models include
   the RC(M) family (a.k.a. Goodman models), and two skew-symmetric models suggested by
