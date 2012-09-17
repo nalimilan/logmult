@@ -111,6 +111,124 @@ boot.assoc <- function(data, indices, args) {
   do.call(replicate.assoc, args)
 }
 
+# Compute distance between adjusted scores for this replicate to that of the original model
+# We choose the permutation and sign of dimensions that minimizes the sum of squares,
+# weighted by the inverse of row frequencies
+find.stable.scores <- function(ass, ass.orig) {
+      weights <- 1
+
+      nd <- ncol(ass$phi)
+      nr <- nrow(ass$row)
+      nc <- nrow(ass$col)
+      nl <- nrow(ass$phi)
+
+      # For checks at the end
+      ass.sav <- ass
+
+      scores <- adj.orig <- array(NA, dim=c(nr + nc, nd, nl))
+      phi <- ass$phi
+
+      for(i in 1:ncol(ass$phi))
+          scores[,i,] <- rbind(as.matrix(ass$row[,i,]), as.matrix(ass$col[,i,]))
+
+      for(i in 1:ncol(ass.orig$phi))
+          adj.orig[,i,] <- rbind(as.matrix(ass.orig$row[,i,]), as.matrix(ass.orig$col[,i,]))
+
+      adj <- scores
+      adj <- sweep(adj, 3:2, sqrt(abs(ass$phi)) * sign(ass$phi), "*")
+      adj.orig <- sweep(adj.orig, 3:2, sqrt(abs(ass.orig$phi)) * sign(ass.orig$phi), "*")
+
+      perms <- permn(1:nd)
+      vals <- array(NA, dim=c(2, nd, length(perms)))
+
+      for(i in 1:length(perms)) {
+          order <- perms[[i]]
+          adj.tmp <- adj[, order, , drop=FALSE]
+
+          # Signs as-is
+          vals[1, , i] <- apply(sweep((adj.orig - adj.tmp)^2, 1, weights, "*"), 2, sum)
+
+          # Inverted signs
+          vals[2, , i] <- apply(sweep((adj.orig + adj.tmp)^2, 1, weights, "*"), 2, sum)
+      }
+
+     # Find out which permutation allows for the smaller sum of squares,
+     # choosing the best sign change for each dimension
+     best.perm <- which.min(apply(apply(vals, 2:3, min), 2, sum))
+
+     if(best.perm != 1) {
+         cat("Inverting order to", best.perm, ":", perms[[best.perm]], "\n")
+         phi <- ass$phi[, perms[[best.perm]], drop=FALSE]
+         scores <- scores[, perms[[best.perm]], , drop=FALSE]
+         adj <- adj[, perms[[best.perm]], , drop=FALSE]
+     }
+
+     # Change signs for dimensions where it reduces sum of squares
+     for(i in which(pmin(vals[2, , best.perm]) < pmin(vals[1, , best.perm]))) {
+         cat("Inverting signs for dimension", i, "\n")
+         scores[, i,] <- -scores[, i, , drop=FALSE]
+         adj[, i,] <- -adj[, i, , drop=FALSE]
+     }
+
+  # Sanity check: rebuild the association matrix and compare with the original
+  for(l in 1:nl) {
+     lambda <- lambda.sav <- matrix(0, nr, nc)
+
+      for(i in 1:nd) {
+          # Heterogeneous scores
+          if(dim(ass$row)[3] > 1) {
+              lambda <- lambda + adj[1:nr, i, l] %o% adj[-(1:nr), i, l]
+              lambda.sav <- lambda.sav + abs(ass.sav$phi[l, i]) *
+                                         ass.sav$row[, i, l] %o% ass.sav$col[, i, l]
+          }
+          # Homogeneous scores
+          else {
+              lambda <- lambda + adj[1:nr, i, l] %o% adj[-(1:nr), i, l]
+              lambda.sav <- lambda.sav + abs(ass.sav$phi[l, i]) *
+                                         ass.sav$row[, i, 1] %o% ass.sav$col[, i, 1]
+          }
+      }
+
+      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
+  }
+      
+
+  ret <- c(t(phi))
+
+  if(dim(ass$row)[3] > 1)
+      layers <- 1:nl
+  else
+      layers <- rep(1, nl)
+
+  for(i in 1:ncol(ass$phi))
+      ret <- c(ret, scores[, i, layers], adj[, i, layers])
+
+  ret
+}
+
+find.stable.scores.hmskew <- function(ass, ass.orig) {
+      weights <- 1
+
+      nd <- ncol(ass$phi)
+      nr <- nrow(ass$row)
+      nc <- nrow(ass$col)
+      nl <- nrow(ass$phi)
+
+      # For checks at the end
+      ass.sav <- ass
+
+     # Rotate scores and return the sum of squares to the old scores
+     rot <- function(angle) {
+         sc <- ass$row[,,1] %*% matrix(c(cos(angle), sin(angle), -sin(angle), cos(angle)), 2, 2)
+         sum(sweep((sc - ass.orig$row[,,1])^2, 1, weights, "*"))
+     }
+
+     best.angle <- optim(0, rot, method="BFGS", control=list(trace=9))$par
+
+     ass$row[,,1] %*% matrix(c(cos(best.angle), sin(best.angle), -sin(best.angle), cos(best.angle)), 2, 2)
+}
+
+
 # Replicate model with new data, and combine assoc components into a vector
 replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
                             base=NULL, repl.verbose=FALSE) {
@@ -134,42 +252,6 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
   if(!model$converged) {
       cat(sprintf("Trying once again with random starting values...\n", model$iterMax))
 
-  ass1 <- assoc1(model, weighting=weighting)
-  ret <- c(t(ass1$phi))
-
-  if(dim(ass1$row)[3] == 1) {
-      # Even if the scores are the same for all layers, we replicate them for simplicity's sake
-      for(i in 1:nrow(ass1$phi))
-           ret <- c(ret, ass1$row[,,1], ass1$col[,,1],
-                    sweep(ass1$row[,,1, drop=FALSE], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
-                    sweep(ass1$col[,,1, drop=FALSE], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
-  }
-  else {
-      for(i in 1:dim(ass1$row)[3])
-           ret <- c(ret, ass1$row[,,i], ass1$col[,,i],
-                    sweep(ass1$row[,,i, drop=FALSE], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"),
-                    sweep(ass1$col[,,i, drop=FALSE], 2, sqrt(abs(ass1$phi[i,])) * sign(ass1$phi[i,]), "*"))
-  }
-
-  # For double association models like some hmskew and yrcskew variants
-  if(!is.null(assoc2)) {
-      ass2 <- assoc2(model, weighting=weighting)
-      ret <- c(ret, t(ass2$phi))
-
-      if(dim(ass2$row)[3] == 1) {
-          # Even if the scores are the same for all layers, we replicate them for simplicity's sake
-          for(i in 1:nrow(ass2$phi))
-               ret <- c(ret, ass2$row[,,1], ass2$col[,,1],
-                        sweep(ass2$row[,,1, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
-                        sweep(ass2$col[,,1, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
-      }
-      else {
-          for(i in 1:dim(ass2$row)[3])
-               ret <- c(ret, ass2$row[,,i], ass2$col[,,i],
-                        sweep(ass2$row[,,i, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"),
-                        sweep(ass2$col[,,i, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
-      }
-
       # Without the quote(NULL), update.gnm() does call$start <- NULL, which removes it,
       # and eventually restores the default value (NA)
       suppressWarnings(model2 <- update(model, start=quote(NULL), etastart=NULL,
@@ -178,9 +260,23 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
       # Random starting values can fail, and we still need to model to know the length of the result
       if(!is.null(model2))
           model <- model2
+  }
 
   if(!model$converged) {
       warning("Model failed to converge three times: ignoring the results of this replicate. Standard errors may not be completely accurate. Consider raising the value of iterMax.")
+  }
+
+  ass1 <- assoc1(model, weighting=weighting)
+  ass1.orig <- assoc1(model.orig, weighting=weighting)
+
+  ret <- find.stable.scores(ass1, ass1.orig)
+
+  # For double association models like some hmskew and yrcskew variants
+  if(!is.null(assoc2)) {
+      ass2 <- assoc2(model, weighting=weighting)
+      ass2.orig <- assoc2(model.orig, weighting=weighting)
+
+      ret <- c(ret, find.stable.scores(ass2, ass2.orig))
   }
 
   if(!model$converged)
