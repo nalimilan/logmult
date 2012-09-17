@@ -172,13 +172,18 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   model$call <- match.call()
 
   if(layer.effect == "none") {
-      if(symmetric)
+      if(symmetric) {
           model$assoc <- assoc.rc.symm(model, weighting=weighting)
-      else
+          assoc1 <- assoc.rc.symm
+      }
+      else {
           model$assoc <- assoc.rc(model, weighting=weighting)
+          assoc1 <- assoc.rc
+      }
   }
   else {
       model$assoc <- assoc(model, weighting=weighting)
+      assoc1 <- getS3method("assoc", class(model))
   }
 
   class(model$assoc) <- if(symmetric) c("assoc.rcL", "assoc.symm", "assoc")
@@ -195,7 +200,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
       if(se == "jackknife") {
           model$assoc$covmat <- jackknife(1:length(tab), jackknife.assoc, w=tab, ncpus=ncpus,
-                                          model=model, assoc1=getS3method("assoc", class(model)), assoc2=NULL,
+                                          model=model, assoc1=assoc1, assoc2=NULL,
                                           weighting=weighting, family=family, weights=weights, ...,
                                           base=if(!is.null(base2)) base2 else base,
                                           verbose=FALSE)$jack.vcov
@@ -210,7 +215,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
           model$assoc$boot.results <- boot::boot(1:sum(tab), boot.assoc,
                                                  R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
-                                                 args=list(model=model, assoc1=getS3method("assoc", class(model)),
+                                                 args=list(model=model, assoc1=assoc1,
                                                            assoc2=NULL, weighting=weighting, family=family,
                                                            weights=weights, ..., base=base))
 
