@@ -96,13 +96,14 @@ jackknife.assoc <- function(x, model, repl.verbose=FALSE, ...) {
 boot.assoc <- function(data, indices, args) {
   tab <- args$model$data
 
-  # Create a table not including the observations identified by indices
-  cs <- cumsum(tab)
-  for(i in setdiff(1:sum(tab), indices)) {
-      index <- min(which(i <= cs))
-      tab[index] <- tab[index] - 1
-  }
+  # Create a table from the indices - one index identifies an observation in the original table,
+  # following the cumulative sum, from 1 to sum(tab)
+  tab[tab > 0] <- tapply(tabulate(indices, nbins=sum(tab)),
+                         rep.int(1:length(tab), tab),
+                         sum)
 
+  # Basic sanity check
+  stopifnot(sum(tab) == sum(args$model$data))
 
   # We need to pass all arguments through "args" to prevent them
   # from being catched by boot(), especially "weights"
