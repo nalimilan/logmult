@@ -175,7 +175,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                                                            assoc2=NULL, weighting=weighting, family=family,
                                                            weights=weights, ..., base=base))
 
-          model$assoc$covmat <- cov(model$assoc$boot.results$t)
+          model$assoc$covmat <- cov(model$assoc$boot.results$t, use="na.or.complete")
       }
 
       scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),

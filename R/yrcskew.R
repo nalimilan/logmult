@@ -154,7 +154,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                                                weighting=weighting, family=family, ...,
                                                weights=weights, base=base))
 
-          covmat <- cov(boot.results$t)
+          covmat <- cov(boot.results$t, use="na.or.complete")
       }
 
       if(!is.na(nd.symm)) {

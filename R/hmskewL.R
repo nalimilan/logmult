@@ -261,7 +261,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                                                weighting=weighting, family=family, ...,
                                                weights=weights, base=if(!is.null(base2)) base2 else base))
 
-          covmat <- cov(boot.results$t)
+          covmat <- cov(boot.results$t, use="na.or.complete")
       }
 
       if(!is.na(nd.symm)) {

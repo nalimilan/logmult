@@ -59,17 +59,20 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)), ncpus=1)
         }
     }
     u <- do.call(cbind, u)
+    # Remove replicates with NAs when computing statistics
+    # This can be used by theta() to skip a failed replicate
+    u2 <- u[, colSums(is.na(u)) == 0]
     tot <- sum(w)
-    mean.u <- rowSums(sweep(u, 2, w, "*"))/tot
+    mean.u <- rowSums(sweep(u2, 2, w, "*"))/tot
     jack.bias <- (tot - 1) * (mean.u - thetahat)
-    dev.u <- sweep(u, 1, mean.u, "-")
+    dev.u <- sweep(u2, 1, mean.u, "-")
     jack.vcov <- (tot - 1)/tot * sweep(dev.u, 2, w, "*") %*% t(dev.u)
     return(list(jack.vcov = jack.vcov, jack.bias = jack.bias, jack.values = u, 
                 call = call))
 }
 
 # Additional arguments are needed so that update() finds them even when using parLapply
-jackknife.assoc <- function(x, model, repl.verbose, ...) {
+jackknife.assoc <- function(x, model, repl.verbose=FALSE, ...) {
   tab <- model$data
 
   if(repl.verbose) {
@@ -108,29 +111,27 @@ boot.assoc <- function(data, indices, args) {
 }
 
 # Replicate model with new data, and combine assoc components into a vector
-replicate.assoc <- function(model, tab, assoc1, assoc2, weighting, ...,
+replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
                             base=NULL, repl.verbose=FALSE) {
   library(assoc)
 
-  model <- update(model, tab=tab,
-                  start=parameters(model), etastart=as.numeric(predict(model)),
-                  verbose=repl.verbose, trace=repl.verbose, se="none")
+  # Remove warnings because we handle this below
+  suppressWarnings(model <- update(model.orig, tab=tab,
+                                   start=parameters(model.orig), etastart=as.numeric(predict(model.orig)),
+                                   verbose=repl.verbose, trace=repl.verbose, se="none"))
 
-  if(!model$converged && !is.null(base)) {
-      cat("Model for cell ", which(!1:length(data) %in% x),
-          " did not converge, starting again with random values...\n")
-      # If we don't specify start, old values are used, which can give very bad initial fits
-      base <- update(base, tab=data,
-                     start=rep(NA, length(parameters(base))),
-                     etastart=as.numeric(predict(base)))
-      model <- update(model, iterMax=5 * model$iterMax,
-                      start=c(parameters(base), rep(NA, length(parameters(model)) - length(parameters(base)))),
-                      etastart=as.numeric(predict(model)),
-                      verbose=TRUE, trace=TRUE, se="none")
+  if(!model$converged) {
+      cat("Model replicate did not converge.\nData was:\n")
+      print(tab)
+      cat(sprintf("Trying again with different starting values...\n", model$iterMax))
+
+      suppressWarnings(model <- update(model, start=NA, etastart=NULL,
+                                       verbose=TRUE, trace=TRUE, se="none"))
+
   }
 
-  if(!model$converged)
-      stop("Model for cell ", which(!1:length(data) %in% x), " did not converge!")
+  if(!model$converged) {
+      cat(sprintf("Trying once again with random starting values...\n", model$iterMax))
 
   ass1 <- assoc1(model, weighting=weighting)
   ret <- c(t(ass1$phi))
@@ -168,7 +169,21 @@ replicate.assoc <- function(model, tab, assoc1, assoc2, weighting, ...,
                         sweep(ass2$col[,,i, drop=FALSE], 2, sqrt(abs(ass2$phi[i,])) * sign(ass2$phi[i,]), "*"))
       }
 
+      # Without the quote(NULL), update.gnm() does call$start <- NULL, which removes it,
+      # and eventually restores the default value (NA)
+      suppressWarnings(model2 <- update(model, start=quote(NULL), etastart=NULL,
+                                        verbose=TRUE, trace=TRUE, se="none"))
+
+      # Random starting values can fail, and we still need to model to know the length of the result
+      if(!is.null(model2))
+          model <- model2
+
+  if(!model$converged) {
+      warning("Model failed to converge three times: ignoring the results of this replicate. Standard errors may not be completely accurate. Consider raising the value of iterMax.")
   }
+
+  if(!model$converged)
+      ret[] <- NA
 
   ret
 }

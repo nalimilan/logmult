@@ -121,7 +121,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                                                            assoc2=NULL, weighting=weighting, family=family,
                                                            weights=weights, base=base, ...))
 
-          model$assoc$covmat <- cov(model$assoc$boot.results$t)
+          model$assoc$covmat <- cov(model$assoc$boot.results$t, use="na.or.complete")
       }
 
       scnames <- c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
