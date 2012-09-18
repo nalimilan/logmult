@@ -246,36 +246,47 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
                             base=NULL, repl.verbose=FALSE) {
   library(assoc)
 
-  # Remove warnings because we handle this below
-  suppressWarnings(model <- update(model.orig, tab=tab,
-                                   start=parameters(model.orig), etastart=as.numeric(predict(model.orig)),
-                                   verbose=repl.verbose, trace=repl.verbose, se="none"))
+  # Models can generate an error if they fail repeatedly
+  # Remove warnings because we handle them below
+  model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
+                                            start=parameters(model.orig),
+                                            etastart=as.numeric(predict(model.orig)),
+                                            verbose=repl.verbose, trace=repl.verbose, se="none")),
+                    error=function(e) NULL)
 
-  if(!model$converged) {
-      cat("Model replicate did not converge.\nData was:\n")
+  if(is.null(model) || !model$converged) {
+      if(is.null(model)) {
+          cat("Model replicate failed.\nData was:\n")
+          model <- model.orig
+      }
+      else {
+          cat("Model replicate did not converge.\nData was:\n")
+      }
+
+
       print(tab)
-      cat(sprintf("Trying again with different starting values...\n", model$iterMax))
+      cat(sprintf("Trying again with different starting values...\n"))
 
-      suppressWarnings(model <- update(model, start=NA, etastart=NULL,
-                                       verbose=TRUE, trace=TRUE, se="none"))
-
+      model <- tryCatch(suppressWarnings(update(model, tab=tab, start=NA, etastart=NULL,
+                                                verbose=TRUE, trace=TRUE, se="none")),
+                        error=function(e) NULL)
   }
 
-  if(!model$converged) {
-      cat(sprintf("Trying once again with random starting values...\n", model$iterMax))
+  if(is.null(model) || !model$converged) {
+      cat(sprintf("Model failed again. Trying one last time with random starting values...\n"))
 
       # Without the quote(NULL), update.gnm() does call$start <- NULL, which removes it,
       # and eventually restores the default value (NA)
-      suppressWarnings(model2 <- update(model, start=quote(NULL), etastart=NULL,
-                                        verbose=TRUE, trace=TRUE, se="none"))
-
-      # Random starting values can fail, and we still need to model to know the length of the result
-      if(!is.null(model2))
-          model <- model2
+      model <- tryCatch(suppressWarnings(update(model, tab=tab, start=quote(NULL), etastart=NULL,
+                                                verbose=TRUE, trace=TRUE, se="none")),
+                        error=function(e) NULL)
   }
 
-  if(!model$converged) {
+  if(is.null(model) || !model$converged) {
       warning("Model failed to converge three times: ignoring the results of this replicate. Standard errors may not be completely accurate. Consider raising the value of iterMax.")
+
+      # This NA value is skipped when computing variance-covariance matrix
+      return(NA)
   }
 
   ass1 <- assoc1(model, weighting=weighting)
