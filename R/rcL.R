@@ -199,7 +199,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
           ncpus <- if(require(parallel)) min(parallel::detectCores(), 5) else 1
 
       if(se == "jackknife") {
-          model$assoc$covmat <- jackknife(1:length(tab), jackknife.assoc, w=tab, ncpus=ncpus,
+          model$assoc$covmat <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
+                                          w=tab[!is.na(tab)], ncpus=ncpus,
                                           model=model, assoc1=assoc1, assoc2=NULL,
                                           weighting=weighting, family=family, weights=weights, ...,
                                           base=if(!is.null(base2)) base2 else base,
@@ -213,7 +214,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
           else
               boot.weights <- NULL
 
-          model$assoc$boot.results <- boot::boot(1:sum(tab), boot.assoc,
+          model$assoc$boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc,
                                                  R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
                                                  args=list(model=model, assoc1=assoc1,
                                                            assoc2=NULL, weighting=weighting, family=family,
@@ -258,8 +259,8 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weighting <- match.arg(weighting)
   if(weighting == "marginal") {
-      rp <- prop.table(margin.table(tab, 1))
-      cp <- prop.table(margin.table(tab, 2))
+      rp <- prop.table(apply(tab, 1, sum, na.rm=TRUE))
+      cp <- prop.table(apply(tab, 2, sum, na.rm=TRUE))
   }
   else if(weighting == "uniform") {
       rp <- rep(1/nr, nr)
@@ -493,7 +494,7 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weighting <- match.arg(weighting)
   if(weighting == "marginal")
-      p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
+      p <- prop.table(apply(tab, 1, sum, na.rm=TRUE) + apply(tab, 2, sum, na.rm=TRUE))
   else if(weighting == "uniform")
       p <- rep(1/nr, nr)
   else

@@ -106,13 +106,13 @@ summary.assocmod <- function(object, weighting, ...) {
 
   res <- list(call=object$call,
               deviance.resid=residuals(object, type="deviance"),
-              chisq=sum(residuals(object, "pearson")^2),
-              dissim=sum(abs(abs(residuals(object, "response"))))/sum(abs(fitted(object)))/2,
+              chisq=sum(na.omit(c(residuals(object, "pearson")^2))),
+              dissim=sum(na.omit(abs(c(residuals(object, "response")))))/sum(na.omit(abs(c(fitted(object)))))/2,
               coefficients=coefficients,
               diagonal=diagonal,
               weighting=weighting,
               deviance=object$deviance, df.residual=object$df.residual,
-              bic=extractAIC(object, k=log(sum(object$data)))[2],
+              bic=extractAIC(object, k=log(sum(na.omit(c(object$data)))))[2],
               aic=extractAIC(object)[2])
 
   class(res) <- "summary.assocmod"

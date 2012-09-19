@@ -114,7 +114,8 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskew
 
       if(se == "jackknife") {
-          covmat <- jackknife(1:length(tab), jackknife.assoc, w=tab, ncpus=ncpus,
+          covmat <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
+                              w=tab[!is.na(tab)], ncpus=ncpus,
                               model=model, assoc1=assoc1, assoc2=assoc2,
                               weighting=weighting, family=family, ...,
                               base=base, verbose=FALSE)$jack.vcov
@@ -127,7 +128,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
           else
               boot.weights <- NULL
 
-          boot.results <- boot::boot(1:sum(tab), boot.assoc,
+          boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc,
                                      R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
                                      args=list(model=model, assoc1=assoc1, assoc2=assoc2,
                                                weighting=weighting, family=family, ...,
@@ -169,7 +170,7 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"), ...)
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, et Becker & Clogg (1989), p. 144.
   weighting <- match.arg(weighting)
   if(weighting == "marginal")
-      p <- prop.table(margin.table(tab, 1) + margin.table(tab, 2))
+      p <- prop.table(apply(tab, 1, sum, na.rm=TRUE) + apply(tab, 2, sum, na.rm=TRUE))
   else if(weighting == "uniform")
       p <- rep(1/nrow(tab), nrow(tab))
   else

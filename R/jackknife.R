@@ -83,7 +83,7 @@ jackknife.assoc <- function(x, model, repl.verbose=FALSE, ...) {
           cat("Initial iteration\n")
   }
 
-  if(sum(tab[-x]) > 0) {
+  if(sum(tab[-x], na.rm=TRUE) > 0) {
       mat <- tab
       mat[] <- -1
       mat[x] <- 0
@@ -98,12 +98,12 @@ boot.assoc <- function(data, indices, args) {
 
   # Create a table from the indices - one index identifies an observation in the original table,
   # following the cumulative sum, from 1 to sum(tab)
-  tab[tab > 0] <- tapply(tabulate(indices, nbins=sum(tab)),
-                         rep.int(1:length(tab), tab),
-                         sum)
+  tab[!is.na(tab) & tab > 0] <- tapply(tabulate(indices, nbins=sum(tab, na.rm=TRUE)),
+                                      rep.int(1:length(tab), ifelse(is.na(tab), 0, tab)),
+                                      sum)
 
   # Basic sanity check
-  stopifnot(sum(tab) == sum(args$model$data))
+  stopifnot(sum(tab, na.rm=TRUE) == sum(args$model$data, na.rm=TRUE))
 
   # We need to pass all arguments through "args" to prevent them
   # from being catched by boot(), especially "weights"

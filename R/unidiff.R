@@ -167,11 +167,11 @@ summary.unidiff <- function(object, ...) {
 
   res <- list(call=object$call, diagonal=object$unidiff$diagonal,
               deviance.resid=residuals(object, type="deviance"),
-              chisq=sum(residuals(object, "pearson")^2),
-              dissim=sum(abs(abs(residuals(object, "response"))))/sum(abs(fitted(object)))/2,
+              chisq=sum(na.omit(c(residuals(object, "pearson")^2))),
+              dissim=sum(na.omit(c(abs(residuals(object, "response")))))/sum(na.omit(c(abs(fitted(object)))))/2,
               layer=layer, interaction=interaction,
               deviance=object$deviance, df.residual=object$df.residual,
-              bic=extractAIC(object, k=log(sum(object$data)))[2],
+              bic=extractAIC(object, k=log(sum(na.omit(c(object$data)))))[2],
               aic=extractAIC(object)[2])
 
   class(res) <- "summary.unidiff"
