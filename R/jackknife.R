@@ -200,8 +200,20 @@ find.stable.scores <- function(ass, ass.orig) {
   else
       layers <- rep(1, nl)
 
-  for(i in 1:ncol(ass$phi))
-      ret <- c(ret, scores[, i, layers], adj[, i, layers])
+  row <- scores[1:nr,,, drop=FALSE]
+  col <- scores[-(1:nr),,, drop=FALSE]
+  adjrow <- adj[1:nr,,, drop=FALSE]
+  adjcol <- adj[-(1:nr),,, drop=FALSE]
+
+  ret <- numeric(nl * nd + 2 * nl * nd * (nr + nc))
+  ret[seq(1, nd * nl)] <- t(phi)
+
+  # We replicate normalized scores for all layers even if they are homogeneous for simplicity
+  for(l in layers) {
+      int <- seq(nl * nd + 2 * (l - 1) * nd * (nr + nc) + 1,
+                 nl * nd + 2 * l * nd * (nr + nc))
+      ret[int] <- c(row[,, l], col[,, l], adjrow[,, l], adjcol[,, l])
+  }
 
   ret
 }
