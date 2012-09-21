@@ -12,28 +12,28 @@
 \usage{
 \method{plot}{rc}(x, dim = c(1, 2), what = c("both", "rows", "columns"),
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = FALSE, replicates = FALSE,
+     conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{rc.symm}(x, dim = c(1, 2),
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = FALSE, replicates = FALSE,
+     conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{hmskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
-     arrow = 45, conf.ellipses = FALSE, replicates = FALSE,
+     arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{yrcskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0),
-     arrow = 45, conf.ellipses = FALSE, replicates = FALSE,
+     arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
@@ -41,14 +41,14 @@
 \method{plot}{rcL}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"),
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = FALSE, replicates = FALSE,
+     conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{rcL.symm}(x, dim = c(1, 2), layer = 1,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = FALSE, replicates = FALSE,
+     conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
@@ -56,7 +56,7 @@
 \method{plot}{hmskewL}(x, dim = c(1, 2), layer = 1,
      what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
-     arrow=45, conf.ellipses = FALSE, replicates = FALSE,
+     arrow=45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
@@ -64,7 +64,7 @@
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"),
      mass = TRUE, luminosity = length(x$diagonal > 0),
-     arrow = NULL, conf.ellipses = FALSE, replicates = FALSE,
+     arrow = NULL, conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
@@ -88,8 +88,9 @@
                     as a linear function of the diagonal parameter values.}
   \item{arrow}{Numeric value indicating the angle at which the polar coordinates system arrow should be plotted;
                use NULL for no arrow.}
-  \item{conf.ellipses}{whether to plot 95% confidence ellipses around the points (see \dQuote{Details} below);
-                       only possible if jackknife or bootstrap was enabled when fitting the model.}
+  \item{conf.ellipses}{an integer between 0 and 1 giving the confidence level to use when drawing error ellipses
+                       around the points (see \dQuote{Details} below); by default nothing is plotted. Only possible
+                       if jackknife or bootstrap was enabled when fitting the model.}
   \item{replicates}{whether to plot points representing the values of the scores obtained for all of the
                     jackknife of bootrap replicates, when applicable (see \dQuote{Details} below).}
   \item{coords}{whether to use a Cartesian or a polar coordinate system; the former makes sense when axes
@@ -168,8 +169,8 @@
   data(gss8590)
   model <- rc(margin.table(gss8590[,,c(2,4)], 1:2),
               nd=2, weighting="none", se="jackknife")
-  plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
-  plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=TRUE)
+  plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.ellipses=0.95)
+  plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=0.95)
 
   ## Wong (2010), Figures 4.1 and 4.2 (p. 108-109)
   data(gss7590)

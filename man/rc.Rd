@@ -256,7 +256,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
                                   -0.137, -0.549, -0.120, -0.01, 0.816))))
   }
 
-  plot(model, conf.ellipses=TRUE)
+  plot(model, conf.ellipses=0.95)
 }
 
 \keyword{ models }
