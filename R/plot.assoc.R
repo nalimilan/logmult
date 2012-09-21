@@ -218,6 +218,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(conf.ellipses && (x$covtype == "none" || length(x$covmat) == 0))
       stop("Cannot plot confidence ellipses on a model without jackknife or bootstrap standard errors")
 
+
+  if(conf.ellipses && !require("ellipse"))
+      stop("Package 'ellipse' is required to plot confidence ellipses.")
+
   if(replicates && (x$covtype == "none" || length(x$covmat) == 0))
       stop("Cannot plot points for replicates on a model without jackknife or bootstrap standard errors")
 
@@ -355,8 +359,6 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
 
   if(conf.ellipses) {
-      library(ellipse)
-
       i <- 0
 
       if(what %in% c("rows", "both")) {
