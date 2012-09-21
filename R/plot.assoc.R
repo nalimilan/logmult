@@ -1,8 +1,8 @@
 plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
                     mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
-                    conf.ellipses=FALSE, coords=c("cartesian", "polar"),
-                    rev.axes=c(FALSE, FALSE), cex=par("cex"),
-                    col=c("blue", "red"), groups=NULL,
+                    conf.ellipses=FALSE, replicates=FALSE,
+                    coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
+                    cex=par("cex"), col=c("blue", "red"), groups=NULL,
                     xlim, ylim, asp, xlab, ylab, main, ...) {
   what <- match.arg(what)
   coords <- match.arg(coords)
@@ -14,16 +14,16 @@ plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
       stop("x must contain an association component")
 
   plot.assoc(x$assoc, dim=dim, what=what, mass=mass, luminosity=luminosity,
-             arrow=NULL, conf.ellipses=conf.ellipses, coords=coords,
-             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
+             coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 plot.rc.symm <- function(x, dim=c(1, 2),
                          mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
-                         conf.ellipses=FALSE, coords=c("cartesian", "polar"),
-                         rev.axes=c(FALSE, FALSE), cex=par("cex"),
-                         col="blue", groups=NULL,
+                         conf.ellipses=FALSE, replicates=FALSE,
+                         coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
+                         cex=par("cex"), col="blue", groups=NULL,
                          xlim, ylim, asp, xlab, ylab, main, ...) {
   coords <- match.arg(coords)
 
@@ -34,16 +34,17 @@ plot.rc.symm <- function(x, dim=c(1, 2),
       stop("x must contain an association component")
 
   plot.assoc(x$assoc, dim=dim, what="rows", mass=mass, luminosity=luminosity,
-             arrow=NULL, conf.ellipses=conf.ellipses, coords=coords,
-             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
+             coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
                         mass=TRUE, luminosity=length(x$assoc.hmskew$diagonal > 0), arrow=45,
-                        conf.ellipses=FALSE, coords=c("polar", "cartesian"),
-                        rev.axes = c(FALSE, FALSE), cex=par("cex"), col="blue",
-                        groups=NULL, xlim, ylim, asp, xlab, ylab, main, ...) {
+                        conf.ellipses=FALSE, replicates=FALSE,
+                        coords=c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
+                        cex=par("cex"), col="blue", groups=NULL,
+                        xlim, ylim, asp, xlab, ylab, main, ...) {
   if(!inherits(x, "hmskew"))
       stop("x must be a hmskew object")
 
@@ -66,16 +67,17 @@ plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
       ylab <- ""
 
   plot.assoc(ass, dim=dim, what="rows", mass=mass, luminosity=luminosity,
-             arrow=arrow, conf.ellipses=conf.ellipses, coords=coords,
-             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
+             coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
                          mass=TRUE, luminosity=length(x$assoc.yrcskew$diagonal > 0), arrow=45,
-                         conf.ellipses=FALSE, coords=c("polar", "cartesian"),
-                         rev.axes = c(FALSE, FALSE), cex=par("cex"), col="blue",
-                         groups=NULL, xlim, ylim, asp, xlab, ylab, main, ...) {
+                         conf.ellipses=FALSE, replicates=FALSE,
+                         coords=c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
+                         cex=par("cex"), col="blue", groups=NULL,
+                         xlim, ylim, asp, xlab, ylab, main, ...) {
   if(!inherits(x, "yrcskew"))
       stop("x must be a yrcskew object")
 
@@ -97,16 +99,16 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
       ylab <- ""
 
   plot.assoc(ass, dim=dim, what="rows", mass=mass, luminosity=luminosity,
-             arrow=arrow, conf.ellipses=conf.ellipses, coords=coords,
-             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
+             coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
                     mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
-                    conf.ellipses=FALSE, coords=c("cartesian", "polar"),
-                    rev.axes=c(FALSE, FALSE), cex=par("cex"),
-                    col=c("blue", "red"), groups=NULL,
+                    conf.ellipses=FALSE, replicates=FALSE,
+                    coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
+                    cex=par("cex"), col=c("blue", "red"), groups=NULL,
                     xlim, ylim, asp, xlab, ylab, main, ...) {
   what <- match.arg(what)
   coords <- match.arg(coords)
@@ -118,16 +120,16 @@ plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
       stop("x must contain an association component")
 
   plot.assoc(x$assoc, dim=dim, layer=layer, what=what, mass=mass, luminosity=luminosity,
-             arrow=NULL, conf.ellipses=conf.ellipses, coords=coords,
-             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
+             coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 plot.rcL.symm <- function(x, dim=c(1, 2), layer=1,
                           mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
-                          conf.ellipses=FALSE, coords=c("cartesian", "polar"),
-                          rev.axes=c(FALSE, FALSE), cex=par("cex"),
-                          col="blue", groups=NULL,
+                          conf.ellipses=FALSE, replicates=FALSE,
+                          coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
+                          cex=par("cex"), col="blue", groups=NULL,
                           xlim, ylim, asp, xlab, ylab, main, ...) {
   coords <- match.arg(coords)
 
@@ -138,17 +140,18 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer=1,
       stop("x must contain an association component")
 
   plot.assoc(x$assoc, dim=dim, layer=layer, what="rows", mass=mass, luminosity=luminosity,
-             arrow=NULL, conf.ellipses=conf.ellipses, coords=coords,
-             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
+             coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 
 plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symmetric"),
                          mass=TRUE, luminosity=length(x$assoc.hmskew$diagonal > 0), arrow=45,
-                         conf.ellipses=FALSE, coords=c("polar", "cartesian"),
-                         rev.axes = c(FALSE, FALSE), cex=par("cex"), col="blue",
-                         groups=NULL, xlim, ylim, asp, xlab, ylab, main, ...) {
+                         conf.ellipses=FALSE, replicates=FALSE,
+                         coords=c("polar", "cartesian"), rev.axes=c(FALSE, FALSE),
+                         cex=par("cex"), col="blue", groups=NULL,
+                         xlim, ylim, asp, xlab, ylab, main, ...) {
   if(!inherits(x, "hmskewL"))
       stop("x must be a hmskewL object")
 
@@ -171,16 +174,17 @@ plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symm
       ylab <- ""
 
   plot.assoc(ass, dim=dim, layer=layer, what="rows", mass=mass, luminosity=luminosity,
-             arrow=arrow, conf.ellipses=conf.ellipses, coords=coords,
-             rev.axes=rev.axes, cex=cex, col=col, groups=groups,
+             arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
+             coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
                        mass=TRUE, luminosity=length(x$diagonal > 0), arrow=NULL,
-                       conf.ellipses=FALSE, coords=c("cartesian", "polar"),
-                       rev.axes=c(FALSE, FALSE), cex=par("cex"), col=c("blue", "red"),
-                       groups=NULL, xlim, ylim, asp, xlab, ylab, main, ...) {
+                       conf.ellipses=FALSE, replicates=FALSE,
+                       coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
+                       cex=par("cex"), col=c("blue", "red"), groups=NULL,
+                       xlim, ylim, asp, xlab, ylab, main, ...) {
   if(!(inherits(x, "assoc")))
       stop("x must be an assoc object")
 
@@ -206,14 +210,19 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   nd <- ncol(x$row)
   nl <- nrow(x$phi)
+  nr <- nrow(x$row)
+  nc <- nrow(x$col)
 
   rev.axes <- rep(rev.axes, length.out=2)
 
   if(conf.ellipses && (x$covtype == "none" || length(x$covmat) == 0))
-      stop("Cannot plot confidence ellipses on a model without jackknife standard errors")
+      stop("Cannot plot confidence ellipses on a model without jackknife or bootstrap standard errors")
+
+  if(replicates && (x$covtype == "none" || length(x$covmat) == 0))
+      stop("Cannot plot points for replicates on a model without jackknife or bootstrap standard errors")
 
   if(conf.ellipses && (nrow(x$covmat) != ncol(x$covmat) ||
-                       nrow(x$covmat) != nl * nd + 2 * nl * nd * (nrow(x$row) + nrow(x$col))))
+                       nrow(x$covmat) != nl * nd + 2 * nl * nd * (nr + nc)))
       stop("Covariance matrix dimensions do not match association structure")
 
   what <- match.arg(what)
@@ -259,23 +268,25 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
        p <- c(x$row.weights, x$col.weights)
 
        if(length(col) == 2)
-           col <- c(rep(col[1], nrow(x$row)), rep(col[2], nrow(x$col)))
+           col <- c(rep(col[1], nr), rep(col[2], nr))
 
        if(length(groups) == 0)
-           groups <- c(rep(2, nrow(x$row)), rep(1, nrow(x$col)))
+           groups <- c(rep(2, nr), rep(1, nr))
   }
+
+  nsc <- nrow(sc)
 
   if(length(col) == 0)
       col <- "black"
 
-  if(length(groups) != nrow(sc))
-      groups <- rep(groups, length=nrow(sc))
+  if(length(groups) != nsc)
+      groups <- rep(groups, length=nsc)
 
-  if(length(col) != nrow(sc))
-      col <- rep(col, length=nrow(sc))
+  if(length(col) != nsc)
+      col <- rep(col, length=nsc)
 
-  if(length(cex) != nrow(sc))
-      cex <- rep(cex, length=nrow(sc))
+  if(length(cex) != nsc)
+      cex <- rep(cex, length=nsc)
 
   # Integrate phi to scores for graphical representation
   # Cf. Wong (2010), eq. 2.17 and 2.38, or Clogg & Shihadeh (1994), p. 91
@@ -288,7 +299,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       if(what == "columns")
           sc[,dim] <- sweep(sc[,dim], 2, sign(x$phi[dim]), "*")
       else if(what == "both")
-          sc[-(1:nrow(x$row)),dim] <- sweep(sc[-(1:nrow(x$row)),dim], 2, sign(x$phi[dim]), "*")
+          sc[-(1:nr),dim] <- sweep(sc[-(1:nr),dim], 2, sign(x$phi[dim]), "*")
 
       # For printing below
       x$phi[dim] <- abs(x$phi[dim])
@@ -346,9 +357,6 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(conf.ellipses) {
       library(ellipse)
 
-      nr <- nrow(x$row)
-      nc <- nrow(x$col)
-
       i <- 0
 
       if(what %in% c("rows", "both")) {
@@ -368,6 +376,44 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       }
   }
 
+  if(replicates) {
+      nt <- if(what == "both") nr + nc
+            else if(what == "rows") nr
+            else nc
+
+      if(length(x$boot.results) > 0)
+          pts <- x$boot.results$t
+      else if(length(x$boot.results) > 0)
+          pts <- x$jack.results$values
+      else stop() # Handled at the top
+
+      npts <- nrow(pts)
+
+      i <- 0
+
+      if(what %in% c("rows", "both")) {
+          start <- nd + layer * nd * (nr + nc) + 1 + c((dim[1] - 1) * nr, ((dim[2] - 1) * nr))
+
+          points(pts[, seq.int(start[1], start[1] + nr - 1)],
+                 pts[, seq.int(start[2], start[2] + nr - 1)],
+                 pch=rep(rep(1:18, length.out=nt)[1:nr], each=npts),
+                 col=rep(rainbow(nt, alpha=0.5)[1:nr], each=npts),
+                 cex=0.5)
+
+          i <- nr
+      }
+
+      if(what %in% c("columns", "both")) {
+          start <- nd + layer * nd * (nr + nc) + nd * nr + 1 + c((dim[1] - 1) * nc, (dim[2] - 1) * nc)
+
+          points(pts[, seq.int(start[1], start[1] + nc - 1)],
+                 pts[, seq.int(start[2], start[2] + nc - 1)],
+                 pch=rep(rep(1:18, length.out=nt)[i:(i + nr)], each=npts),
+                 col=rep(rainbow(nt, alpha=0.5)[i + 1:nr], each=npts),
+                 cex=0.5)
+      }
+  }
+
   if(length(arrow) > 0) {
       if(is.na(arrow))
           arrow <- 45
@@ -379,7 +425,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   # If no diagonal-specific parameters are present, we use the association of the point to itself
   dg <- x$diagonal
   if(length(dg) == 0)
-      dg <- rep(0, nrow(sc))
+      dg <- rep(0, nsc)
 
   dg <- dg + sqrt(sc[,dim[1]]^2 + sc[,dim[2]]^2)
 
@@ -402,7 +448,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       pch <- rep(c(21, 24, 22, 23, 25), length.out=8)[groups]
 
   if(is.null(col))
-      col <- rep("black", length.out=nrow(sc))
+      col <- rep("black", length.out=nsc)
 
   if(luminosity) {
       col <- rgb2hsv(col2rgb(col))

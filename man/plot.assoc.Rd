@@ -12,61 +12,61 @@
 \usage{
 \method{plot}{rc}(x, dim = c(1, 2), what = c("both", "rows", "columns"),
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = FALSE, coords = c("cartesian", "polar"),
-     rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = c("blue", "red"), groups = NULL,
+     conf.ellipses = FALSE, replicates = FALSE,
+     coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
+     cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{rc.symm}(x, dim = c(1, 2),
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = FALSE, coords = c("cartesian", "polar"),
-     rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = "blue", groups = NULL,
+     conf.ellipses = FALSE, replicates = FALSE,
+     coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
+     cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{hmskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
-     arrow = 45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
-     rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = "blue", groups = NULL,
+     arrow = 45, conf.ellipses = FALSE, replicates = FALSE,
+     coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
+     cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{yrcskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0),
-     arrow = 45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
-     rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = "blue", groups = NULL,
+     arrow = 45, conf.ellipses = FALSE, replicates = FALSE,
+     coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
+     cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{rcL}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"),
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = FALSE, coords = c("cartesian", "polar"),
-     rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = c("blue", "red"), groups = NULL,
+     conf.ellipses = FALSE, replicates = FALSE,
+     coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
+     cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{rcL.symm}(x, dim = c(1, 2), layer = 1,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = FALSE, coords = c("cartesian", "polar"),
-     rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = "blue", groups = NULL,
+     conf.ellipses = FALSE, replicates = FALSE,
+     coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
+     cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{hmskewL}(x, dim = c(1, 2), layer = 1,
      what = c("skew-symmetric", "symmetric"),
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
-     arrow=45, conf.ellipses = FALSE, coords = c("polar", "cartesian"),
-     rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = "blue", groups = NULL,
+     arrow=45, conf.ellipses = FALSE, replicates = FALSE,
+     coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
+     cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"),
      mass = TRUE, luminosity = length(x$diagonal > 0),
-     arrow = NULL, conf.ellipses = FALSE, coords = c("cartesian", "polar"),
-     rev.axes = c(FALSE, FALSE), cex = par("cex"),
-     col = c("blue", "red"), groups = NULL,
+     arrow = NULL, conf.ellipses = FALSE, replicates = FALSE,
+     coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
+     cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 }
 \arguments{
@@ -88,8 +88,10 @@
                     as a linear function of the diagonal parameter values.}
   \item{arrow}{Numeric value indicating the angle at which the polar coordinates system arrow should be plotted;
                use NULL for no arrow.}
-  \item{conf.ellipses}{whether to plot 95% confidence ellipses around the points; this is only possible if
-                       standard errors were computed when fitting the model.}
+  \item{conf.ellipses}{whether to plot 95% confidence ellipses around the points (see \dQuote{Details} below);
+                       only possible if jackknife or bootstrap was enabled when fitting the model.}
+  \item{replicates}{whether to plot points representing the values of the scores obtained for all of the
+                    jackknife of bootrap replicates, when applicable (see \dQuote{Details} below).}
   \item{coords}{whether to use a Cartesian or a polar coordinate system; the former makes sense when axes
                 offer an interpretation (like in RC(M) models), while the latter are more appropriate when
                 only the angle and distance to origin are of interest (like in \code{hmskew} models).}
@@ -123,10 +125,19 @@
 
   Various convenience options are provided, with reasonable defaults for each model family. In particular,
   you may find it necessary to adapt the \code{cex}, \code{mass}, \code{luminosity} and \code{groups} arguments
-  depening on the number of categories to be plotted and to their respective weights. When plotting a RC(2) model,
+  depending on the number of categories to be plotted and to their respective weights. When plotting a RC(2) model,
   a polar coordinate system can be of substantive interest, allowing to interpret at a glance the distance to
   origin as the general strength of the association for a category on both axes (a property that is lost for
   higher-dimensional models).
+
+  Confidence ellipses are computed from the scores' variances and covariances, based on the assumption that they are
+  follow a normal distribution, even if standard errors are computed using jackknife or bootstrap. This normality
+  assumption can be visually assessed using the \code{replicates} argument to check whether points globally follow the
+  shape of the ellipses. For more detail, \code{link[boot]{plot.boot}} can be called on the \code{boot.results}
+  component of the \code{assoc} object of the models (not supported for jackknife). Checking the position of
+  points in all replicates is generally good idea to ensure no dramatic outliers exist, which could indicate some
+  replicates converged to a non optimal solution: if it happens, reduce the value of \code{iterMax} when fitting
+  models to avoid this problem.
 
   The \code{plot.assoc} function is called internally by all others, and may be leveraged for advanced use cases,
   like plotting custom models that do not correspond stricly to the supported types.
@@ -150,7 +161,8 @@
     of asymmetry in a square contingency table. \emph{Sociol. Methods and Research} 24, 7-29.
 
 }
-\seealso{\code{\link{rc}}, \code{\link{hmskew}}, \code{\link{yrcskew}}}
+\seealso{\code{\link{rc}}, \code{\link{rcL}}, \code{\link{rcL.trans}}, \code{\link{hmskew}},
+         \code{\link{hmskewL}}, \code{\link{yrcskew}}}
 \examples{
   ## Wong (2010), Figures 2.2 and 2.1 (p. 50-51)
   data(gss8590)
