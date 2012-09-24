@@ -36,7 +36,7 @@ class(RCTransSymm) <- "nonlin"
 
 rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                       weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
-                      nreplicates=50, ncpus=getOption("boot.ncpus", if(require(parallel)) min(parallel::detectCores(), 4) else 1),
+                      nreplicates=100, ncpus=getOption("boot.ncpus"),
                       family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
                       trace=TRUE, verbose=TRUE, ...) {
   diagonal <- match.arg(diagonal)
@@ -148,52 +148,20 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
   model$assoc <- assoc(model, weighting=weighting)
 
 
-  if(se %in% c("jackknife", "bootstrap")) {
-      cat("Computing", se, "standard errors...\n")
-
-      if(is.null(ncpus))
-          ncpus <- if(require(parallel)) min(parallel::detectCores(), 5) else 1
-
-      if(se == "jackknife") {
-          model$assoc$covmat <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
-                                          w=tab[!is.na(tab)], ncpus=ncpus,
-                                          model=model, assoc1=getS3method("assoc", class(model)), assoc2=NULL,
-                                          weighting=weighting, family=family, weights=weights, ...,
-                                          base=if(!is.null(base2)) base2 else base,
-                                          verbose=FALSE)$jack.vcov
-
-          model$assoc$boot.results <- numeric(0)
-      }
-      else {
-          if(!is.null(weights))
-              boot.weights <- rep.int(weights, tab)
-          else
-              boot.weights <- NULL
-
-          model$assoc$boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc,
-                                                 R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
-                                                 args=list(model=model, assoc1=getS3method("assoc", class(model)),
-                                                           assoc2=NULL, weighting=weighting, family=family,
-                                                           weights=weights, ..., base=base))
-
-          model$assoc$covmat <- cov(model$assoc$boot.results$t, use="na.or.complete")
-      }
-
-      scnames <- t(outer(paste(vars[3], ".", dimnames(tab)[[3]], sep=""),
-                         c(t(outer(paste("D", 1:nd, " ", vars[1], ".", sep=""), rownames(tab), paste, sep="")),
-                           t(outer(paste("D", 1:nd, " ", vars[2], ".", sep=""), colnames(tab), paste, sep=""))),
-                         paste))
-      rownames(model$assoc$covmat) <- colnames(model$assoc$covmat) <-
-          c(t(outer(paste(vars[3], dimnames(tab)[[3]], sep=""), paste("Dim", 1:nd, sep=""), paste)),
-              scnames, paste(scnames, "*", sep=""))
-
-      model$assoc$covtype <- se
+ if(se %in% c("jackknife", "bootstrap")) {
+      jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, NULL,
+                     weighting, family, weights, base, ...)
+      model$assoc$covmat <- jb$covmat
+      model$assoc$boot.results <- jb$boot.results
+      model$assoc$jack.results <- jb$jack.results
   }
   else {
-      model$assoc$boot.results <- numeric(0)
       model$assoc$covmat <- numeric(0)
-      model$assoc$covtype <- "none"
+      model$assoc$boot.results <- numeric(0)
+      model$assoc$jack.results <- numeric(0)
   }
+
+  model$assoc$covtype <- se
 
   model
 }

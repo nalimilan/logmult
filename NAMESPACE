@@ -19,6 +19,7 @@ S3method(se, rc)
 S3method(se, hmskew)
 S3method(se, yrcskew)
 S3method(se, rcL)
+S3method(se, hmskewL)
 
 S3method(print, unidiff)
 S3method(print, rc)

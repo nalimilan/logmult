@@ -12,7 +12,7 @@
 yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
         weighting = c("marginal", "uniform", "none"),
         se = c("none", "jackknife", "bootstrap"),
-        nreplicates = 50, ncpus = getOption("boot.ncpus"),
+        nreplicates = 100, ncpus = getOption("boot.ncpus"),
         family = poisson, weights = NULL,
         start = NA, etastart = NULL, tolerance = 1e-6,
         iterMax = 15000, trace = TRUE, verbose = TRUE, ...)
@@ -75,7 +75,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
-  of scores even with several dimensions, computation of their jackknife standard errors, and plotting.
+  of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
   The default starting values correspond to the parameters computed for the model without association
   parameters (\dQuote{base model}); association parameters start with random starting values. In some complex
   cases, using \code{start = NA} to get completely random starting values can be more efficient, but it is also
@@ -95,10 +95,10 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
     \code{weighting} argument.}
   \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{se}
-    was set. It contains first phi coefficients, then normalized row and column scores, then
-    sqrt(phi) * row/column scores.}
-  \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only
-    \dQuote{jackknife} is supported.}
+    was not \dQuote{none}. It contains first phi coefficients, then normalized row and column scores,
+    then adjusted row and column scores.}
+  \item{covtype }{The method used to compute the variance-covariance matrix (corresponding to the
+    \code{se} argument.}
 }
 \section{Warning}{
   This family of model sometimes converges to a non-optimal solution, in which case the reported scores

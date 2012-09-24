@@ -301,6 +301,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   # If phi is negative, change sign of columns so that the interpretation
   # is consistent with positive phi
   # This does not make sense for symmetric association
+  # find.stable.scores() and find.stable.scores.hmskew() do the same and wee need to be consistent
   if(!inherits(x, "assoc.symm")) {
       if(what == "columns")
           sc[,dim] <- sweep(sc[,dim], 2, sign(x$phi[dim]), "*")
@@ -389,7 +390,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
       if(length(x$boot.results) > 0)
           pts <- x$boot.results$t
-      else if(length(x$boot.results) > 0)
+      else if(length(x$jack.results) > 0)
           pts <- x$jack.results$values
       else stop() # Handled at the top
 
@@ -398,7 +399,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       i <- 0
 
       if(what %in% c("rows", "both")) {
-          start <- nd + layer * nd * (nr + nc) + 1 + c((dim[1] - 1) * nr, ((dim[2] - 1) * nr))
+          start <- nl * nd + nl * nd * (nr + nc) +
+                   (layer - 1) * nd * (nr + nc) + c((dim[1] - 1) * nr, ((dim[2] - 1) * nr)) + 1
 
           points(pts[, seq.int(start[1], start[1] + nr - 1)],
                  pts[, seq.int(start[2], start[2] + nr - 1)],
@@ -410,7 +412,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       }
 
       if(what %in% c("columns", "both")) {
-          start <- nd + layer * nd * (nr + nc) + nd * nr + 1 + c((dim[1] - 1) * nc, (dim[2] - 1) * nc)
+          start <- nl * nd + nl * nd * (nr + nc) +
+                   (layer - 1) * nd * (nr + nc) + nd * nr + c((dim[1] - 1) * nc, (dim[2] - 1) * nc) + 1
 
           points(pts[, seq.int(start[1], start[1] + nc - 1)],
                  pts[, seq.int(start[2], start[2] + nc - 1)],

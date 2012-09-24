@@ -4,7 +4,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                     layer.effect.symm=c("uniform", "homogeneous.scores", "heterogeneous", "none"),
                     diagonal=c("none", "heterogeneous", "homogeneous"),
                     weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
-                    nreplicates=50, ncpus=getOption("boot.ncpus", if(require(parallel)) min(parallel::detectCores(), 4) else 1),
+                    nreplicates=100, ncpus=getOption("boot.ncpus"),
                     family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-6, iterMax=5000,
                     trace=TRUE, verbose=TRUE, ...) {
   layer.effect.skew <- match.arg(layer.effect.skew)
@@ -211,85 +211,79 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   model$call <- match.call()
 
-  if(is.na(nd.symm))
-      model$assoc <- NULL
-  else if(layer.effect.symm == "none")
+  if(is.na(nd.symm)) {
+      assoc1 <- NULL
+  }
+  else if(layer.effect.symm == "none") {
       model$assoc <- assoc.rc.symm(model, weighting=weighting)
-  else
+      assoc1 <- assoc.rc.symm
+  }
+  else {
       model$assoc <- assoc.rcL.symm(model, weighting=weighting)
+      assoc1 <- assoc.rcL.symm
+  }
 
   if(!is.null(model$assoc))
-      class(model$assoc) <- c("assoc.rcL", "assoc")
+      class(model$assoc) <- c("assoc.rcL", "assoc.symm", "assoc")
 
+  assoc2 <- NULL
 
-  if(layer.effect.skew == "none")
+  if(layer.effect.skew == "none") {
       model$assoc.hmskew <- assoc.hmskew(model, weighting=weighting)
-  else
+
+      if(is.null(assoc1))
+          assoc1 <- assoc.hmskew
+      else
+          assoc2 <- assoc.hmskew
+  }
+  else {
       model$assoc.hmskew <- assoc.hmskewL(model, weighting=weighting)
 
-  class(model$assoc.hmskew) <-  c("assoc.hmskewL", "assoc")
+      if(is.null(assoc1))
+          assoc1 <- assoc.hmskewL
+      else
+          assoc2 <- assoc.hmskewL
+  }
+
+  class(model$assoc.hmskew) <-  c("assoc.hmskewL", "assoc.symm", "assoc")
 
 
   if(se %in% c("jackknife", "bootstrap")) {
-      cat("Computing", se, "standard errors...\n")
-
-      if(is.null(ncpus))
-          ncpus <- if(require(parallel)) min(parallel::detectCores(), 5) else 1
-
-      assoc1 <- if(is.na(nd.symm)) assoc.hmskewL
-                else if(!is.na(nd.symm) && layer.effect.symm == "none") assoc.rc.symm
-                else assoc.rcL.symm
-      assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskewL
-
-      if(se == "jackknife") {
-          covmat <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
-                              w=tab[!is.na(tab)], ncpus=ncpus,
-                              model=model, assoc1=assoc1, assoc2=assoc2,
-                              weighting=weighting, family=family, ...,
-                              base=if(!is.null(base2)) base2 else base, verbose=FALSE)$jack.vcov
-
-          boot.results <- numeric(0)
-      }
-      else {
-          if(!is.null(weights))
-              boot.weights <- rep.int(weights, tab)
-          else
-              boot.weights <- NULL
-
-          boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc,
-                                     R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
-                                     args=list(model=model, assoc1=assoc1, assoc2=assoc2,
-                                               weighting=weighting, family=family, ...,
-                                               weights=weights, base=if(!is.null(base2)) base2 else base))
-
-          covmat <- cov(boot.results$t, use="na.or.complete")
-      }
-
+      jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
+                     weighting, family, weights,
+                     if(!is.null(base) && !is.null(base2)) base2
+                     else if(!is.null(base)) base
+                     else NULL, ...)
       if(!is.na(nd.symm)) {
-          if(layer.effect.symm == "heterogeneous")
-              lim <- nd.symm * dim(tab)[3] + nd.symm * nrow(tab) * dim(tab)[3] + nd.symm * ncol(tab) * dim(tab)[3]
-          else if(layer.effect.symm == "homogeneous.scores")
-              lim <- nd.symm * dim(tab)[3] + nd.symm * nrow(tab) + nd.symm * ncol(tab)
-          else if(layer.effect.symm == "none")
-              lim <- nd.symm + nd.symm * nrow(tab) + nd.symm * ncol(tab)
-          else # "uniform", handled at the top of the function
-              stop()
-
-          model$assoc$boot.results <- boot.results
-          model$assoc$covmat <- covmat[1:lim, 1:lim]
           model$assoc$covtype <- se
+          model$assoc$covmat <- jb$covmat1
+          model$assoc$jack.results <- jb$jack.results1
+          model$assoc$boot.results <- jb$boot.results1
+
+          model$assoc.hmskew$covtype <- se
+          model$assoc.hmskew$covmat <- jb$covmat2
+          model$assoc.hmskew$jack.results <- jb$jack.results2
+          model$assoc.hmskew$boot.results <- jb$boot.results2
       }
       else {
-          lim <- 0
+          model$assoc.hmskew$covtype <- se
+          model$assoc.hmskew$covmat <- jb$covmat1
+          model$assoc.hmskew$jack.results <- jb$jack.results1
+          model$assoc.hmskew$boot.results <- jb$boot.results1
       }
-
-      model$assoc.hmskew$covmat <- covmat[seq(lim + 1, nrow(covmat)), seq(lim + 1, ncol(covmat))]
-      model$assoc.hmskew$covtype <- se
   }
   else {
-      model$assoc$boot.results <- numeric(0)
-      model$assoc$covmat <- numeric(0)
-      model$assoc$covtype <- "none"
+      if(!is.na(nd.symm)) {
+          model$assoc$covtype <- se
+          model$assoc$covmat <- numeric(0)
+          model$assoc$boot.results <- numeric(0)
+          model$assoc$jack.results <- numeric(0)
+      }
+
+      model$assoc.hmskew$covtype <- se
+      model$assoc.hmskew$covmat <- numeric(0)
+      model$assoc.hmskew$boot.results <- numeric(0)
+      model$assoc.hmskew$jack.results <- numeric(0)
   }
 
   model
@@ -436,6 +430,6 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
   obj <- list(phi = layer, row = sc, col = sc, diagonal = dg,
               weighting = weighting, row.weights = p, col.weights = p)
 
-  class(obj) <- c("assoc.hmskewL", "assoc")
+  class(obj) <- c("assoc.hmskewL", "assoc.symm", "assoc")
   obj
 }

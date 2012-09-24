@@ -14,7 +14,7 @@ class(HMSkew) <- "nonlin"
 
 hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
                    weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
-                   nreplicates=50, ncpus=getOption("boot.ncpus", if(require(parallel)) min(parallel::detectCores(), 4) else 1),
+                   nreplicates=100, ncpus=getOption("boot.ncpus"),
                    family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-6, iterMax=15000,
                    trace=TRUE, verbose=TRUE, ...) {
   weighting <- match.arg(weighting)
@@ -95,7 +95,6 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       class(model) <- c("hmskew", "rc.symm", "rc", "assocmod", class(model))
   }
   else {
-      model$assoc <- list()
       class(model) <- c("hmskew", "assocmod", class(model))
   }
 
@@ -105,55 +104,42 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
 
   if(se %in% c("jackknife", "bootstrap")) {
-      cat("Computing", se, "standard errors...\n")
-
-      if(is.null(ncpus))
-          ncpus <- if(require(parallel)) min(parallel::detectCores(), 5) else 1
-
       assoc1 <- if(is.na(nd.symm)) assoc.hmskew else assoc.rc.symm
-      assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskew
+      assoc2 <- if(!is.na(nd.symm)) NULL else assoc.hmskew
 
-      if(se == "jackknife") {
-          covmat <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
-                              w=tab[!is.na(tab)], ncpus=ncpus,
-                              model=model, assoc1=assoc1, assoc2=assoc2,
-                              weighting=weighting, family=family, ...,
-                              base=base, verbose=FALSE)$jack.vcov
-
-          boot.results <- numeric(0)
-      }
-      else {
-          if(!is.null(weights))
-              boot.weights <- rep.int(weights, tab)
-          else
-              boot.weights <- NULL
-
-          boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc,
-                                     R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
-                                     args=list(model=model, assoc1=assoc1, assoc2=assoc2,
-                                               weighting=weighting, family=family, ...,
-                                               weights=weights, base=base))
-
-          covmat <- cov(boot.results$t, use="na.or.complete")
-      }
+      jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
+                     weighting, family, weights, base, ...)
 
       if(!is.na(nd.symm)) {
-          lim <- nd.symm + nd.symm * nrow(tab) + nd.symm * ncol(tab)
-          model$assoc$boot.results <- boot.results
-          model$assoc$covmat <- covmat[1:lim, 1:lim]
           model$assoc$covtype <- se
+          model$assoc$covmat <- jb$covmat1
+          model$assoc$jack.results <- jb$jack.results1
+          model$assoc$boot.results <- jb$boot.results1
+
+          model$assoc.hmskew$covtype <- se
+          model$assoc.hmskew$covmat <- jb$covmat2
+          model$assoc.hmskew$jack.results <- jb$jack.results2
+          model$assoc.hmskew$boot.results <- jb$boot.results2
       }
       else {
-          lim <- 0
+          model$assoc.hmskew$covtype <- se
+          model$assoc.hmskew$covmat <- jb$covmat1
+          model$assoc.hmskew$jack.results <- jb$jack.results1
+          model$assoc.hmskew$boot.results <- jb$boot.results1
       }
-
-      model$assoc.hmskew$covmat <- covmat[seq(lim + 1, nrow(covmat)), seq(lim + 1, ncol(covmat))]
-      model$assoc.hmskew$covtype <- se
   }
   else {
-      model$assoc$boot.results <- numeric(0)
-      model$assoc$covmat <- numeric(0)
-      model$assoc$covtype <- "none"
+      if(!is.na(nd.symm)) {
+          model$assoc$covtype <- se
+          model$assoc$covmat <- numeric(0)
+          model$assoc$boot.results <- numeric(0)
+          model$assoc$jack.results <- numeric(0)
+      }
+
+      model$assoc.hmskew$covtype <- se
+      model$assoc.hmskew$covmat <- numeric(0)
+      model$assoc.hmskew$boot.results <- numeric(0)
+      model$assoc.hmskew$jack.results <- numeric(0)
   }
 
   model

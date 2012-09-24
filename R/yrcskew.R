@@ -15,7 +15,7 @@ class(YRCSkew) <- "nonlin"
 
 yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                     weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
-                    nreplicates=50, ncpus=getOption("boot.ncpus", if(require(parallel)) min(parallel::detectCores(), 4) else 1),
+                    nreplicates=100, ncpus=getOption("boot.ncpus"),
                     family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-6, iterMax=15000,
                     trace=TRUE, verbose=TRUE, ...) {
   weighting <- match.arg(weighting)
@@ -124,58 +124,42 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
 
   if(se %in% c("jackknife", "bootstrap")) {
-      cat("Computing", se, "standard errors...\n")
-
-      if(is.null(ncpus))
-          ncpus <- if(require(parallel)) min(parallel::detectCores(), 5)
-                   else if(require(snow)) min(snow::detectCores(), 5)
-                   else 1
-
       assoc1 <- if(is.na(nd.symm)) assoc.yrcskew else assoc.rc.symm
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.yrcskew
 
-      if(se == "jackknife") {
-          covmat <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
-                              w=tab[!is.na(tab)], ncpus=ncpus,
-                              model=model, assoc1=assoc1, assoc2=assoc2,
-                              weighting=weighting, family=family, ...,
-                              base=base, verbose=FALSE)$jack.vcov
-
-          boot.results <- numeric(0)
-      }
-      else {
-          if(!is.null(weights))
-              boot.weights <- rep.int(weights, tab)
-          else
-              boot.weights <- NULL
-
-          boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc,
-                                     R=nreplicates, ncpus=ncpus, parallel="snow", weights=boot.weights,
-                                     args=list(model=model, assoc1=assoc1, assoc2=assoc2,
-                                               weighting=weighting, family=family, ...,
-                                               weights=weights, base=base))
-
-          covmat <- cov(boot.results$t, use="na.or.complete")
-      }
+      jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
+                     weighting, family, weights, base, ...)
 
       if(!is.na(nd.symm)) {
-          lim <- nd.symm + 2 * nd.symm * (nrow(tab) + ncol(tab))
-
-          model$assoc$boot.results <- boot.results
-          model$assoc$covmat <- covmat[1:lim, 1:lim]
           model$assoc$covtype <- se
+          model$assoc$covmat <- jb$covmat1
+          model$assoc$jack.results <- jb$jack.results1
+          model$assoc$boot.results <- jb$boot.results1
+
+          model$assoc.yrcskew$covtype <- se
+          model$assoc.yrcskew$covmat <- jb$covmat2
+          model$assoc.yrcskew$jack.results <- jb$jack.results2
+          model$assoc.yrcskew$boot.results <- jb$boot.results2
       }
       else {
-          lim <- 0
+          model$assoc.yrcskew$covtype <- se
+          model$assoc.yrcskew$covmat <- jb$covmat1
+          model$assoc.yrcskew$jack.results <- jb$jack.results1
+          model$assoc.yrcskew$boot.results <- jb$boot.results1
       }
-
-      model$assoc.yrcskew$covmat <- covmat[seq(lim + 1, nrow(covmat)), seq(lim + 1, ncol(covmat))]
-      model$assoc.yrcskew$covtype <- se
   }
   else {
-      model$assoc$boot.results <- numeric(0)
-      model$assoc$covmat <- numeric(0)
-      model$assoc$covtype <- "none"
+      if(!is.na(nd.symm)) {
+          model$assoc$covtype <- se
+          model$assoc$covmat <- numeric(0)
+          model$assoc$boot.results <- numeric(0)
+          model$assoc$jack.results <- numeric(0)
+      }
+
+      model$assoc.yrcskew$covtype <- se
+      model$assoc.yrcskew$covmat <- numeric(0)
+      model$assoc.yrcskew$boot.results <- numeric(0)
+      model$assoc.yrcskew$jack.results <- numeric(0)
   }
 
   model
