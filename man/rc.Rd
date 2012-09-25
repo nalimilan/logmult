@@ -244,6 +244,11 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   model
   summary(model) # Jackknife standard errors are slightly different
                  # from their asymptotic counterparts
+
+  # Compare with bootstrap standard errors
+  model2 <- rc(tab, nd=2, weighting="none", se="bootstrap")
+  summary(model2)
+
   \dontshow{
       # A few scores differ from reported results by .001
       stopifnot(isTRUE(all.equal(round(c(model$assoc$phi), d=3),
