@@ -15,15 +15,15 @@
 \method{print}{summary.assocmod}(x, digits = max(3, getOption("digits") - 4), ...)
 }
 \arguments{
-  \item{object}{an object resulting from a call to \code{\link{assoc}}}
+  \item{object}{an association model of class \code{assocmod}.}
   \item{x}{an object of class \code{summary.gnm}.}
   \item{weighting}{what weights should be used when normalizing the scores.}
   \item{digits}{the number of siginificant digits to use when printing.}
   \item{\dots}{further arguments passed to \code{\link{printCoefmat}} by
-      \code{print.summary.assoc}, and currently ignored by \code{summary.assoc}.}
+      \code{print.summary.assocmod}, and currently ignored by \code{summary.assocmod}.}
 }
 \details{
-  \code{print.summary.assoc} prints the original call to \code{assoc}; a
+  \code{print.summary.assocmod} prints the original call to \code{assoc}; a
   summary of the deviance residuals from the model fit; the coefficients of
   interest of the model; the residual deviance; the residual degrees of freedom; 
   the Schwartz's Bayesian Information Criterion value; the Akaike's An Information
@@ -70,7 +70,8 @@
   Milan Bouchet-Valat
 }
 \seealso{
-  \code{\link{assoc}}, \code{\link{plot.assoc}}
+  \code{\link{assoc}}, \code{\link{plot.assoc}}, \code{\link{rc}}, \code{\link{rcL}},
+  \code{\link{rcL.trans}}, \code{\link{hmskew}}, \code{\link{hmskewL}}, \code{\link{yrcskew}}
 }
 
 \keyword{ models }
