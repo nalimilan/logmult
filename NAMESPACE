@@ -11,7 +11,7 @@ S3method(assoc, rcL)
 S3method(assoc, rcL.symm)
 S3method(assoc, rcL.trans)
 S3method(assoc, rcL.trans.symm)
-#S3method(assoc, hmskewL)
+S3method(assoc, hmskewL)
 
 export(se)
 S3method(se, assoc)
