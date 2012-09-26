@@ -299,44 +299,24 @@ find.stable.scores <- function(ass, ass.orig) {
       sc[-(1:nr),,l] <- sweep(adj[-(1:nr),,l, drop=FALSE], 2, sqrt(abs(phi[l,])) * sign(ass$phi[l,]), "/")
   }
 
-  # Sanity check 1: rebuild the association matrix from normalized scores and compare with the original
+  # Sanity check: rebuild the association matrix and compare with the original
+  lambda <- lambda.adj <- lambda.sav <- matrix(0, nr, nc)
+
   for(l in 1:nl) {
-      lambda <- lambda.sav <- matrix(0, nr, nc)
+      lambda[] <- lambda.adj[] <- lambda.sav[] <- 0
 
       for(i in 1:nd) {
-          # Heterogeneous scores
-          if(dim(ass$row)[3] > 1) {
-              lambda <- lambda + phi[l, i] * sc[1:nr, i, l] %o% sc[-(1:nr), i, l]
+          lambda <- lambda + phi[l, i] * sc[1:nr, i, l] %o% sc[-(1:nr), i, l]
+          lambda.adj <- lambda.adj + adj[1:nr, i, l] %o% adj[-(1:nr), i, l]
+
+          if(dim(ass$row)[3] > 1) # Heterogeneous scores
               lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, l] %o% ass$col[, i, l]
-          }
-          # Homogeneous scores
-          else {
-              lambda <- lambda + phi[l, i] * sc[1:nr, i, l] %o% sc[-(1:nr), i, l]
+          else # Homogeneous scores
               lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, 1] %o% ass$col[, i, 1]
-          }
       }
 
       stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
-  }
-
-  # Sanity check 2: rebuild the association matrix from adjusted scores and compare with the original
-  for(l in 1:nl) {
-     lambda <- lambda.sav <- matrix(0, nr, nc)
-
-      for(i in 1:nd) {
-          # Heterogeneous scores
-          if(dim(ass$row)[3] > 1) {
-              lambda <- lambda + adj[1:nr, i, l] %o% adj[-(1:nr), i, l]
-              lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, l] %o% ass$col[, i, l]
-          }
-          # Homogeneous scores
-          else {
-              lambda <- lambda + adj[1:nr, i, l] %o% adj[-(1:nr), i, l]
-              lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, 1] %o% ass$col[, i, 1]
-          }
-      }
-
-      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
+      stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
   }
 
   row <- sc[1:nr,,, drop=FALSE]
@@ -453,54 +433,30 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
       adj[, c(i, i + 1),] <- apply(adj[, c(i, i + 1), , drop=FALSE], 3, "%*%",  rotmat)
   }
 
-  # Sanity check 1: rebuild the association matrix from normalized scores and compare with the original
+  # Sanity check: rebuild the association matrix and compare with the original
+  lambda <- lambda.sav <- matrix(0, nr, nc)
+
   for(l in 1:nl) {
-     lambda <- lambda.sav <- matrix(0, nr, nc)
+     lambda[] <- lambda.adj[] <- lambda.sav[] <- 0
 
       for(i in seq.int(1, nd, by=2)) {
-          # Heterogeneous scores
-          if(dim(ass$row)[3] > 1) {
-              # We introduce sign(phi) separately because adjusted scores cannot take it into account
-              lambda <- lambda + phi[l, i] * (sc[, i + 1, l] %o% sc[, i, l] -
-                                              sc[, i, l] %o% sc[, i + 1, l])
-              lambda.sav <- lambda.sav + ass.sav$phi[l, i] * (ass.sav$row[, i + 1, l] %o% ass$row[, i, l] -
-                                                              ass$row[, i, l] %o% ass$row[, i + 1, l])
-          }
-          # Homogeneous scores
-          else {
-              # We introduce sign(phi) separately because adjusted scores cannot take it into account
-              lambda <- lambda + phi[l, i] * (sc[, i + 1, l] %o% sc[, i, l] -
-                                              sc[, i, l] %o% sc[, i + 1, l])
-              lambda.sav <- lambda.sav + ass$phi[l, i] * (ass$row[, i + 1, 1] %o% ass$row[, i, 1] -
-                                                          ass$row[, i, 1] %o% ass$row[, i + 1, 1])
-          }
-      }
+          lambda <- lambda + phi[l, i] * (sc[, i + 1, l] %o% sc[, i, l] -
+                                          sc[, i, l] %o% sc[, i + 1, l])
+          lambda.adj <- lambda.adj + adj[, i + 1, l] %o% adj[, i, l] -
+                                     adj[, i, l] %o% adj[, i + 1, l]
 
-      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
-  }
-
-  # Sanity check 2: rebuild the association matrix from adjusted scores and compare with the original
-  for(l in 1:nl) {
-     lambda <- lambda.sav <- matrix(0, nr, nc)
-
-      for(i in seq.int(1, nd, by=2)) {
-          # Heterogeneous scores
-          if(dim(ass$row)[3] > 1) {
-              lambda <- lambda + adj[, i + 1, l] %o% adj[, i, l] -
-                                 adj[, i, l] %o% adj[, i + 1, l]
+          if(dim(ass$row)[3] > 1) { # Heterogeneous scores
               lambda.sav <- lambda.sav + ass$phi[l, i] * (ass$row[, i + 1, l] %o% ass$row[, i, l] -
                                                           ass$row[, i, l] %o% ass$row[, i + 1, l])
           }
-          # Homogeneous scores
-          else {
-              lambda <- lambda + adj[, i + 1, l] %o% adj[, i, l] -
-                                 adj[, i, l] %o% adj[, i + 1, l]
+          else { # Homogeneous scores
               lambda.sav <- lambda.sav + ass$phi[l, i] * (ass$row[, i + 1, 1] %o% ass$row[, i, 1] -
                                                           ass$row[, i, 1] %o% ass$row[, i + 1, 1])
           }
       }
 
       stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
+      stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
   }
 
   ret <- numeric(nl * nd + 2 * nl * nd * (nr + nc))
