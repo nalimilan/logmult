@@ -123,9 +123,9 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       }
       else {
           model$assoc.hmskew$covtype <- se
-          model$assoc.hmskew$covmat <- jb$covmat1
-          model$assoc.hmskew$jack.results <- jb$jack.results1
-          model$assoc.hmskew$boot.results <- jb$boot.results1
+          model$assoc.hmskew$covmat <- jb$covmat
+          model$assoc.hmskew$jack.results <- jb$jack.results
+          model$assoc.hmskew$boot.results <- jb$boot.results
       }
   }
   else {

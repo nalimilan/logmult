@@ -143,9 +143,9 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       }
       else {
           model$assoc.yrcskew$covtype <- se
-          model$assoc.yrcskew$covmat <- jb$covmat1
-          model$assoc.yrcskew$jack.results <- jb$jack.results1
-          model$assoc.yrcskew$boot.results <- jb$boot.results1
+          model$assoc.yrcskew$covmat <- jb$covmat
+          model$assoc.yrcskew$jack.results <- jb$jack.results
+          model$assoc.yrcskew$boot.results <- jb$boot.results
       }
   }
   else {
