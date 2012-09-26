@@ -233,25 +233,19 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
   ret
 }
 
-# Simplified version of permutations() from the gtools 2.7.0 package,
-# by Gregory R. Warnes.
-# Original version by Bill Venables and cited by Matthew
-# Wiener (mcw@ln.nimh.nih.gov) in an email to R-help dated
-# Tue, 14 Dec 1999 09:11:32 -0500 (EST) in response to
-# Alex Ahgarin <datamanagement@email.com>
-perms <- function(n) {
-  sub <- function(n, v) {
-      if(n == 1) return(matrix(v, n, 1))
+# Originally based on procrustes() from package vegan 2.0-4, by
+# Jari Oksanen, F. Guillaume Blanchet, Roeland Kindt, Pierre Legendre,
+# Peter R. Minchin, R. B. O'Hara, Gavin L. Simpson, Peter Solymos, M. Henry H. Stevens, Helene Wagner.
+# License GPL-2.
+# In this very simplified version, we perform no centering nor scaling (handled manually with weighting)
+procrustes <- function (X, Y) {
+  XY <- crossprod(X, Y)
+  sol <- svd(XY)
 
-      X <- NULL
+  A <- sol$v %*% t(sol$u)
+  Yrot <- Y %*% A
 
-      for(i in 1:n)
-        X <- rbind(X, cbind(v[i], Recall(n - 1, v[-i])))
-
-      X
-  }
-
-  sub(n, 1:n)
+  list(Yrot = Yrot, rotation = A, svd=sol)
 }
 
 # Compute distance between adjusted scores for this replicate to that of the original model
@@ -264,9 +258,6 @@ find.stable.scores <- function(ass, ass.orig) {
   nr <- nrow(ass$row)
   nc <- nrow(ass$col)
   nl <- nrow(ass$phi)
-
-  # For checks at the end
-  ass.sav <- ass
 
   sc <- adj.orig <- array(NA, dim=c(nr + nc, nd, nl))
   phi <- ass$phi
@@ -287,40 +278,48 @@ find.stable.scores <- function(ass, ass.orig) {
   adj[-(1:nr),,] <- sweep(adj[-(1:nr),, , drop=FALSE], 3:2, sign(ass$phi), "*")
   adj.orig[-(1:nr),,] <- sweep(adj.orig[-(1:nr),, , drop=FALSE], 3:2, sign(ass$phi), "*")
 
-  perms <- perms(nd)
-  nperms <- nrow(perms)
-  vals <- array(NA, dim=c(2, nd, nperms))
+  # Transform arrays to matrices with one column per dimension
+  adj <- aperm(adj, c(1, 3, 2))
+  adj.orig <- aperm(adj.orig, c(1, 3, 2))
+  dim(adj) <- dim(adj.orig) <- c((nr + nc) * nl, nd)
+  procr <- procrustes(adj.orig, adj)
 
-  for(i in 1:nperms) {
-      order <- perms[i,]
-      adj.tmp <- adj[, order, , drop=FALSE]
+  adj <- procr$Yrot
+  dim(adj) <- c(nr + nc, nl, nd)
+  adj <- aperm(adj, c(1, 3, 2))
 
-      # Signs as-is
-      vals[1, , i] <- apply(sweep((adj.orig - adj.tmp)^2, 1, weights, "*"), 2, sum)
+  for(l in 1:nl) {
+      # phi for rows and column are identical since rotation is the same for both,
+      # so take an average in case there are rounding errors
+      phi[l,] <- margin.table(sweep(adj[,,l]^2, 1,
+                                    c(ass.orig$row.weights,
+                                      ass.orig$col.weights), "*"), 2)/2 * sign(ass$phi[l,])
 
-      # Inverted signs
-      vals[2, , i] <- apply(sweep((adj.orig + adj.tmp)^2, 1, weights, "*"), 2, sum)
+      sc[1:nr,,l] <- sweep(adj[1:nr,,l, drop=FALSE], 2, sqrt(abs(phi[l,])), "/")
+      sc[-(1:nr),,l] <- sweep(adj[-(1:nr),,l, drop=FALSE], 2, sqrt(abs(phi[l,])) * sign(ass$phi[l,]), "/")
   }
 
-  # Find out which permutation allows for the smaller sum of squares,
-  # choosing the best sign change for each dimension
-  best.perm <- which.min(apply(apply(vals, 2:3, min), 2, sum))
+  # Sanity check 1: rebuild the association matrix from normalized scores and compare with the original
+  for(l in 1:nl) {
+      lambda <- lambda.sav <- matrix(0, nr, nc)
 
-  if(best.perm != 1) {
-      cat("Inverting order to", best.perm, ":", perms[best.perm,], "\n")
-      phi <- ass$phi[, perms[best.perm,], drop=FALSE]
-      sc <- sc[, perms[best.perm,], , drop=FALSE]
-      adj <- adj[, perms[best.perm,], , drop=FALSE]
+      for(i in 1:nd) {
+          # Heterogeneous scores
+          if(dim(ass$row)[3] > 1) {
+              lambda <- lambda + phi[l, i] * sc[1:nr, i, l] %o% sc[-(1:nr), i, l]
+              lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, l] %o% ass$col[, i, l]
+          }
+          # Homogeneous scores
+          else {
+              lambda <- lambda + phi[l, i] * sc[1:nr, i, l] %o% sc[-(1:nr), i, l]
+              lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, 1] %o% ass$col[, i, 1]
+          }
+      }
+
+      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
   }
 
-  # Change signs for dimensions where it reduces sum of squares
-  for(i in which(pmin(vals[2, , best.perm]) < pmin(vals[1, , best.perm]))) {
-      cat("Inverting signs for dimension", i, "\n")
-      sc[, i,] <- -sc[, i, , drop=FALSE]
-      adj[, i,] <- -adj[, i, , drop=FALSE]
-  }
-
-  # Sanity check: rebuild the association matrix and compare with the original
+  # Sanity check 2: rebuild the association matrix from adjusted scores and compare with the original
   for(l in 1:nl) {
      lambda <- lambda.sav <- matrix(0, nr, nc)
 
@@ -328,12 +327,12 @@ find.stable.scores <- function(ass, ass.orig) {
           # Heterogeneous scores
           if(dim(ass$row)[3] > 1) {
               lambda <- lambda + adj[1:nr, i, l] %o% adj[-(1:nr), i, l]
-              lambda.sav <- lambda.sav + ass.sav$phi[l, i] * ass.sav$row[, i, l] %o% ass.sav$col[, i, l]
+              lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, l] %o% ass$col[, i, l]
           }
           # Homogeneous scores
           else {
               lambda <- lambda + adj[1:nr, i, l] %o% adj[-(1:nr), i, l]
-              lambda.sav <- lambda.sav + ass.sav$phi[l, i] * ass.sav$row[, i, 1] %o% ass.sav$col[, i, 1]
+              lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, 1] %o% ass$col[, i, 1]
           }
       }
 
@@ -364,6 +363,27 @@ find.stable.scores <- function(ass, ass.orig) {
   ret
 }
 
+# Simplified version of permutations() from the gtools 2.7.0 package,
+# by Gregory R. Warnes.
+# Original version by Bill Venables and cited by Matthew
+# Wiener (mcw@ln.nimh.nih.gov) in an email to R-help dated
+# Tue, 14 Dec 1999 09:11:32 -0500 (EST) in response to
+# Alex Ahgarin <datamanagement@email.com>
+perms <- function(n) {
+  sub <- function(n, v) {
+      if(n == 1) return(matrix(v, n, 1))
+
+      X <- NULL
+
+      for(i in 1:n)
+        X <- rbind(X, cbind(v[i], Recall(n - 1, v[-i])))
+
+      X
+  }
+
+  sub(n, 1:n)
+}
+
 # This class of models is special because dimensions are paired,
 # and a rotation is needed rather than changing signs
 find.stable.scores.hmskew <- function(ass, ass.orig) {
@@ -374,9 +394,6 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
   nc <- nrow(ass$col)
   nl <- nrow(ass$phi)
 
-  # For checks at the end
-  ass.sav <- ass
-
   phi <- ass$phi
 
   # Repeat scores once for each layer
@@ -386,7 +403,11 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
 
   # Compute adjusted scores
   adj <- sweep(adj, 3:2, sqrt(abs(ass$phi)), "*")
-  adj.orig <- sweep(adj.orig, 3:2, sqrt(abs(ass.orig$phi)), "*")
+  # Where phi is negative, change signs on second dimension of each pair to get the same effect
+  adj[,seq(1, nd, by=2),] <- sweep(adj[,seq(1, nd, by=2),, drop=FALSE], 3:2,
+                                   sign(ass$phi)[,seq(1, nd, by=2)], "*")
+  adj.orig[,seq(1, nd, by=2),] <- sweep(adj.orig[,seq(1, nd, by=2),, drop=FALSE], 3:2,
+                                   sign(ass.orig$phi)[,seq(1, nd, by=2)], "*")
 
   # Rotate scores and return the sum of squares to the old scores
   rot <- function(angle, adj.tmp, dim) {
@@ -421,6 +442,7 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
   best.perm <- which.min(sq)
   order <- rep(2 * perms[best.perm,] - 1, 2) + c(0, 1)
   adj <- adj[, order, , drop=FALSE]
+  # Phi does not need to be recomputed from adjusted scores since it does not change after a rotation
   phi <- phi[, order, drop=FALSE]
 
   for(i in seq.int(1, nd, by=2)) {
@@ -431,7 +453,7 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
       adj[, c(i, i + 1),] <- apply(adj[, c(i, i + 1), , drop=FALSE], 3, "%*%",  rotmat)
   }
 
-  # Sanity check: rebuild the association matrix and compare with the original
+  # Sanity check 1: rebuild the association matrix from normalized scores and compare with the original
   for(l in 1:nl) {
      lambda <- lambda.sav <- matrix(0, nr, nc)
 
@@ -439,20 +461,42 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
           # Heterogeneous scores
           if(dim(ass$row)[3] > 1) {
               # We introduce sign(phi) separately because adjusted scores cannot take it into account
-              lambda <- lambda + adj[, i + 1, l] %o% adj[, i, l] * sign(phi[l, i]) -
-                                 adj[, i, l] %o% adj[, i + 1, l] * sign(phi[l, i])
-              lambda.sav <- lambda.sav + abs(ass.sav$phi[l, i]) *
-                                         (ass.sav$row[, i + 1, l] %o% ass.sav$col[, i, l] -
-                                          ass.sav$row[, i, l] %o% ass.sav$col[, i + 1, l])
+              lambda <- lambda + phi[l, i] * (sc[, i + 1, l] %o% sc[, i, l] -
+                                              sc[, i, l] %o% sc[, i + 1, l])
+              lambda.sav <- lambda.sav + ass.sav$phi[l, i] * (ass.sav$row[, i + 1, l] %o% ass$row[, i, l] -
+                                                              ass$row[, i, l] %o% ass$row[, i + 1, l])
           }
           # Homogeneous scores
           else {
               # We introduce sign(phi) separately because adjusted scores cannot take it into account
-              lambda <- lambda + adj[, i + 1, l] %o% adj[, i, l] * sign(phi[l, i]) -
-                                 adj[, i, l] %o% adj[, i + 1, l] * sign(phi[l, i])
-              lambda.sav <- lambda.sav + abs(ass.sav$phi[l, i]) *
-                                         (ass.sav$row[, i + 1, 1] %o% ass.sav$col[, i, 1] -
-                                          ass.sav$row[, i, 1] %o% ass.sav$col[, i + 1, 1])
+              lambda <- lambda + phi[l, i] * (sc[, i + 1, l] %o% sc[, i, l] -
+                                              sc[, i, l] %o% sc[, i + 1, l])
+              lambda.sav <- lambda.sav + ass$phi[l, i] * (ass$row[, i + 1, 1] %o% ass$row[, i, 1] -
+                                                          ass$row[, i, 1] %o% ass$row[, i + 1, 1])
+          }
+      }
+
+      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
+  }
+
+  # Sanity check 2: rebuild the association matrix from adjusted scores and compare with the original
+  for(l in 1:nl) {
+     lambda <- lambda.sav <- matrix(0, nr, nc)
+
+      for(i in seq.int(1, nd, by=2)) {
+          # Heterogeneous scores
+          if(dim(ass$row)[3] > 1) {
+              lambda <- lambda + adj[, i + 1, l] %o% adj[, i, l] -
+                                 adj[, i, l] %o% adj[, i + 1, l]
+              lambda.sav <- lambda.sav + ass$phi[l, i] * (ass$row[, i + 1, l] %o% ass$row[, i, l] -
+                                                          ass$row[, i, l] %o% ass$row[, i + 1, l])
+          }
+          # Homogeneous scores
+          else {
+              lambda <- lambda + adj[, i + 1, l] %o% adj[, i, l] -
+                                 adj[, i, l] %o% adj[, i + 1, l]
+              lambda.sav <- lambda.sav + ass$phi[l, i] * (ass$row[, i + 1, 1] %o% ass$row[, i, 1] -
+                                                          ass$row[, i, 1] %o% ass$row[, i + 1, 1])
           }
       }
 

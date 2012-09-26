@@ -27,7 +27,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model. Valid only for square tables.}
   \item{weighting}{ what weights should be used when normalizing the scores.}
-  \item{se}{ which method to use to compute standard errors for parameters.}
+  \item{se}{ which method to use to compute standard errors for parameters (see \code{\link{se.assoc}}).}
   \item{nreplicates}{ the number of bootstrap replicates, if enabled.}
   \item{ncpus}{ the number of processes to use for jackknife or bootstrap parallel computing. Defaults to
     the number of cores (see \code{\link[parallel]{detectCores}}), with a maximum of 5, but falls back to 1

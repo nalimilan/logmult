@@ -38,13 +38,8 @@
   association parameter (phi).
 
   p-values are computed under the assumption that estimators of coefficients are normally distributed,
-  even if jackknife of bootstrap are used. This hypothesis can be checked by calling
-  \code{link[boot]{plot.boot}} on the \code{boot.results} component of the \code{assoc} object of the models
-  (not supported for jackknife). (With a large number of replicates (> 1000), bootstrap confidence intervals
-  can be computed using \code{link[boot]{boot.ci}} on the same object.) Checking the values of coefficients in all
-  replicates using \code{plot.boot} is a good idea in all cases to ensure there are no dramatic outliers, which
-  could indicate some replicates converged to a non optimal solution: in that case, standard errors will be
-  artificially large; if it happens, reduce the value of \code{iterMax} when fitting models.
+  even if jackknife of bootstrap are used. See \code{\link{se.assoc}} for details about checking this
+  assumption and the validity of jackknife or bootstrap results.
 
   Note that setting the \code{weighting} argument to a value different from that used at the
   time of the fit discards the computed standard errors, if any.

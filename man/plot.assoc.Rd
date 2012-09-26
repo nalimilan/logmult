@@ -134,11 +134,8 @@
   Confidence ellipses are computed from the scores' variances and covariances, based on the assumption that they are
   follow a normal distribution, even if standard errors are computed using jackknife or bootstrap. This normality
   assumption can be assessed visually using the \code{replicates} argument to check whether points globally follow the
-  shape of the ellipses. For more detail, \code{link[boot]{plot.boot}} can be called on the \code{boot.results}
-  component of the \code{assoc} object of the models (not supported for jackknife). Checking the values of coefficients
-  in all replicates using \code{plot.boot} is a good idea in all cases to ensure there are no dramatic outliers,
-  which could indicate some replicates converged to a non optimal solution: in that case, standard errors will be
-  artificially large; if it happens, reduce the value of \code{iterMax} when fitting models.
+  shape of the ellipses. See \code{\link{se.assoc}} for details about checking the validity of jackknife or bootstrap
+  results.
 
 
   The \code{plot.assoc} function is called internally by all others, and may be leveraged for advanced use cases,
