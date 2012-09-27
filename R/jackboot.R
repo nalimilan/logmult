@@ -291,7 +291,7 @@ find.stable.scores <- function(ass, ass.orig) {
   for(l in 1:nl) {
       # phi for rows and column are identical since rotation is the same for both,
       # so take an average in case there are rounding errors
-      phi[l,] <- margin.table(sweep(adj[,,l]^2, 1,
+      phi[l,] <- margin.table(sweep(adj[,,l , drop=FALSE]^2, 1,
                                     c(ass.orig$row.weights,
                                       ass.orig$col.weights), "*"), 2)/2 * sign(ass$phi[l,])
 
