@@ -169,7 +169,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   data(color)
   \dontshow{
       # Limit the workload for CRAN checks
-      options(cl.cores=2)
+      options(boot.cores=2)
   }
   # "Uniform weights" in the authors' terms mean "no weighting"
   # Average marginals are currently not supported
@@ -237,7 +237,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   data(gss8590)
   \dontshow{
       # Limit the workload for CRAN checks
-      options(cl.cores=2)
+      options(boot.cores=2)
   }
   # The table used in Wong (2010) is not perfectly consistent
   # with that of Wong (2001)

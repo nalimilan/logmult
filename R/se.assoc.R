@@ -97,10 +97,10 @@ se.assoc <- function(x, type=c("se", "quasi.se"), ...) {
   covmat <- x$covmat
 
   if(type == "quasi.se") {
-      get.se <- function(int) qvcalc::qvcalc(covmat[int, int])$qvframe$quasiSE
+      get.se <- function(int) qvcalc::qvcalc(covmat[int, int, drop=FALSE])$qvframe$quasiSE
   }
   else {
-      get.se <- function(int) sqrt(diag(covmat[int, int]))
+      get.se <- function(int) sqrt(diag(covmat[int, int, drop=FALSE]))
   }
 
   std.errs$phi <- x$phi
