@@ -90,9 +90,11 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
     \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
     \code{weighting} argument.}
-  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{se}
-    was not \dQuote{none}. It contains first phi coefficients, then normalized row and column scores,
-    then adjusted row and column scores.}
+  \item{covmat }{The variance-covariance matrix for phi coefficients and normalized row and column
+    scores. Only present if \code{se} was not \dQuote{none}.}
+  \item{adj.covmats }{An array stacking on its third dimension one variance-covariance matrix for
+    the adjusted scores of each layer in the model (used for plotting). Only present if \code{se}
+    was not \dQuote{none}.}
   \item{covtype }{The method used to compute the variance-covariance matrix (corresponding to the
     \code{se} argument.}
 }

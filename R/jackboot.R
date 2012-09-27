@@ -6,6 +6,36 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
   if(is.null(ncpus))
       ncpus <- if(require(parallel)) min(parallel::detectCores(), 5) else 1
 
+  ass1 <- assoc1(model, weighting=weighting)
+
+  nl1 <- nrow(ass1$phi)
+  nd1 <- ncol(ass1$phi)
+  nr1 <- nrow(ass1$row)
+  nlr1 <- dim(ass1$row)[3]
+  nc1 <- nrow(ass1$col)
+  nlc1 <- dim(ass1$col)[3]
+
+  len1 <- nl1 * nd1 + nlr1 * nd1 * nr1 + nlc1 * nd1 * nc1
+  end1 <- len1 + nl1 * nd1 * nr1 + nl1 * nd1 * nc1
+
+  if(is.null(assoc2)) {
+      int <- 1:len1
+  }
+  else {
+      ass2 <- assoc2(model, weighting=weighting)
+
+      nl2 <- nrow(ass2$phi)
+      nd2 <- ncol(ass2$phi)
+      nr2 <- nrow(ass2$row)
+      nlr2 <- dim(ass2$row)[3]
+      nc2 <- nrow(ass2$col)
+      nlc2 <- dim(ass2$col)[3]
+    
+      len2 <- nl2 * nd2 + nlr2 * nd2 * nr2 + nlc2 * nd2 * nc2
+      end2 <- end1 + len2 + nl2 * nd2 * nr2 + nl2 * nd2 * nc2
+      int <- c(1:len1, end1 + 1:len2)
+  }
+
   if(se == "jackknife") {
       jack <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
                         w=tab[!is.na(tab)], ncpus=ncpus,
@@ -13,8 +43,15 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                         weighting=weighting, family=family, weights=weights, ...,
                         base=base, verbose=FALSE)
 
-      covmat <- jack$vcov
       jack.results <- list(bias=jack$bias, values=jack$values)
+
+      # Build the matrix only for phi on all layers, and normalized scores for the layers they vary on
+      tot <- sum(tab, na.rm=TRUE)
+      get.covmat <- function(start, len) {
+          int <- seq.int(start, length.out=len)
+          (tot - 1)/tot * t(jack$dev[, int]) %*% sweep(jack$dev[, int], 1, tab[!is.na(tab)], "*")
+      }
+
       boot.results <- numeric(0)
   }
   else {
@@ -24,10 +61,13 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                                            weighting=weighting, family=family,
                                            weights=weights, ..., base=base))
 
-      covmat <- cov(boot.results$t, use="na.or.complete")
+      get.covmat <- function(start, len) {
+          int <- seq.int(start, length.out=len)
+          cov(boot.results$t[, int], use="na.or.complete")
+      }
+
       jack.results <- numeric(0)
   }
-
 
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
@@ -35,45 +75,88 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
   if(length(vars) == 0)
       vars <- c("Var1", "Var2")
 
+  submat.names <- function(ass) {
+      nd <- ncol(ass$phi)
+
+      outer(c(paste(vars[1], rownames(ass$row), sep=""),
+              paste(vars[2], rownames(ass$col), sep="")),
+            paste("Dim", 1:nd, "*", sep=""),
+            paste, sep=":")
+  }
+
   mat.names <- function(ass) {
       if(length(rownames(ass$phi)) > 0)
-          lnames <- paste(vars[3], rownames(ass$phi), ":", sep="")
+          lnames <- paste(":", vars[3], rownames(ass$phi), sep="")
       else
           lnames <- ""
 
+      if(dim(ass$row)[3] > 1)
+          lrcnames <- lnames
+      else
+          lrcnames <- ""
+
       nd <- ncol(ass$phi)
 
-      scnames <- t(outer(lnames,
-                         c(t(outer(paste("Dim", 1:nd, sep=""),
-                                   paste(vars[1], rownames(ass$row), sep=""),
-                                   paste, sep=":")),
-                           t(outer(paste("Dim", 1:nd, sep=""),
-                                   paste(vars[2], rownames(ass$col), sep=""),
-                                   paste, sep=":"))),
-                         paste, sep=""))
+      scnames <- outer(c(paste(vars[1], rownames(ass$row), sep=""),
+                         paste(vars[2], rownames(ass$col), sep="")),
+                       outer(paste("Dim", 1:nd, sep=""),
+                             lrcnames,
+                             paste, sep=""),
+                       paste, sep=":")
 
-      c(t(outer(lnames, paste("Dim", 1:nd, sep=""), paste, sep="")),
-                scnames,
-                paste(scnames, "*", sep=""))
+      c(outer(lnames, paste("Dim", 1:nd, sep=""), paste, sep=""), scnames)
   }
 
-  ass1 <- assoc1(model, weighting=weighting)
+  values.names <- function(ass) {
+      nd <- ncol(ass$phi)
 
-  nl <- nrow(ass1$phi)
-  nd <- ncol(ass1$phi)
-  nr <- nrow(ass1$row)
-  nc <- nrow(ass1$col)
+      if(length(rownames(ass$phi)) > 0)
+          lnames <- paste(":", vars[3], rownames(ass$phi), "*", sep="")
+      else
+          lnames <- "*"
 
-  int <- seq.int(1, nl * nd + 2 * nl * nd * (nr + nc))
-  covmat1 <- covmat[int, int]
+      c(mat.names(ass),
+        outer(c(paste(vars[1], rownames(ass$row), sep=""),
+                paste(vars[2], rownames(ass$col), sep="")),
+                outer(paste("Dim", 1:nd, sep=""),
+                      lnames,
+                      paste, sep=""),
+                paste, sep=":"))
+  }
 
+  # Main matrix only for phi on all layers, and normalized scores for the layers they vary on
+  tot <- sum(tab, na.rm=TRUE)
+  covmat1 <- get.covmat(1, len1)
   rownames(covmat1) <- colnames(covmat1) <- mat.names(ass1)
+
+  # Sub matrices with adjusted scores for all layers separately
+  len <- nd1 * (nr1 + nc1)
+  adj.covmats1 <- vapply(seq.int(len1 + 1, end1, by=len), get.covmat, len=len,
+                         FUN.VALUE=matrix(0, len, len))
+
+  rownames(adj.covmats1) <- colnames(adj.covmats1) <- submat.names(ass1)
+  dimnames(adj.covmats1)[[3]] <- rownames(ass1$phi)
+
+  if(!is.null(assoc2)) {
+      # Main matrix only for phi on all layers, and normalized scores for the layers they vary on
+      covmat2 <- get.covmat(end1 + 1, len2)
+      rownames(covmat2) <- colnames(covmat2) <- mat.names(ass2)
+
+      # Sub matrices with adjusted scores for all layers separately
+      len <- nd2 * (nr2 + nc2)
+      adj.covmats2 <- vapply(seq.int(end1 + len2 + 1, end2, by=len), get.covmat, len=len,
+                             FUN.VALUE=matrix(0, len, len))
+      rownames(adj.covmats2) <- colnames(adj.covmats2) <- submat.names(ass2)
+      dimnames(adj.covmats2)[[3]] <- rownames(ass2$phi)
+  }
+
+  int <- seq.int(1, len1 + nl1 * nd1 * (nr1 + nc1))
 
   if(length(boot.results) > 0) {
       boot.results1 <- boot.results
       boot.results1$t0 <- boot.results$t0[int]
       boot.results1$t <- boot.results$t[,int]
-      names(boot.results1$t0) <- colnames(boot.results1$t) <- rownames(covmat1)
+      names(boot.results1$t0) <- colnames(boot.results1$t) <- values.names(ass1)
   }
   else {
       boot.results1 <- numeric(0)
@@ -83,21 +166,18 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       jack.results1 <- jack.results
       jack.results1$bias <- jack.results$bias[int]
       jack.results1$values <- jack.results$values[,int]
-      names(jack.results1$bias) <- colnames(jack.results1$values) <- rownames(covmat1)
+      names(jack.results1$bias) <- colnames(jack.results1$values) <- values.names(ass1)
   }
   else {
       jack.results1 <- numeric(0)
   }
 
   if(!is.null(assoc2)) {
-      covmat2 <- covmat[-int, -int]
-      rownames(covmat2) <- colnames(covmat2) <- mat.names(assoc2(model, weighting=weighting))
-
       if(length(boot.results) > 0) {
           boot.results2 <- boot.results
           boot.results2$t0 <- boot.results$t0[-int]
           boot.results2$t <- boot.results$t[,-int]
-          names(boot.results2$t0) <- colnames(boot.results2$t) <- rownames(covmat2)
+          names(boot.results2$t0) <- colnames(boot.results2$t) <- values.names(ass2)
       }
       else {
           boot.results2 <- numeric(0)
@@ -107,7 +187,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
           jack.results2 <- jack.results
           jack.results2$bias <- jack.results$bias[-int]
           jack.results2$values <- jack.results$values[,-int]
-          names(jack.results2$bias) <- colnames(jack.results2$values) <- rownames(covmat2)
+          names(jack.results2$bias) <- colnames(jack.results2$values) <- values.names(ass2)
       }
       else {
           jack.results2 <- numeric(0)
@@ -119,12 +199,11 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       jack.results2 <- numeric(0)
   }
 
-
   if(is.null(assoc2))
-      list(covmat=covmat1, boot.results=boot.results1, jack.results=jack.results1)
+      list(covmat=covmat1, adj.covmats=adj.covmats1, boot.results=boot.results1, jack.results=jack.results1)
   else
-      list(covmat1=covmat1, boot.results1=boot.results1, jack.results1=jack.results1,
-           covmat2=covmat2, boot.results2=boot.results2, jack.results2=jack.results2)
+      list(covmat1=covmat1, adj.covmats1=adj.covmats1, boot.results1=boot.results1, jack.results1=jack.results1,
+           covmat2=covmat2, adj.covmats2=adj.covmats2, boot.results2=boot.results2, jack.results2=jack.results2)
 }
 
 # Additional arguments are needed so that update() finds them even when using parLapply
@@ -226,8 +305,8 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
       ass2 <- assoc2(model, weighting=weighting)
       ass2.orig <- assoc2(model.orig, weighting=weighting)
 
-      ret <- c(ret, if(inherits(ass1, c("assoc.hmskew", "assoc.hmskewL"))) find.stable.scores.hmskew(ass1, ass1.orig)
-                    else find.stable.scores(ass1, ass1.orig))
+      ret <- c(ret, if(inherits(ass2, c("assoc.hmskew", "assoc.hmskewL"))) find.stable.scores.hmskew(ass2, ass2.orig)
+                    else find.stable.scores(ass2, ass2.orig))
   }
 
   ret
@@ -258,6 +337,8 @@ find.stable.scores <- function(ass, ass.orig) {
   nr <- nrow(ass$row)
   nc <- nrow(ass$col)
   nl <- nrow(ass$phi)
+  nlr <- dim(ass$row)[3]
+  nlc <- dim(ass$col)[3]
 
   sc <- adj.orig <- array(NA, dim=c(nr + nc, nd, nl))
   phi <- ass$phi
@@ -319,28 +400,7 @@ find.stable.scores <- function(ass, ass.orig) {
       stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
   }
 
-  row <- sc[1:nr,,, drop=FALSE]
-  col <- sc[-(1:nr),,, drop=FALSE]
-  adjrow <- adj[1:nr,,, drop=FALSE]
-  adjcol <- adj[-(1:nr),,, drop=FALSE]
-
-  ret <- numeric(nl * nd + 2 * nl * nd * (nr + nc))
-  ret[seq(1, nd * nl)] <- t(phi)
-
-  # We replicate normalized scores for all layers even if they are homogeneous for simplicity
-  for(l in 1:nl) {
-      int <- nl * nd + seq((l - 1) * nd * (nr + nc) + 1,
-                           l * nd * (nr + nc))
-      ret[int] <- c(row[,, l], col[,, l])
-  }
-
-  for(l in 1:nl) {
-      int <- nl * nd + nl * nd * (nr + nc) + seq((l - 1) * nd * (nr + nc) + 1,
-                                                 l * nd * (nr + nc))
-      ret[int] <- c(adjrow[,, l], adjcol[,, l])
-  }
-
-  ret
+  c(phi, sc[,,1:nlr], adj)
 }
 
 # Simplified version of permutations() from the gtools 2.7.0 package,
@@ -373,6 +433,8 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
   nr <- nrow(ass$row)
   nc <- nrow(ass$col)
   nl <- nrow(ass$phi)
+  nlr <- dim(ass$row)[3]
+  nlc <- dim(ass$col)[3]
 
   phi <- ass$phi
 
@@ -434,7 +496,7 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
   }
 
   # Sanity check: rebuild the association matrix and compare with the original
-  lambda <- lambda.sav <- matrix(0, nr, nc)
+  lambda <- lambda.adj <- lambda.sav <- matrix(0, nr, nc)
 
   for(l in 1:nl) {
      lambda[] <- lambda.adj[] <- lambda.sav[] <- 0
@@ -459,22 +521,7 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
       stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
   }
 
-  ret <- numeric(nl * nd + 2 * nl * nd * (nr + nc))
-  ret[seq(1, nd * nl)] <- t(phi)
-
-  # We replicate normalized scores for all layers even if they are homogeneous for simplicity
-  for(l in 1:nl) {
-      int <- nl * nd + seq((l - 1) * nd * (nr + nc) + 1,
-                           l * nd * (nr + nc))
-      ret[int] <- rep(sc[,, l], 2)
-  }
-
-  for(l in 1:nl) {
-      int <- nl * nd + nl * nd * (nr + nc) + seq((l - 1) * nd * (nr + nc) + 1,
-                                                 l * nd * (nr + nc))
-      ret[int] <- rep(adj[,, l], 2)
-  }
-
-  ret
+  # Repeat row scores to match a general association structure
+  c(phi, sc[rep.int(1:nr, 2),,1:nlr], adj[rep.int(1:nr, 2),,])
 }
 

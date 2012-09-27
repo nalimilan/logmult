@@ -84,9 +84,11 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
     \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
     \code{weighting} argument.}
-  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{se}
-    was not \dQuote{none}. It contains first phi coefficients, then normalized row and column scores,
-    then adjusted row and column scores.}
+  \item{covmat }{The variance-covariance matrix for phi coefficients and normalized row and column
+    scores. Only present if \code{se} was not \dQuote{none}.}
+  \item{adj.covmats }{An array stacking on its third dimension one variance-covariance matrix for
+    the adjusted scores of each layer in the model (used for plotting). Only present if \code{se}
+    was not \dQuote{none}.}
   \item{covtype }{The method used to compute the variance-covariance matrix (corresponding to the
     \code{se} argument.}
 }
@@ -160,6 +162,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
       stopifnot(isTRUE(all.equal(round(model$assoc$col[,1,1], d=2),
                                  c(-1.44, -1.30, -0.33, 1.00, 0.89),
                                  check.attributes=FALSE)))
+
   }
 
   ## Becker & Clogg (1989), Table 5 (p. 145)

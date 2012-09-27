@@ -67,8 +67,7 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)), ncpus=1)
     mean.u <- colSums(sweep(u2, 1, w, "*"))/tot
     jack.bias <- (tot - 1) * (mean.u - thetahat)
     dev.u <- sweep(u2, 2, mean.u, "-")
-    jack.vcov <- (tot - 1)/tot * t(dev.u) %*% sweep(dev.u, 1, w, "*")
 
-    list(vcov = jack.vcov, bias = jack.bias, values = u)
+    list(dev = dev.u, bias = jack.bias, values = u)
 }
 

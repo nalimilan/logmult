@@ -80,50 +80,44 @@ se.assoc <- function(x, type=c("se", "quasi.se"), ...) {
 
   nd <- ncol(x$phi)
   nl <- nrow(x$phi)
+  nlr <- dim(x$row)[3]
+  nlc <- dim(x$col)[3]
+  nr <- nrow(x$row)
+  nc <- nrow(x$col)
 
   if(nrow(x$covmat) != ncol(x$covmat) ||
-     nrow(x$covmat) != nl * nd + 2 * nl * nd * (nrow(x$row) + nrow(x$col)))
+     nrow(x$covmat) != nl * nd + nlr * nd * nr + nlc * nd * nc)
       stop("Covariance matrix dimensions do not match association structure")
+
+  if(nlr != nlc)
+     stop("Different number of layers for rows and columns is currently not supported")
 
   std.errs <- list()
 
-  if(type == "quasi.se") {
-      get.se <- function(covmat) qvcalc::qvcalc(covmat)$qvframe$quasiSE
-  }
-  else {
-      get.se <- function(covmat) sqrt(diag(covmat))
-  }
-
   covmat <- x$covmat
 
-  std.errs$phi <- x$phi
-  for(i in 1:nl)
-      std.errs$phi[i,] <- get.se(covmat[seq((i - 1) * nd + 1, i * nd),
-                                        seq((i - 1) * nd + 1, i * nd), drop=FALSE])
-
-  std.errs$row <- x$row
-  n <- nrow(std.errs$row)
-  for(i in 1:dim(std.errs$row)[3]) {
-      for(j in 1:nd) {
-          int <- seq(nl * nd + n * (j - 1) + 1, nl * nd + n * j)
-          std.errs$row[,j,i] <- get.se(covmat[int, int, drop=FALSE])
-      }
-  }
-
-  std.errs$col <- x$col
-  if(inherits(x, "assoc.symm")) {
-      std.errs$col <- std.errs$row
+  if(type == "quasi.se") {
+      get.se <- function(int) qvcalc::qvcalc(covmat[int, int])$qvframe$quasiSE
   }
   else {
-      n <- nrow(std.errs$col)
-      start <- nl * nd + nd * nrow(std.errs$row)
-      for(i in 1:dim(std.errs$col)[3]) {
-          for(j in 1:nd) {
-              int <- seq(start + n * (j - 1) + 1, start + n * j)
-              std.errs$col[,j,i] <- get.se(covmat[int, int, drop=FALSE])
-          }
-      }
+      get.se <- function(int) sqrt(diag(covmat[int, int]))
   }
+
+  std.errs$phi <- x$phi
+  std.errs$phi[] <- get.se(seq.int(1, nl * nd))
+
+  std.errs$row <- x$row
+  std.errs$col <- x$col
+
+  int <- nl * nd + rep(seq.int(0, nlr * nd - 1) * (nr + nc), each=nr) + 1:nr
+  std.errs$row[] <- get.se(int)
+
+  int <- nl * nd + nr + rep(seq.int(0, nlc * nd - 1) * (nr + nc), each=nc) + 1:nc
+  std.errs$col[] <- get.se(int)
+
+#  int <- nl * nd + rep((1:nlr - 1) * (nd * nr + nd * nc), each=nd * nr) +
+#                   rep((1:nd - 1) * (nr + nc), each=nr) +
+#                   seq.int(1, nr) - 1
 
   std.errs
 }

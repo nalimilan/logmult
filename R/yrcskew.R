@@ -133,17 +133,20 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       if(!is.na(nd.symm)) {
           model$assoc$covtype <- se
           model$assoc$covmat <- jb$covmat1
+          model$assoc$adj.covmats <- jb$adj.covmats1
           model$assoc$jack.results <- jb$jack.results1
           model$assoc$boot.results <- jb$boot.results1
 
           model$assoc.yrcskew$covtype <- se
           model$assoc.yrcskew$covmat <- jb$covmat2
+          model$assoc.yrcskew$adj.covmats <- jb$adj.covmats2
           model$assoc.yrcskew$jack.results <- jb$jack.results2
           model$assoc.yrcskew$boot.results <- jb$boot.results2
       }
       else {
           model$assoc.yrcskew$covtype <- se
           model$assoc.yrcskew$covmat <- jb$covmat
+          model$assoc.yrcskew$adj.covmats <- jb$adj.covmats
           model$assoc.yrcskew$jack.results <- jb$jack.results
           model$assoc.yrcskew$boot.results <- jb$boot.results
       }
@@ -152,12 +155,14 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       if(!is.na(nd.symm)) {
           model$assoc$covtype <- se
           model$assoc$covmat <- numeric(0)
+          model$assoc$adj.covmats <- numeric(0)
           model$assoc$boot.results <- numeric(0)
           model$assoc$jack.results <- numeric(0)
       }
 
       model$assoc.yrcskew$covtype <- se
       model$assoc.yrcskew$covmat <- numeric(0)
+      model$assoc.yrcskew$adj.covmats <- numeric(0)
       model$assoc.yrcskew$boot.results <- numeric(0)
       model$assoc.yrcskew$jack.results <- numeric(0)
   }

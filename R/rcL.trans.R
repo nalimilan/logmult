@@ -152,11 +152,13 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc, NULL,
                      weighting, family, weights, base, ...)
       model$assoc$covmat <- jb$covmat
+      model$assoc$adj.covmats <- jb$adj.covmats
       model$assoc$boot.results <- jb$boot.results
       model$assoc$jack.results <- jb$jack.results
   }
   else {
       model$assoc$covmat <- numeric(0)
+      model$assoc$adj.covmats <- numeric(0)
       model$assoc$boot.results <- numeric(0)
       model$assoc$jack.results <- numeric(0)
   }

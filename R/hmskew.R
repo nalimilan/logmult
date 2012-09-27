@@ -105,7 +105,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
   if(se %in% c("jackknife", "bootstrap")) {
       assoc1 <- if(is.na(nd.symm)) assoc.hmskew else assoc.rc.symm
-      assoc2 <- if(!is.na(nd.symm)) NULL else assoc.hmskew
+      assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskew
 
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                      weighting, family, weights, base, ...)
@@ -113,17 +113,20 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       if(!is.na(nd.symm)) {
           model$assoc$covtype <- se
           model$assoc$covmat <- jb$covmat1
+          model$assoc$adj.covmats <- jb$adj.covmats1
           model$assoc$jack.results <- jb$jack.results1
           model$assoc$boot.results <- jb$boot.results1
 
           model$assoc.hmskew$covtype <- se
           model$assoc.hmskew$covmat <- jb$covmat2
+          model$assoc.hmskew$adj.covmats <- jb$adj.covmats2
           model$assoc.hmskew$jack.results <- jb$jack.results2
           model$assoc.hmskew$boot.results <- jb$boot.results2
       }
       else {
           model$assoc.hmskew$covtype <- se
           model$assoc.hmskew$covmat <- jb$covmat
+          model$assoc.hmskew$adj.covmats <- jb$adj.covmats
           model$assoc.hmskew$jack.results <- jb$jack.results
           model$assoc.hmskew$boot.results <- jb$boot.results
       }
@@ -132,12 +135,14 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       if(!is.na(nd.symm)) {
           model$assoc$covtype <- se
           model$assoc$covmat <- numeric(0)
+          model$assoc$adj.covmats <- numeric(0)
           model$assoc$boot.results <- numeric(0)
           model$assoc$jack.results <- numeric(0)
       }
 
       model$assoc.hmskew$covtype <- se
       model$assoc.hmskew$covmat <- numeric(0)
+      model$assoc.hmskew$adj.covmats <- numeric(0)
       model$assoc.hmskew$boot.results <- numeric(0)
       model$assoc.hmskew$jack.results <- numeric(0)
   }

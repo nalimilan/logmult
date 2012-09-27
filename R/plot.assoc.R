@@ -203,6 +203,9 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       (!is.numeric(layer) && !layer %in% rownames(x$phi))))
       stop("layer must be a valid layer of the model")
 
+  if(!is.numeric(layer))
+      layer <- match(layer, rownames(x$phi))
+
   if(is.matrix(x$phi))
       layer.name <- rownames(x$phi[layer,, drop=FALSE])
   else
@@ -210,6 +213,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   nd <- ncol(x$row)
   nl <- nrow(x$phi)
+  nlr <- dim(x$row)[3]
+  nlc <- dim(x$col)[3]
   nr <- nrow(x$row)
   nc <- nrow(x$col)
 
@@ -224,9 +229,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(!is.na(conf.ellipses) && !require("ellipse"))
       stop("Package 'ellipse' is required to plot confidence ellipses.")
 
-  if(!is.na(conf.ellipses) && (nrow(x$covmat) != ncol(x$covmat) ||
-                               nrow(x$covmat) != nl * nd + 2 * nl * nd * (nr + nc)))
-      stop("Covariance matrix dimensions do not match association structure")
+  if(!is.na(conf.ellipses) && (nrow(x$adj.covmats) != ncol(x$adj.covmats) ||
+                               nrow(x$adj.covmats) != nd * (nr + nc) ||
+                               dim(x$adj.covmats)[3] != nl))
+      stop("Dimensions of covariance array for adjusted scores do not match association structure")
 
   if(replicates && (x$covtype == "none" || length(x$covmat) == 0))
       stop("Cannot plot points for replicates on a model without jackknife or bootstrap standard errors")
@@ -362,23 +368,22 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
 
   if(!is.na(conf.ellipses)) {
+      covmat <- x$adj.covmats[,, layer]
+
       i <- 0
+      start <- c((dim[1] - 1) * (nr + nc), (dim[2] - 1) * (nr + nc))
 
       if(what %in% c("rows", "both")) {
-          start <- nl * nd + nl * nd * (nr + nc) +
-                   (layer - 1) * nd * (nr + nc) + c((dim[1] - 1) * nr, ((dim[2] - 1) * nr))
+
 
           for(i in 1:nr)
-              polygon(ellipse(x$covmat[start + i, start + i], centre=sc[i,dim], level=conf.ellipses),
+              polygon(ellipse(covmat[start + i, start + i], centre=sc[i, dim], level=conf.ellipses),
                       border="dark grey", lty="dashed", lwd=2)
       }
 
       if(what %in% c("columns", "both")) {
-          start <- nl * nd + nl * nd * (nr + nc) +
-                   (layer - 1) * nd * (nr + nc) + nd * nr + c((dim[1] - 1) * nc, (dim[2] - 1) * nc)
-
           for(j in 1:nc)
-              polygon(ellipse(x$covmat[start + j, start + j], centre=sc[i+j,dim], level=conf.ellipses),
+              polygon(ellipse(covmat[start + nr + j, start + nr + j], centre=sc[i + j, dim], level=conf.ellipses),
                       border="dark grey", lty="dashed", lwd=2)
       }
   }
@@ -397,11 +402,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       npts <- nrow(pts)
 
       i <- 0
+      start <- nl * nd + nlr * nd * nr + nlc * nd * nc +
+               (layer - 1) * nd * (nr + nc) + c((dim[1] - 1) * (nr + nc), (dim[2] - 1) * (nr + nc)) + 1
 
       if(what %in% c("rows", "both")) {
-          start <- nl * nd + nl * nd * (nr + nc) +
-                   (layer - 1) * nd * (nr + nc) + c((dim[1] - 1) * nr, ((dim[2] - 1) * nr)) + 1
-
           points(pts[, seq.int(start[1], start[1] + nr - 1)],
                  pts[, seq.int(start[2], start[2] + nr - 1)],
                  pch=rep(rep(1:18, length.out=nt)[1:nr], each=npts),
@@ -412,11 +416,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       }
 
       if(what %in% c("columns", "both")) {
-          start <- nl * nd + nl * nd * (nr + nc) +
-                   (layer - 1) * nd * (nr + nc) + nd * nr + c((dim[1] - 1) * nc, (dim[2] - 1) * nc) + 1
-
-          points(pts[, seq.int(start[1], start[1] + nc - 1)],
-                 pts[, seq.int(start[2], start[2] + nc - 1)],
+          points(pts[, nr + seq.int(start[1], start[1] + nc - 1)],
+                 pts[, nr + seq.int(start[2], start[2] + nc - 1)],
                  pch=rep(rep(1:18, length.out=nt)[i:(i + nr)], each=npts),
                  col=rep(rainbow(nt, alpha=0.5)[i + 1:nr], each=npts),
                  cex=0.5)

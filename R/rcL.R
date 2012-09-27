@@ -199,11 +199,13 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                      else if(!is.null(base)) base
                      else NULL, ...)
       model$assoc$covmat <- jb$covmat
+      model$assoc$adj.covmats <- jb$adj.covmats
       model$assoc$boot.results <- jb$boot.results
       model$assoc$jack.results <- jb$jack.results
   }
   else {
       model$assoc$covmat <- numeric(0)
+      model$assoc$adj.covmats <- numeric(0)
       model$assoc$boot.results <- numeric(0)
       model$assoc$jack.results <- numeric(0)
   }
