@@ -1,7 +1,7 @@
 ## Skew-symmetric association model with layer effect (extension of van der Heijden & Mooijaart, 1995)
 
 hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "heterogeneous", "none"),
-                    layer.effect.symm=c("uniform", "homogeneous.scores", "heterogeneous", "none"),
+                    layer.effect.symm=c("heterogeneous", "uniform", "homogeneous.scores", "none"),
                     diagonal=c("none", "heterogeneous", "homogeneous"),
                     weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
                     nreplicates=100, ncpus=getOption("boot.ncpus"),
@@ -153,7 +153,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
           start <- c(start, rep(NA, dim(tab)[3] * 2 * nrow(tab)))
   }
   else if(layer.effect.skew == "homogeneous.scores") {
-      f2.skew <- sprintf("+ Mult(Exp(%s), HMSkew(%s, %s))",
+      f2.skew <- sprintf("+ Mult(%s, HMSkew(%s, %s))",
                          vars[3], vars[1], vars[2])
 
       if(nastart)
@@ -383,7 +383,22 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
       phi <- sv$d[1]
 
       # Integrate phi to layer coefficients
-      layer[,l] <- sweep(layer[,l, drop=FALSE], 2, phi, "*")
+      if(homogeneous)
+          layer <- layer * phi
+      else
+          layer[l,] <- layer[l, , drop=FALSE] * phi
+  }
+
+  # By convention, keep layer coefficients positive for the first layer category
+  if(homogeneous) {
+      if(layer[1,1] < 0) {
+          layer <- -layer
+          sc <- -sc
+      }
+  }
+  # For heterogeneous scores, always keep phi positive
+  else {
+      sc <- sweep(sc, 3:2, sign(layer), "*")
   }
 
   for(l in 1:dim(sc)[3]) {
