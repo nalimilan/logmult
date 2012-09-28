@@ -132,10 +132,10 @@
   higher-dimensional models).
 
   Confidence ellipses are computed from the scores' variances and covariances, based on the assumption that they are
-  follow a normal distribution, even if standard errors are computed using jackknife or bootstrap. This normality
-  assumption can be assessed visually using the \code{replicates} argument to check whether points globally follow the
-  shape of the ellipses. See \code{\link{se.assoc}} for details about checking the validity of jackknife or bootstrap
-  results.
+  follow a normal distribution, even if standard errors are computed using jackknife or bootstrap. When bootstrap (not
+  jackknife) was used, this normality assumption can be assessed visually using the \code{replicates} argument to check 
+  whether points globally follow the shape of the ellipses. See \code{\link{se.assoc}} for details about checking the
+  validity of jackknife or bootstrap results.
 
 
   The \code{plot.assoc} function is called internally by all others, and may be leveraged for advanced use cases,
