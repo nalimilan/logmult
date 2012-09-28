@@ -2,7 +2,7 @@
 
 unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                     constrain="auto", family=poisson,
-                    tolerance=1e-6, iterMax=5000,
+                    tolerance=1e-8, iterMax=5000,
                     trace=FALSE, verbose=TRUE, ...) {
   diagonal <- match.arg(diagonal)
 

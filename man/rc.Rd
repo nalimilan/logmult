@@ -14,7 +14,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
    se = c("none", "jackknife", "bootstrap"),
    nreplicates = 100, ncpus = getOption("boot.ncpus"),
    family = poisson, weights = NULL,
-   start = NA, etastart = NULL, tolerance = 1e-6,
+   start = NA, etastart = NULL, tolerance = 1e-8,
    iterMax = 5000, trace = TRUE, verbose = TRUE, ...)
 }
 \arguments{
@@ -191,7 +191,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
       # but for marginal weighting their errors are probably not in the same unit,
       # as they are larger than the unweighted ones, while phi are much smaller.
       stopifnot(isTRUE(all.equal(c(round(se(caithness.unweighted)$phi, d=3)),
-                                 c(0.282, 0.052))))
+                                 c(0.282, 0.053))))
       stopifnot(isTRUE(all.equal(c(round(se(aberdeen.unweighted)$phi, d=3)),
                                  c(0.221, 0.040))))
   }

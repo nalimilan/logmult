@@ -19,7 +19,7 @@ hmskewL(tab, nd.symm = NA,
         se = c("none", "jackknife", "bootstrap"),
         nreplicates = 100, ncpus = getOption("boot.ncpus"),
         family = poisson, weights = NULL,
-        start = NA, etastart = NULL, tolerance = 1e-6,
+        start = NA, etastart = NULL, tolerance = 1e-8,
         iterMax = 5000, trace = TRUE, verbose = TRUE, ...)
 }
 \arguments{
