@@ -104,7 +104,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
           # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
           args <- list(formula=as.formula(sprintf("%s + instances(Mult(%s, %s), %i)", f1, vars[1], vars[2], nd)),
                        data=tab, family=family, eliminate=eliminate,
-                       tolerance=1e-6, iterMax=iterMax)
+                       tolerance=1e-6, iterMax=iterMax, verbose=verbose, trace=trace)
 
           base <- do.call("gnm", c(args, list(...)))
 
@@ -131,7 +131,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                                  vars[3], head(dimnames(tab)[[3]], 1), tail(dimnames(tab)[[3]], 1), nd),
                constrainTo=rep(0:1, nd),
                start=start, etastart=etastart, eliminate=eliminate,
-               tolerance=tolerance, iterMax=iterMax, trace=trace)
+               tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
   model <- do.call("gnm", c(args, list(...)))
 
@@ -150,7 +150,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
 
  if(se %in% c("jackknife", "bootstrap")) {
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc, NULL,
-                     weighting, family, weights, base, ...)
+                     weighting, family, weights, base, verbose, trace, ...)
       model$assoc$covmat <- jb$covmat
       model$assoc$adj.covmats <- jb$adj.covmats
       model$assoc$boot.results <- jb$boot.results

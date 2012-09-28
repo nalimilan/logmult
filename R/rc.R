@@ -81,7 +81,8 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(f), data=tab,
                family=family, start=start, etastart=etastart,
-               tolerance=tolerance, iterMax=iterMax, trace=trace)
+               tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
+
   model <- do.call("gnm", c(args, list(...)))
 
   if(is.null(model))
@@ -98,7 +99,8 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   if(se %in% c("jackknife", "bootstrap")) {
       jb <- jackboot(se, ncpus, nreplicates, tab, model,
                      assoc1=getS3method("assoc", class(model)), assoc2=NULL,
-                     weighting, family, weights, if(nastart) base else NULL, ...)
+                     weighting, family, weights,
+                     if(nastart) base else NULL, verbose, trace, ...)
       model$assoc$covmat <- jb$covmat
       model$assoc$adj.covmats <- jb$adj.covmats
       model$assoc$boot.results <- jb$boot.results

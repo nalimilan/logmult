@@ -129,11 +129,9 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       args <- list(formula=as.formula(paste(f1, diagstr, f2)),
                    data=tab, family=family,
                    eliminate=eliminate, constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
-                   tolerance=1e-3, iterMax=iterMax, trace=trace)
-      dots <- as.list(substitute(list(...)))[-1]
-      args <- c(args, dots)
+                   tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
 
-      base2 <- do.call("gnm", args)
+      base2 <- do.call("gnm", c(args, list(...)))
 
       # If model fails (can always happen), do not fail completely but start with random values
       if(is.null(base2)) {
@@ -157,11 +155,9 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   args <- list(formula=as.formula(paste(f1, diagstr, f2)), data=tab,
                family=family, start=start, etastart=etastart,
                eliminate=eliminate,
-               tolerance=tolerance, iterMax=iterMax, trace=trace)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
+               tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
-  model <- do.call("gnm", args)
+  model <- do.call("gnm", c(args, list(...)))
 
   if(is.null(model))
       return(NULL)
@@ -197,7 +193,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                      weighting, family, weights,
                      if(!is.null(base) && !is.null(base2)) base2
                      else if(!is.null(base)) base
-                     else NULL, ...)
+                     else NULL,
+                     verbose, trace, ...)
       model$assoc$covmat <- jb$covmat
       model$assoc$adj.covmats <- jb$adj.covmats
       model$assoc$boot.results <- jb$boot.results

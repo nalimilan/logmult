@@ -1,10 +1,31 @@
 # Run jackknife or bootstrap replicates of the model
 jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, base, ...) {
+                     weighting, family, weights, base, verbose, trace, ...) {
   cat("Computing", se, "standard errors...\n")
 
   if(is.null(ncpus))
-      ncpus <- if(require(parallel)) min(parallel::detectCores(), 5) else 1
+      ncpus <- if(require(parallel)) min(parallel::detectCores(), 5)
+               else if(require(snow)) min(snow::detectCores(), 5)
+               else 1
+
+  if(ncpus > 1 && require(parallel)) {
+      cl <- parallel::makePSOCKcluster(rep("localhost", ncpus), outfile="", methods=FALSE)
+      on.exit(parallel::stopCluster(cl))
+
+      # Printing output from all nodes at the same time would be a mess, only print "."
+      trace <- FALSE
+  }
+  else if(ncpus > 1 && require(snow)) {
+      cl <- snow::makeSOCKcluster(rep("localhost", ncpus), outfile="")
+      on.exit(snow::stopCluster(cl))
+
+      # Printing output from all nodes at the same time would be a mess, only print "."
+      trace <- FALSE
+  }
+  else {
+      cl <- NULL
+      ncpus <- 1
+  }
 
   ass1 <- assoc1(model, weighting=weighting)
 
@@ -38,10 +59,10 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 
   if(se == "jackknife") {
       jack <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
-                        w=tab[!is.na(tab)], ncpus=ncpus,
+                        w=tab[!is.na(tab)], cl=cl,
                         model=model, assoc1=assoc1, assoc2=assoc2,
-                        weighting=weighting, family=family, weights=weights, ...,
-                        base=base, verbose=FALSE)
+                        weighting=weighting, family=family, weights=weights,
+                        verbose=verbose, ..., base=base)
 
       jack.results <- list(bias=jack$bias, values=jack$values)
 
@@ -56,10 +77,11 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
   }
   else {
       boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc,
-                                 R=nreplicates, ncpus=ncpus, parallel="snow",
+                                 R=nreplicates, cl=cl,
                                  args=list(model=model, assoc1=assoc1, assoc2=assoc2,
                                            weighting=weighting, family=family,
-                                           weights=weights, ..., base=base))
+                                           weights=weights, verbose=verbose,
+                                           ..., base=base))
 
       get.covmat <- function(start, len) {
           int <- seq.int(start, length.out=len)
@@ -68,6 +90,10 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 
       jack.results <- numeric(0)
   }
+
+  # "." progress indicators need this
+  if(verbose)
+      cat("\n")
 
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
@@ -207,16 +233,8 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 }
 
 # Additional arguments are needed so that update() finds them even when using parLapply
-jackknife.assoc <- function(x, model, repl.verbose=FALSE, ...) {
+jackknife.assoc <- function(x, model, ...) {
   tab <- model$data
-
-  if(repl.verbose) {
-      iter <- which(!1:length(tab) %in% x)
-      if(length(iter) == 1)
-          cat(sprintf("Iteration for cell %i of %i\n", iter, length(tab)))
-      else
-          cat("Initial iteration\n")
-  }
 
   if(sum(tab[-x], na.rm=TRUE) > 0) {
       mat <- tab
@@ -225,7 +243,7 @@ jackknife.assoc <- function(x, model, repl.verbose=FALSE, ...) {
       tab <- tab + mat
   }
 
-  replicate.assoc(model, tab, repl.verbose=repl.verbose, ...)
+  replicate.assoc(model, tab, ...)
 }
 
 boot.assoc <- function(data, indices, args) {
@@ -247,16 +265,16 @@ boot.assoc <- function(data, indices, args) {
 }
 
 # Replicate model with new data, and combine assoc components into a vector
-replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
-                            base=NULL, repl.verbose=FALSE) {
-  library(assoc)
+replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose, ...,
+                            base=NULL) {
+  suppressMessages(library(assoc))
 
   # Models can generate an error if they fail repeatedly
   # Remove warnings because we handle them below
   model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
                                             start=parameters(model.orig),
                                             etastart=as.numeric(predict(model.orig)),
-                                            verbose=repl.verbose, trace=repl.verbose, se="none")),
+                                            verbose=FALSE, trace=FALSE, se="none")),
                     error=function(e) NULL)
 
   if(is.null(model) || !model$converged) {
@@ -308,6 +326,9 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, ...,
       ret <- c(ret, if(inherits(ass2, c("assoc.hmskew", "assoc.hmskewL"))) find.stable.scores.hmskew(ass2, ass2.orig)
                     else find.stable.scores(ass2, ass2.orig))
   }
+
+  if(verbose)
+      cat(".")
 
   ret
 }

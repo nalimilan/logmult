@@ -67,7 +67,8 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(basef),
                    data=tab, family=family,
-                   tolerance=1e-3, iterMax=iterMax, trace=trace)
+                   tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
+
       base <- do.call("gnm", c(args, list(...)))
 
       start <- c(parameters(base), rep(NA, 2 * nrow(tab)))
@@ -83,7 +84,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(f), data=tab,
                family=family, start=start, etastart=etastart,
-               tolerance=tolerance, iterMax=iterMax, trace=trace)
+               tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
   model <- do.call("gnm", c(args, list(...)))
 
@@ -108,7 +109,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskew
 
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, base, ...)
+                     weighting, family, weights, base, verbose, trace, ...)
 
       if(!is.na(nd.symm)) {
           model$assoc$covtype <- se

@@ -77,6 +77,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
                    family=family, eliminate=eliminate,
                    tolerance=1e-6, iterMax=iterMax)
+
       args <- c(args, list(...))
 
       base <- do.call("gnm", args)
@@ -173,9 +174,9 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(paste(f1, diagstr, f2, f2.skew)),
-                   data=tab, family=family, start=start,
-                   eliminate=eliminate, constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
-                   tolerance=1e-3, iterMax=iterMax, trace=trace)
+                   data=tab, family=family, start=start, eliminate=eliminate,
+                   constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
+                   tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
 
       base2 <- do.call("gnm", c(args, list(...)))
 
@@ -198,9 +199,8 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(paste(f1, diagstr, f2, f2.skew)), data=tab,
-               family=family, start=start, etastart=etastart,
-               eliminate=eliminate,
-               tolerance=tolerance, iterMax=iterMax, trace=trace)
+               family=family, start=start, etastart=etastart, eliminate=eliminate,
+               tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
   model <- do.call("gnm", c(args, list(...)))
 
@@ -253,7 +253,8 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                      weighting, family, weights,
                      if(!is.null(base) && !is.null(base2)) base2
                      else if(!is.null(base)) base
-                     else NULL, ...)
+                     else NULL,
+                     verbose, trace, ...)
       if(!is.na(nd.symm)) {
           model$assoc$covtype <- se
           model$assoc$covmat <- jb$covmat1

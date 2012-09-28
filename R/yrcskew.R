@@ -73,7 +73,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(basef),
                    data=tab, family=family,
-                   tolerance=1e-3, iterMax=iterMax, trace=trace)
+                   tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
 
       base <- do.call("gnm", c(args, list(...)))
 
@@ -104,7 +104,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   args <- list(formula=eval(as.formula(f)), data=tab,
                constrain="YRCSkew\\(.*\\)0$",
                family=family, start=start, etastart=etastart,
-               tolerance=tolerance, iterMax=iterMax, trace=trace)
+               tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
   model <- do.call("gnm", c(args, list(...)))
 
@@ -128,7 +128,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.yrcskew
 
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, base, ...)
+                     weighting, family, weights, base, verbose, trace, ...)
 
       if(!is.na(nd.symm)) {
           model$assoc$covtype <- se
