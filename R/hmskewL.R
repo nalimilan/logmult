@@ -407,6 +407,9 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
       sc[,,l] <- sc[,,l] %*% matrix(c(cos(angle), sin(angle), -sin(angle), cos(angle)), 2, 2)
   }
 
+  # The reference category is not really at 0, and this makes the display ugly
+  sc[abs(sc) < sqrt(.Machine$double.eps)] <- 0
+
   ## Prepare objects
   layer <- cbind(layer, layer)
 

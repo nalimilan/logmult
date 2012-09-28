@@ -41,13 +41,14 @@ print.rc.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
 print.hmskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
 
-  ass <- x$assoc
+  ass <- x[["assoc"]]
 
   if(length(ass) > 0) {
       cat("Intrinsic symmetric association coefficients:\n")
       print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
       cat("\nNormalized symmetric association scores:\n")
       print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
+      cat("\n")
   }
 
   ass <- x$assoc.hmskew
@@ -69,13 +70,14 @@ print.hmskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
 print.yrcskew <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
 
-  ass <- x$assoc
+  ass <- x[["assoc"]]
 
   if(length(ass) > 0) {
       cat("Intrinsic symmetric association coefficients:\n")
       print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
       cat("\nNormalized symmetric association scores:\n")
       print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
+      cat("\n")
   }
 
   ass <- x$assoc.yrcskew
@@ -130,7 +132,7 @@ print.rcL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   printModelStats(x, digits=digits)
 }
 
-print.hmskewL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+print.rcL.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
 
   ass <- x$assoc
@@ -156,27 +158,31 @@ print.hmskewL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   printModelStats(x, digits=digits)
 }
 
-print.rcL.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+print.hmskewL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
 
-  ass <- x$assoc
+  ass <- x[["assoc"]]
 
-  cat("Intrinsic symmetric association coefficients:\n")
-  print(format(ass$phi, digits=digits, ...), quote=FALSE)
+  if(length(ass) > 0) {
+      cat("Intrinsic symmetric association coefficients:\n")
+      print(format(ass$phi, digits=digits, ...), quote=FALSE)
 
-  if(dim(ass$row)[3] == 1) {
-      cat("\nNormalized symmetric association scores for all layers:\n")
-      print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
-  }
-  else {
-      cat("\nNormalized symmetric association scores:\n")
-      print(format(ass$row, digits=digits, ...), quote=FALSE)
+      if(dim(ass$row)[3] == 1) {
+          cat("\nNormalized symmetric association scores for all layers:\n")
+          print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
+          cat("\n")
+      }
+      else {
+          cat("\nNormalized symmetric association scores:\n")
+          print(format(ass$row, digits=digits, ...), quote=FALSE)
+          cat("\n")
+      }
   }
 
   ass <- x$assoc.hmskew
 
   cat("Intrinsic skew association coefficients:\n")
-  print(format(ass$phi, digits=3))
+  print(format(ass$phi, digits=3), quote=FALSE)
 
   if(dim(ass$row)[3] == 1) {
       cat("\nNormalized skew association scores for all layers:\n")

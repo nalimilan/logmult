@@ -33,37 +33,55 @@ assocTable <- function(object, ass, ...) {
   }
 
 
-  if(dim(ass$row)[3] > 1) {
-      rownames(row) <- outer(paste(names(dimnames(object$data))[1], rownames(ass$row), sep=""),
-                             outer(colnames(ass$row),
-                                   paste(names(dimnames(object$data))[3], dimnames(ass$col)[[3]], sep=""),
-                                   paste2),
-                             paste2)
+  if(inherits(ass, "assoc.symm")) {
+      if(dim(ass$row)[3] > 1) {
+          rownames(row) <- outer(paste(names(dimnames(object$data))[1], "|", names(dimnames(object$data))[2],
+                                       rownames(ass$row), sep=""),
+                                 outer(colnames(ass$row),
+                                       paste(names(dimnames(object$data))[3], dimnames(ass$col)[[3]], sep=""),
+                                       paste2),
+                                 paste2)
+      }
+      else {
+          rownames(row) <- outer(paste(names(dimnames(object$data))[1], "|", names(dimnames(object$data))[2],
+                                 rownames(ass$row), sep=""),
+                                 colnames(ass$row), paste2)
+      }
+
+      rbind(phi, row)
   }
   else {
-      rownames(row) <- outer(paste(names(dimnames(object$data))[1], rownames(ass$row), sep=""),
-                             colnames(ass$row), paste2)
-  }
+      if(dim(ass$row)[3] > 1) {
+          rownames(row) <- outer(paste(names(dimnames(object$data))[1], rownames(ass$row), sep=""),
+                                 outer(colnames(ass$row),
+                                       paste(names(dimnames(object$data))[3], dimnames(ass$col)[[3]], sep=""),
+                                       paste2),
+                                 paste2)
+      }
+      else {
+          rownames(row) <- outer(paste(names(dimnames(object$data))[1], rownames(ass$row), sep=""),
+                                 colnames(ass$row), paste2)
+      }
 
+      if(dim(ass$col)[3] > 1) {
+          rownames(col) <- outer(paste(names(dimnames(object$data))[2], rownames(ass$col), sep=""),
+                                 outer(colnames(ass$col),
+                                       paste(names(dimnames(object$data))[3], dimnames(ass$col)[[3]], sep=""),
+                                       paste2),
+                                 paste2)
+      }
+      else {
+          rownames(col) <- outer(paste(names(dimnames(object$data))[2], rownames(ass$col), sep=""),
+                                 colnames(ass$col), paste2)
+      }
 
-  if(dim(ass$col)[3] > 1) {
-      rownames(col) <- outer(paste(names(dimnames(object$data))[2], rownames(ass$col), sep=""),
-                             outer(colnames(ass$col),
-                                   paste(names(dimnames(object$data))[3], dimnames(ass$col)[[3]], sep=""),
-                                   paste2),
-                             paste2)
+      rbind(phi, row, col)
   }
-  else {
-      rownames(col) <- outer(paste(names(dimnames(object$data))[2], rownames(ass$col), sep=""),
-                             colnames(ass$col), paste2)
-  }
-
-  rbind(phi, row, col)
 }
 
 summary.assocmod <- function(object, weighting, ...) {
   if(missing(weighting))
-      weighting <- if(length(object$assoc) > 0) object$assoc$weighting
+      weighting <- if(length(object[["assoc"]]) > 0) object$assoc$weighting
                    else if(length(object$assoc.hmskew) > 0) object$assoc.hmskew$weighting
                    else if(length(object$assoc.yrcskew) > 0) object$assoc.yrcskew$weighting
                    else "marginal"
@@ -72,7 +90,7 @@ summary.assocmod <- function(object, weighting, ...) {
 
   coefficients <- matrix(NA, 0, 4)
 
-  if(length(object$assoc) > 0) {
+  if(length(object[["assoc"]]) > 0) {
       if(weighting == object$assoc$weighting)
           coefficients <- assocTable(object, object$assoc)
       else
@@ -126,10 +144,15 @@ print.summary.assocmod <- function(x, digits=max(3, getOption("digits") - 4), ..
   printModelHeading(x, digits)
 
   cat("\nAssociation coefficients:\n")
-  printCoefmat(x$coefficients, has.Pvalue=TRUE, print.gap=2, ...)
 
-  if(all(is.na(x$coefficients[,"Std. error"])))
-      cat('\nNo standard errors available\n(jackknife disabled, or weighting changed since fitting).\n')
+  if(all(is.na(x$coefficients[,"Std. error"]))) {
+      printCoefmat(x$coefficients[, !colnames(x$coefficients) %in% c("Std. error", "Pr(>|z|)"), drop=FALSE],
+                  print.gap=2, ...)
+      cat('\nNo standard errors available\n(jackknife and bootstrap disabled, or weighting changed since fitting).\n')
+  }
+  else {
+      printCoefmat(x$coefficients, has.Pvalue=TRUE, print.gap=2, ...)
+  }
 
   if(length(x$diagonal) > 0) {
       cat("\nDiagonal coefficients:\n")
