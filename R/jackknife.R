@@ -11,9 +11,8 @@
 #
 # Formula taken from original function and adapted to work with table cell weights.
 #
-# Objects needed by theta() on the cluster nodes can be passed as arguments and handled
-# in theta(), or simply passed as *named* arguments to jackknife(): they will be exported
-# the the nodes' environments. 
+# Objects needed by theta() on the cluster nodes need to be passed as arguments to
+# theta().
 jackknife <- function(x, theta, ..., w=rep(1, length(x)), cl=NULL)
 {
     call <- match.call()
@@ -26,33 +25,12 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)), cl=NULL)
     # Run this first to find out caller errors before running parLapply
     thetahat <- as.numeric(theta(x, ...))
 
-    if(!is.null(cl) && require(parallel)) {
-        dots <- list(...)
-        dotsnames <- names(dots)
-
-        if(length(dotsnames[dotsnames != ""]) > 0)
-            parallel::clusterExport(cl, dotsnames[dotsnames != ""], as.environment(dots[dotsnames != ""]))
-
+    if(!is.null(cl) && require(parallel))
         u <- parallel::parLapply(cl, 1:n, function(i, x, theta, ...) theta(x[-i], ...), x, theta, ...)
-    }
-    else if(!is.null(cl) && require(snow)) {
-        dots <- list(...)
-        dotsnames <- names(dots)
-
-        if(length(dotsnames[dotsnames != ""]) > 0) {
-            # clusterExport() in snow 0.3-3 does not take an 'envir' argument
-#             envir <- as.environment(dots[dotsnames != ""])
-#             environment(clusterExport) <- envir
-            snow::clusterExport(cl, dotsnames[dotsnames != ""])
-        }
-
+    else if(!is.null(cl) && require(snow))
         u <- snow::clusterApply(cl, 1:n, function(i, x, theta, ...) theta(x[-i], ...), x, theta, ...)
-    }
-    else {
-        for(i in 1:n) {
-            u[[i]] <- as.numeric(theta(x[-i], ...))
-        }
-    }
+    else
+        u <- lapply(1:n, function(i) as.numeric(theta(x[-i], ...)))
 
     u <- do.call(rbind, u)
 
