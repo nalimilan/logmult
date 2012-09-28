@@ -94,7 +94,7 @@ hmskewL(tab, nd.symm = NA,
 }
 \value{
   A \code{rcL} object, with all the components of a \code{\link{gnm}} object, plus an
-    \code{assoc.rcL} component holding the most relevant association information:
+    \code{assoc} component holding the most relevant association information:
   \item{phi }{The intrisic association parameters, one per dimension and per layer.}
   \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
     sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}

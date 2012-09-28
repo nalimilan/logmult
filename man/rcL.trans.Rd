@@ -55,8 +55,8 @@ rcL.trans(tab, nd = 1,
   \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
 }
 \details{
-  This function fits log-multiplicative row-column association models with regression-type layer effect, which are
-  and experimental model combining the principles behind RC(M)-L (Wong, 2010; see \code{\link{rcL}}) and regression-type
+  This function fits log-multiplicative row-column association models with regression-type layer effect which are
+  \strong{experimental} models combining the principles behind RC(M)-L (Wong, 2010; see \code{\link{rcL}}) and regression-type
   models (Goodman & Hout, 1998). More specifically, like RC(M)-L models, row and column scores are allowed to vary accross
   a layer variable, and the pattern of this variation follows the regression-type inspiration: for each dimension, a set of
   scores describes the first layer, another set describes the total variation of these scores need to describe the
@@ -94,7 +94,7 @@ rcL.trans(tab, nd = 1,
 }
 \value{
   A \code{rcL} object, with all the components of a \code{\link{gnm}} object, plus an
-    \code{assoc.rcL} component holding the most relevant association information:
+    \code{assoc} component holding the most relevant association information:
   \item{phi }{The intrisic association parameters, one per dimension and per layer.}
   \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
     sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}
