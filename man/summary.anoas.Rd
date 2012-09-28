@@ -31,18 +31,16 @@
 }
 \value{
   A \code{data.frame} with the following columns:
-  \itemize{
-      \item{Res. Df}{ the residual number of degrees of freedom of the model.}
-      \item{Res. Dev}{ the residual deviance of the model (likelihood ratio Chi-squared statistic, or L-squared).}
-      \item{Dev. Indep. (\%)}{ the ratio of the residual deviance of the model over that of the independence model,
-          times 100. This measures the share of departure from independence that cannot be explained using the
-          number of dimensions of the model.}
-      \item{Dissim. (\%)}{ the dissimilarity index of the model's fitted values with regard to the observed data.}
-      \item{BIC}{ the Bayesian Information Criterion for the model.}
-      \item{AIC}{ Akaike's An Information Criterion for the model.}
-      \item{Deviance}{ the reduction in deviance of the model compared to the previous one}
-      \item{Df}{ the reduction in the number of degrees of freedom of the model compared to the previous one.}
-  }
+  \item{Res. Df}{ the residual number of degrees of freedom of the model.}
+  \item{Res. Dev}{ the residual deviance of the model (likelihood ratio Chi-squared statistic, or L-squared).}
+  \item{Dev. Indep. (\%)}{ the ratio of the residual deviance of the model over that of the independence model,
+      times 100. This measures the share of departure from independence that cannot be explained using the
+      number of dimensions of the model.}
+  \item{Dissim. (\%)}{ the dissimilarity index of the model's fitted values with regard to the observed data.}
+  \item{BIC}{ the Bayesian Information Criterion for the model.}
+  \item{AIC}{ Akaike's An Information Criterion for the model.}
+  \item{Deviance}{ the reduction in deviance of the model compared to the previous one}
+  \item{Df}{ the reduction in the number of degrees of freedom of the model compared to the previous one.}
 }
 \author{
   Milan Bouchet-Valat

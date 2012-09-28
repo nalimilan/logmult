@@ -3,10 +3,9 @@
 \alias{print.yrcskew}
 \title{Fitting Yamaguchi RC_SK Skew-Symmetric Association Model}
 \description{
-  \code{yrcskew} fits a skew-symmetric association model proposed in Yamaguchi (1990)
-  to describe asymmetry of square tables. This model can be combined with symmetric
-  association models like a quasi-symmetry (the default) or symmetric (homogeneous)
-  RC(M) models.
+  Fit a skew-symmetric association model proposed in Yamaguchi (1990) to describe asymmetry of square
+  tables. This model can be combined with symmetric association models like a quasi-symmetry (the default)
+  or symmetric (homogeneous) RC(M) models.
 }
 \usage{
 yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
@@ -63,7 +62,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
 
   These models follow the equation:
   \deqn{ log F_{ij} = q_{ij} + \delta_{i<j} \nu_i (\nu_j - \nu_i) - \delta_{i>j} \nu_j (\nu_i - \nu_j) }
-  where \eqn{F_ij} is the expected frequency for the cell at the intersection of row i and column j of
+  where \eqn{F_{ij}} is the expected frequency for the cell at the intersection of row i and column j of
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric or a RC(M) association. See reference for detailed information
   about the degrees of freedom and the identification constraints applied to the scores.
 

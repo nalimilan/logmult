@@ -4,8 +4,9 @@
   Fitting Log-Multiplicative Uniform Difference/Layer Effect Model
 }
 \description{
-  \code{unidiff} fits the log-multiplicative uniform difference model (UNIDIFF,
-  see Erikson & Goldthorpe, 1992), also called the log-multiplicative layer effect model (Xie, 1992).
+  Fit the log-multiplicative uniform difference model (UNIDIFF, see Erikson & Goldthorpe, 1992),
+  also called the log-multiplicative layer effect model (Xie, 1992). For square tables, diagonal
+  cells can be handled separately.
 }
 \usage{
 unidiff(tab, diagonal = c("included", "excluded", "only"),
@@ -42,12 +43,12 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
 \details{
   The equation of the fitted model is:
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
-                      + \lambda^IK_ik + \lambda^JK_jk
-                      + \phi_k \psi^IJ_ij }
-  where \eqn{F_ijk} is the expected frequency for the cell at the intersection of row i, column j and
-  layer k of \code{tab}. When \code{diagonal = "excluded"}, \eqn{\lambda^IJK_ijk} parameters are added
-  but set to 0 when \eqn{i != j} (off-diagonal). When \code{diagonal = "only"}, \eqn{\psi^IJ_ij} is set
-  to 0 when \eqn{i != j}.
+                      + \lambda^{IK}_{ik} + \lambda^{JK}_{jk}
+                      + \phi_k \psi^{IJ}_{ij} }
+  where \eqn{F_{ijk}} is the expected frequency for the cell at the intersection of row i, column j and
+  layer k of \code{tab}. When \code{diagonal = "excluded"}, \eqn{\lambda^{IJK}_{ijk}} parameters are added
+  but set to 0 when \eqn{i \neq j} (off-diagonal). When \code{diagonal = "only"}, \eqn{\psi^{IJ}_{ij}} is set
+  to 0 when \eqn{i \neq j}.
 
   Layer coefficients \eqn{\phi_k} are internally exponentiated in the gnm formula, which means the reported
   values are in log scale, with reference 0 for the first year. Interaction coefficients use the

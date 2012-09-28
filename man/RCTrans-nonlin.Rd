@@ -21,12 +21,12 @@
   This function is used by \code{\link{rcL.trans}} to fit an experimental model.
 
   \code{RCTrans} combines its arguments in the following way:
-  \deqn{ RCTrans(i, j, k) = (\mu^S_i + \psi_k \mu^V_i) (\nu^S_j + \psi_k \nu^Vj)}
+  \deqn{ RCTrans(i, j, k) = (\mu^S_i + \psi_k \mu^V_i) (\nu^S_j + \psi_k \nu^V_j)}
   where \eqn{RCTrans(i, j, k)} is the skew association for the cell at the intersection of row i, column j
   and layer k of the table.
 
-  \code{RCTransSymm} is similar, but forces \eqn{\mu_i^S} and \eqn{\nu_i^S} (respectively \eqn{\mu^V_i} and
-  \eqn{\nu^V_i}) to be equal for identical values of i (same layer).
+  \code{RCTransSymm} is similar, but forces \eqn{\mu^S_i} and \eqn{\nu^S_i} (respectively \eqn{\mu^V_i} and
+  \eqn{\nu^V_i}) to be equal for identical values of i (diagonal cells).
 }
 \value{
   A list with the required components of a \code{"nonlin"} function:

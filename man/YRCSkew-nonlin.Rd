@@ -21,8 +21,10 @@ YRCSkew(row, col, rowinf, rowsup, inst = NULL)
   It can be used directly to fit custom variants of the model not supported by \code{yrcskew}.
 
   This function combines its arguments in the following way:
-  \deqn{ YRCSkew(mincat, maxcat, skew) = skew * \nu_{mincat} * (\mu_{maxcat} - \nu_{mincat}) }
-  When arguments are set according to what is suggested above, this amounts to the equation:
+  \deqn{ YRCSkew(row, col, rowinf, rowsup) = \delta_{rowinf} * \mu_{row} * (\mu_{col} - \mu_{row})
+                                           + \delta_{rowsup} * \nu_{col} * (\nu_{row} - \nu_{col}) }
+  When arguments are set according to what is suggested above, and the skew \eqn{\delta} parameter is
+  constrained to 1, this amounts to the equation:
   \deqn{ YRCSkew_{ij} = \delta_{i<j} \nu_i (\nu_j - \nu_i) - \delta_{i>j} \nu_j (\nu_i - \nu_j)
               = (\delta_{i<j} - \delta_{i>j}) \nu_{min(i,j)} (\nu_{max(i,j)} - \nu_{min(i,j)})}
   where \eqn{YRCSkew_{ij}} is the skew association for the cell at the intersection of row i and column j of

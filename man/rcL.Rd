@@ -4,10 +4,10 @@
 \alias{print.rcL.symm}
 \title{Fitting Row-Column Association Models With Layer Effect}
 \description{
-  \code{rcL} fits log-multiplicative row-column association models with layer effect,
-  with one or several dimensions. Supported variants include homogeneous or heterogeneous
-  scores over the layer variable, and (for square tables) symmetric (homogeneous)
-  row and column scores, possibly combined with separate diagonal parameters.
+  Fit log-multiplicative row-column association models with layer effect, also called RC(M)-L models,
+  with one or several dimensions. Supported variants include homogeneous or heterogeneous scores over
+  the layer variable, and (for square tables) symmetric (homogeneous) row and column scores, possibly
+  combined with separate diagonal parameters.
 }
 \usage{
 rcL(tab, nd = 1,
@@ -64,9 +64,9 @@ rcL(tab, nd = 1,
   This function fits log-multiplicative row-column association models with layer effect, usually called (after
   Wong) RC(M)-L models, typically following the equation:
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
-                       + \lambda^IK_ik + \lambda^JK_jk
+                       + \lambda^{IK}_{ik} + \lambda^{JK}_{jk}
                        + \sum_{m=1}^M { \phi_{km} \mu_{ikm} \nu_{jkm} } }
-  where \eqn{F_ijk} is the expected frequency for the cell at the intersection of row i, column j and layer k of
+  where \eqn{F_{ijk}} is the expected frequency for the cell at the intersection of row i, column j and layer k of
   \code{tab}, and M the number of dimensions. If \code{layer.effect} is set to \sQuote{heterogeneous}, different scores
   will be computed for each level, which is equivalent to fitting separate RC(M) models on the k two-way tables.
   If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ikm} = \mu_{im}} and \eqn{\nu_{ikm} = \nu_{im}} for all

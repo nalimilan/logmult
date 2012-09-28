@@ -3,12 +3,11 @@
 \alias{print.hmskewL}
 \title{Fitting van der Heijen & Mooijaart Skew-Symmetric Association Model With Layer Effect}
 \description{
-  \code{hmskewL} fits an extension of the skew-symmetric association model proposed in
-  van der Heijden & Mooijaart (1995) to describe asymmetry of square tables.
-  This model introduces a layer effect by which the strength of skew-symmetric association,
-  and optionnally scores, can vary over the levels of the third dimension of the table.
-  It can be combined with symmetric association models like a quasi-symmetry
-  (the default) or symmetric (homogeneous) RC(M)-L models, with or without layer effect.
+  Fits an extension of the skew-symmetric association model proposed in van der Heijden & Mooijaart (1995)
+  to describe asymmetry of square tables. This model introduces a layer effect by which the strength of
+  skew-symmetric association, and optionnally scores, can vary over the levels of the third dimension of the table.
+  It can be combined with symmetric association models like a quasi-symmetry (the default) or symmetric (homogeneous)
+  RC(M)-L models, with or without layer effect.
 }
 \usage{
 hmskewL(tab, nd.symm = NA,
@@ -63,12 +62,10 @@ hmskewL(tab, nd.symm = NA,
   \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
 }
 \details{
-  This models follows a slightly modified equation similar to that of the original model presented by
-  van der Heijden & Mooijaart (1995) (see \code{\link{hmskew}}).
-
-  These models follow the equation:
+  This model follows an equation inspired from that presented by van der Heijden & Mooijaart (1995) for two-way tables
+  (see \code{\link{hmskew}}):
   \deqn{ log F_{ijk} = q_{ijk} + \phi_k (\nu_{ik} \mu_{jk} - \mu_{jk} \nu_{ik}) }
-  where \eqn{F_ijk} is the expected frequency for the cell at the intersection of row i, column j and layer k of
+  where \eqn{F_{ijk}} is the expected frequency for the cell at the intersection of row i, column j and layer k of
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric specification, with either full interaction parameters, or
   a RC(M) association. See reference for detailed information about the degrees of freedom and the identification
   constraints applied to the scores.

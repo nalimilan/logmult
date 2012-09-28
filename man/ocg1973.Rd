@@ -3,7 +3,7 @@
 \docType{data}
 \title{Intergenerational Mobility in the United States, 1973}
 \description{
-  Mobility Table for the United States from the 1973 Occupational Changes in a Generation (OCG-II)
+  Mobility table for the United States from the 1973 Occupational Changes in a Generation (OCG-II)
   survey. This table has been used by Yamaguchi (1987, 1990), Xie (1992) and van der Heijden &
   Mooijaart (1995).
 }

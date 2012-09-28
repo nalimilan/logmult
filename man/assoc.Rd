@@ -7,10 +7,11 @@
 \alias{assoc.yrcskew.symm}
 \alias{assoc.rcL}
 \alias{assoc.rcL.symm}
+\alias{assoc.hmskewL}
 \alias{assoc.rcL.trans}
 \alias{assoc.rcL.trans.symm}
 \title{Identifying Scores from Association Models}
-\description{Identify log-multiplicative association scores from over-parameterized gnm models}
+\description{Identify log-multiplicative association scores from over-parameterized gnm models.}
 \usage{
 \method{assoc}{rc}(model, weighting = c("marginal", "uniform", "none"), ...)
 
@@ -25,6 +26,8 @@
 \method{assoc}{rcL.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
 
 \method{assoc}{rcL.trans}(model, weighting = c("marginal", "uniform", "none"), ...)
+
+\method{assoc}{hmskewL}(model, weighting = c("marginal", "uniform", "none"), ...)
 
 \method{assoc}{rcL.trans.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
 }
@@ -59,11 +62,6 @@
     \code{weighting} argument.}
   \item{col.weights }{The column weights used for the identification of scores, as specified by the
     \code{weighting} argument.}
-  \item{covmat }{The variance-covariance matrix of the parameter's estimators, if \code{se}
-    was set. It contains first phi coefficients, then normalized row and column scores, then
-    sqrt(phi) * row/column scores.}
-  \item{covtype }{The method used to compute the variance-covariance matrix. Currently, only
-    \dQuote{jackknife} is supported.}
 }
 \seealso{\code{\link{rc}}, \code{\link{hmskew}}, \code{\link{yrcskew}}, \code{\link{rcL}},
          \code{\link{rcL.trans}} }

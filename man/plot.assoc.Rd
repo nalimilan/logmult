@@ -174,7 +174,7 @@
   data(gss7590)
   model <- rcL(gss7590, nd=2, weighting="none")
 
-  par(mfrow=c(2, 2))
+  opar <- par(mfrow=c(2, 2))
   for(i in 1:4)
       plot(model, layer=i, what="rows", rev.axes=c(TRUE, FALSE),
            main=rownames(model$assoc$phi)[i],
@@ -185,6 +185,8 @@
       plot(model, layer=i, what="col", rev.axes=c(TRUE, FALSE),
            main=rownames(model$assoc$phi)[i],
            xlim=c(-1.4, 1.4), ylim=c(-1.2, 1.2))
+
+  par(opar)
 
 
   ## van der Heijden & Mooijaart (1995), Figure 1c (p. 23)

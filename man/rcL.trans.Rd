@@ -2,9 +2,10 @@
 \alias{rcL.trans}
 \title{Fitting Row-Column Association Models With Transitional Layer Effect}
 \description{
-  \code{rcL.trans} fits log-multiplicative row-column association models with transitional
-  layer effect with one or several dimensions. Supported variants include (for square tables)
-  symmetric (homogeneous) row and column scores, and separate diagonal parameters.
+  Fit log-multiplicative row-column association models with transitional layer effect,
+  which are related to the RC(M)-L model, with one or several dimensions. Supported
+  variants include (for square tables) symmetric (homogeneous) row and column scores,
+  possibly combined with separate diagonal parameters.
 }
 \usage{
 rcL.trans(tab, nd = 1,
@@ -68,10 +69,10 @@ rcL.trans(tab, nd = 1,
 
   The general equation of the model is:
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
-               + \lambda^IK_ik + \lambda^JK_jk
-               + \sum_{m=1}^M { \phi_{km} (\mu^S_{im} + \psi_km \mu^V_{im}) (\nu^S_{jm} + \psi_km \nu^V{jm}) }}
-  where \eqn{F_ijk} is the expected frequency for the cell at the intersection of row i, column j and layer k of
-  \code{tab}, and M the number of dimensions. The \eqn{\psi_km} parameter is constrained to be positive, equal to 0
+               + \lambda^{IK}_{ik} + \lambda^{JK}_{jk}
+               + \sum_{m=1}^M { \phi_{km} (\mu^S_{im} + \psi_{km} \mu^V_{im}) (\nu^S_{jm} + \psi_{km} \nu^V_{jm}) }}
+  where \eqn{F_{ijk}} is the expected frequency for the cell at the intersection of row i, column j and layer k of
+  \code{tab}, and M the number of dimensions. The \eqn{\psi_{km}} parameter is constrained to be positive, equal to 0
   for the first layer (\eqn{m = 1}), and equal to 1 for the last layer.
 
   This model should not be confused with another combination of RC(M) models with the regression-type approach,
@@ -79,8 +80,8 @@ rcL.trans(tab, nd = 1,
   the stable and the varying components. In the present model, row and column scores for both components are summed
   \emph{before} entering the multiplicative interaction, which means only one RC(M) association exists.
 
-  The returned object is a generic rcL association describing the fitted scores for each layer. To analyze more
-  specifically the variation of each (normalized) score from the first to the last layer, use:
+  The returned object is a generic \code{rcL} association model describing the fitted scores for each layer. To analyze
+  more specifically the variation of each (normalized) score from the first to the last layer, use:
   \code{model$assoc$row[,,dim(model$assoc$row)[3]] - model$assoc$row[,,1]}
   (and similarly for column scores).
 

@@ -4,9 +4,9 @@
 \alias{print.rc.symm}
 \title{Fitting Row-Column Association Models}
 \description{
-  \code{rc} fits log-multiplicative row-column association models first introduced
-  by Goodman (1979), with one or several dimensions. Supported variants (for square tables)
-  include symmetric (homogeneous) row and column scores, and separate diagonal parameters.
+  Fit log-multiplicative row-column association models, also called RC(M) or
+  Goodman Type II (1979) models, with one or several dimensions. Supported variants (for square tables)
+  include symmetric (homogeneous) row and column scores, posibly combined with separate diagonal parameters.
 }
 \usage{
 rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
@@ -57,7 +57,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   This function fits log-multiplicative row-column association models, usually called (after
   Goodman) RC(M) models, typically following the equation:
   \deqn{ log F_{ij} = \lambda + \lambda^I_i + \lambda^J_j + \sum_{m=1}^M { \phi_{m} \mu_{im} \nu_{jm} } }
-  where \eqn{F_ij} is the expected frequency for the cell at the intersection of row i and column j of
+  where \eqn{F_{ij}} is the expected frequency for the cell at the intersection of row i and column j of
   \code{tab}, and M the number of dimensions. See references for detailed information about the
   variants of the model, the degrees of freedom and the identification constraints applied to the scores.
 
