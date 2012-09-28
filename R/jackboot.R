@@ -57,12 +57,22 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       int <- c(1:len1, end1 + 1:len2)
   }
 
+  nacount <- 0
+
   if(se == "jackknife") {
       jack <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
                         w=tab[!is.na(tab)], cl=cl,
                         model=model, assoc1=assoc1, assoc2=assoc2,
                         weighting=weighting, family=family, weights=weights,
                         verbose=verbose, ..., base=base)
+
+      rowsna <- rowSums(is.na(jack$values))
+      nacount <- sum(rowsna > 0)
+
+      if(!any(rowsna == 0)) {
+          warning("All model replicates failed. Cannot compute standard errors.")
+          return(list())
+      }
 
       jack.results <- list(bias=jack$bias, values=jack$values)
 
@@ -83,6 +93,15 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                                            weights=weights, verbose=verbose,
                                            ..., base=base))
 
+      rowsna <- rowSums(is.na(boot.results$t))
+      nacount <- sum(rowsna > 0)
+
+      if(!any(rowsna == 0)) {
+          warning("All model replicates failed. Cannot compute standard errors.")
+          return(list())
+      }
+
+
       get.covmat <- function(start, len) {
           int <- seq.int(start, length.out=len)
           cov(boot.results$t[, int], use="na.or.complete")
@@ -94,6 +113,11 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
   # "." progress indicators need this
   if(verbose)
       cat("\n")
+
+  if(nacount > 0)
+      warning(ngettext(nacount,
+                       "One model replicate failed and its results will be skipped. Standard errors will not be completely accurate. Consider raising the value of iterMax.",
+                       sprintf("%i model replicates failed and their results will be skipped. Standard errors will not be completely accurate. Consider raising the value of iterMax.", nacount)))
 
   # When gnm evaluates the formulas, tab will have been converted to a data.frame,
   # with a fallback if both names are empty
@@ -288,8 +312,16 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
 
 
       print(tab)
-      cat(sprintf("Trying again with different starting values...\n"))
+      cat(sprintf("Trying again with starting values from base model...\n"))
 
+      model <- tryCatch(suppressWarnings(update(model, tab=tab,
+                                                start=parameters(base), etastart=as.numeric(predict(base)),
+                                                verbose=TRUE, trace=TRUE, se="none")),
+                        error=function(e) NULL)
+  }
+
+  if(!is.null(base) && (is.null(model) || !model$converged)) {
+      cat(sprintf("Model failed again. Trying with default starting values...\n"))
       model <- tryCatch(suppressWarnings(update(model, tab=tab, start=NA, etastart=NULL,
                                                 verbose=TRUE, trace=TRUE, se="none")),
                         error=function(e) NULL)
@@ -306,7 +338,8 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
   }
 
   if(is.null(model) || !model$converged) {
-      warning("Model failed to converge three times: ignoring the results of this replicate. Standard errors may not be completely accurate. Consider raising the value of iterMax.", immediate.=TRUE)
+      warning("Model failed to converge four times: ignoring the results of this replicate.",
+              immediate.=TRUE)
 
       # This NA value is skipped when computing variance-covariance matrix
       return(NA)
