@@ -166,13 +166,14 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   }
 
   ## Becker & Clogg (1989), Table 5 (p. 145)
+  # See also ?rcL to run all models in one call
   data(color)
   \dontshow{
       # Limit the workload for CRAN checks
       options(boot.cores=2)
   }
-  # "Uniform weights" in the authors' terms mean "no weighting"
-  # Average marginals are currently not supported
+  # "Uniform weights" in the authors' terms mean "no weighting" for us
+  # See ?rcL for average marginals
   caithness.unweighted <- rc(color[,,1], nd=2, weighting="none",
                              se="jackknife")
   caithness.marginal <- rc(color[,,1], nd=2, weighting="marginal",
@@ -185,10 +186,37 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   caithness.marginal
   aberdeen.unweighted
   aberdeen.marginal
+
+  # To see standard errors, either:
+  se(caithness.unweighted)
+
+  # and so on...
+  # (ours are much smaller for the marginal-weighted case)
+  # Or:
+  summary(caithness.unweighted)
+
   \dontshow{
+      stopifnot(isTRUE(all.equal(c(round(caithness.unweighted$assoc$phi, d=3)),
+                                 c(3.067, 0.375))))
+      stopifnot(isTRUE(all.equal(c(round(caithness.unweighted$assoc$row, d=3)),
+                                 c(0.411,  0.478, -0.122, -0.767, 0.472,
+                                  -0.030, -0.804,  0.362))))
+      stopifnot(isTRUE(all.equal(c(round(caithness.unweighted$assoc$col, d=3)),
+                                 c(0.574, 0.279,  0.121, -0.261, -0.714,
+                                   0.271, 0.148, -0.838,  0.449, -0.030))))
+
+      stopifnot(isTRUE(all.equal(c(round(caithness.marginal$assoc$phi, d=3)),
+                                 c(0.494, 0.110))))
+      stopifnot(isTRUE(all.equal(c(round(caithness.marginal$assoc$row, d=3)),
+                                 c(0.894,  1.045, -0.166, -1.52, 1.246,
+                                   0.271, -1.356,  0.824))))
+      stopifnot(isTRUE(all.equal(c(round(caithness.marginal$assoc$col, d=3)),
+                                 c(c(1.313, 0.425, -0.019, -1.213, -2.567,
+                                     0.782, 0.518, -1.219,  0.945,  0.038)))))
+
       # This is one of the very few articles reporting jackknife standard errors
       # Our results are very close for the unweighted solution;
-      # but for marginal weighting their errors are probably not in the same unit,
+      # but for marginal weighting their errors are probably wrong,
       # as they are larger than the unweighted ones, while phi are much smaller.
       stopifnot(isTRUE(all.equal(c(round(se(caithness.unweighted)$phi, d=3)),
                                  c(0.282, 0.053))))
