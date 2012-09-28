@@ -19,7 +19,7 @@ rcL.trans(tab, nd = 1,
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
-    if present, dimensions above three will be collapsed as appropriate.}
+    if present, dimensions above three will be collapsed.}
   \item{nd}{ the number of dimensions to include in the model. Cannot exceed
     \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
@@ -70,7 +70,7 @@ rcL.trans(tab, nd = 1,
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
                + \lambda^IK_ik + \lambda^JK_jk
                + \sum_{m=1}^M { \phi_{km} (\mu^S_{im} + \psi_km \mu^V_{im}) (\nu^S_{jm} + \psi_km \nu^V{jm}) }}
-  where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
+  where \eqn{F_ijk} is the expected frequency for the cell at the intersection of row i, column j and layer k of
   \code{tab}, and M the number of dimensions. The \eqn{\psi_km} parameter is constrained to be positive, equal to 0
   for the first layer (\eqn{m = 1}), and equal to 1 for the last layer.
 

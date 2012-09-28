@@ -19,7 +19,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
 }
 \arguments{
   \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;
-    if present, dimensions above two will be collapsed as appropriate.}
+    if present, dimensions above two will be collapsed.}
   \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
     \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)}.
     If \code{NA}, a quasi-symmetric association is used instead of a RC(M) model.}
@@ -63,7 +63,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
 
   These models follow the equation:
   \deqn{ log F_{ij} = q_{ij} + \delta_{i<j} \nu_i (\nu_j - \nu_i) - \delta_{i>j} \nu_j (\nu_i - \nu_j) }
-  where \eqn{F_ij} is the frequency observed in the cell at the intersection of row i and column j of
+  where \eqn{F_ij} is the expected frequency for the cell at the intersection of row i and column j of
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric or a RC(M) association. See reference for detailed information
   about the degrees of freedom and the identification constraints applied to the scores.
 

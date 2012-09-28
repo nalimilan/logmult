@@ -24,7 +24,7 @@ hmskewL(tab, nd.symm = NA,
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
-    if present, dimensions above three will be collapsed as appropriate. First two dimensions must be symmetric
+    if present, dimensions above three will be collapsed. First two dimensions must be symmetric
     (i.e. of the same length).}
   \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
     \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (the model is already saturated at that point).
@@ -68,8 +68,10 @@ hmskewL(tab, nd.symm = NA,
 
   These models follow the equation:
   \deqn{ log F_{ijk} = q_{ijk} + \phi_k (\nu_{ik} \mu_{jk} - \mu_{jk} \nu_{ik}) }
-  where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
-  \code{tab}, and \eqn{q_{ijk}} a quasi-symmetric or a RC(M)-L association.
+  where \eqn{F_ijk} is the expected frequency for the cell at the intersection of row i, column j and layer k of
+  \code{tab}, and \eqn{q_{ij}} a quasi-symmetric specification, with either full interaction parameters, or
+  a RC(M) association. See reference for detailed information about the degrees of freedom and the identification
+  constraints applied to the scores.
 
   If \code{layer.effect.skew} is set to \sQuote{heterogeneous}, different scores will be computed for each level,
   which is equivalent to fitting separate models using \code{\link{hmskew}} on the k two-way tables.
@@ -81,8 +83,8 @@ hmskewL(tab, nd.symm = NA,
   When \code{nd.symm} is different from \code{NA}, the symmetric association works exactly like a call to \code{rcL},
   with parameters \code{nd.symm} and \code{layer.effect.symm} translated respectively to \code{nd} and
   \code{layer.effect}. When \code{nd.symm == NA}, symmetric association parameters are either stable accross layers,
-  are multiplied by a layer coefficient (cf. UNIDIFF model), or are different for each layer, when
-  \code{layer.effect.symm} is respectively \code{none}, \code{uniform} and \code{heterogeneous}.
+  are multiplied by a layer coefficient (UNIDIFF model, see \code{\link{unidiff}}), or are different for each layer,
+  when \code{layer.effect.symm} is respectively \code{none}, \code{uniform} and \code{heterogeneous}.
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification

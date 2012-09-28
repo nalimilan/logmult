@@ -43,8 +43,8 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   The equation of the fitted model is:
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
                       + \lambda^IK_ik + \lambda^JK_jk
-                      + \beta_k \psi^IJ_ij }
-  where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and
+                      + \phi_k \psi^IJ_ij }
+  where \eqn{F_ijk} is the expected frequency for the cell at the intersection of row i, column j and
   layer k of \code{tab}. When \code{diagonal = "excluded"}, \eqn{\lambda^IJK_ijk} parameters are added
   but set to 0 when \eqn{i != j} (off-diagonal). When \code{diagonal = "only"}, \eqn{\psi^IJ_ij} is set
   to 0 when \eqn{i != j}.

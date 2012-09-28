@@ -23,7 +23,7 @@ rcL(tab, nd = 1,
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
-    if present, dimensions above three will be collapsed as appropriate.}
+    if present, dimensions above three will be collapsed.}
   \item{nd}{ the number of dimensions to include in the model. Cannot exceed
     \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
@@ -66,7 +66,7 @@ rcL(tab, nd = 1,
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
                        + \lambda^IK_ik + \lambda^JK_jk
                        + \sum_{m=1}^M { \phi_{km} \mu_{ikm} \nu_{jkm} } }
-  where \eqn{F_ijk} is the frequency observed in the cell at the intersection of row i, column j and layer k of
+  where \eqn{F_ijk} is the expected frequency for the cell at the intersection of row i, column j and layer k of
   \code{tab}, and M the number of dimensions. If \code{layer.effect} is set to \sQuote{heterogeneous}, different scores
   will be computed for each level, which is equivalent to fitting separate RC(M) models on the k two-way tables.
   If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ikm} = \mu_{im}} and \eqn{\nu_{ikm} = \nu_{im}} for all

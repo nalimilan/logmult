@@ -19,7 +19,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
 }
 \arguments{
   \item{tab}{ a two-way table, or an object (such as a matrix) that can be coerced into a table;
-    if present, dimensions above two will be collapsed as appropriate.}
+    if present, dimensions above two will be collapsed.}
   \item{nd}{ the number of dimensions to include in the model. Cannot exceed
     \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
@@ -57,7 +57,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   This function fits log-multiplicative row-column association models, usually called (after
   Goodman) RC(M) models, typically following the equation:
   \deqn{ log F_{ij} = \lambda + \lambda^I_i + \lambda^J_j + \sum_{m=1}^M { \phi_{m} \mu_{im} \nu_{jm} } }
-  where \eqn{F_ij} is the frequency observed in the cell at the intersection of row i and column j of
+  where \eqn{F_ij} is the expected frequency for the cell at the intersection of row i and column j of
   \code{tab}, and M the number of dimensions. See references for detailed information about the
   variants of the model, the degrees of freedom and the identification constraints applied to the scores.
 
