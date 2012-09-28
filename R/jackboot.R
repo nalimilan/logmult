@@ -291,7 +291,7 @@ boot.assoc <- function(data, indices, args) {
 # Replicate model with new data, and combine assoc components into a vector
 replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose, ...,
                             base=NULL) {
-  suppressMessages(library(assoc))
+  suppressMessages(library(logmult))
 
   # Models can generate an error if they fail repeatedly
   # Remove warnings because we handle them below

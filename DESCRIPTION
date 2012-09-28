@@ -1,20 +1,21 @@
-Package: assoc
+Package: logmult
 Type: Package
-Title: Log-multiplicative association models fitting and plotting
+Title: Log-multiplicative models, including association models
 Version: 0.5
-Date: 2012-03-15
-Author@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
-                 role=c("aut", "cre"))
-Author: Milan Bouchet-Valat <nalimilan@club.fr>
-Maintainer: Milan Bouchet-Valat <nalimilan@club.fr>
+Date: 2012-09-29
+Authors@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
+                  role=c("aut", "cre"))
 Enhances: gnm
 Imports: stats, graphics, qvcalc
-Depends: gnm
+Depends: gnm (>= 1.0-4)
 Suggests: boot, ellipse, parallel, snow
-Description: Functions to easily fit and plot several variants of log-multiplicative
-  row-column association models, building on the gnm package. Supported models include
-  the RC(M) family (a.k.a. Goodman models), and two skew-symmetric models suggested by
-  Yamaguchi and by van der Heijden & Mooijaart. Jackknife standard errors are optionally
-  computed for the association parameters.
+Description: Functions to fit log-multiplicative models using gnm, with
+  support for convenient printing, plots, and jackknife/bootstrap
+  standard errors. Currently supported models include UNIDIFF (Erikson
+  & Goldthorpe), a.k.a. log-multiplicative layer effect model (Xie), and
+  several association models: Goodman's row-column association models
+  of the RC(M) and RC(M)-L families resp. for two- and three-way tables
+  with one or several dimensions; two skew-symmetric association
+  models proposed by Yamaguchi and by van der Heijden & Mooijaart.
 License: GPL (>= 2)
 
