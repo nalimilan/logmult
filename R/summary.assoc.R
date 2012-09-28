@@ -7,26 +7,26 @@ assocTable <- function(object, ass, ...) {
   paste2 <- function(x, y) paste(y, x, sep=":")
 
   if(nrow(ass$phi) > 1) {
-      phi <- cbind("Estimate"=c(ass$phi), "Adjusted"=NA,
+      phi <- cbind("Normalized"=c(ass$phi), "Adjusted"=NA,
                    "Std. error"=c(errs$phi), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$phi/errs$phi))))
 
-      row <- cbind("Estimate"=c(ass$row), "Adjusted"=NA,
+      row <- cbind("Normalized"=c(ass$row), "Adjusted"=NA,
                    "Std. error"=c(errs$row), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$row/errs$row))))
 
-      col <- cbind("Estimate"=c(ass$col), "Adjusted"=NA,
+      col <- cbind("Normalized"=c(ass$col), "Adjusted"=NA,
                    "Std. error"=c(errs$col), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$col/errs$col))))
 
       rownames(phi) <- outer(paste(names(dimnames(object$data))[3], rownames(ass$phi), sep=""),
                              colnames(ass$phi), paste2)
   }
   else {
-      phi <- cbind("Estimate"=c(ass$phi), "Adjusted"=NA,
+      phi <- cbind("Normalized"=c(ass$phi), "Adjusted"=NA,
                    "Std. error"=c(errs$phi), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$phi/errs$phi))))
 
-      row <- cbind("Estimate"=c(ass$row), "Adjusted"=c(sweep(ass$row, 2, sqrt(abs(ass$phi)), "*")),
+      row <- cbind("Normalized"=c(ass$row), "Adjusted"=c(sweep(ass$row, 2, sqrt(abs(ass$phi)), "*")),
                    "Std. error"=c(errs$row), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$row/errs$row))))
 
-      col <- cbind("Estimate"=c(ass$col), "Adjusted"=c(sweep(ass$col, 2, sqrt(abs(ass$phi)), "*")),
+      col <- cbind("Normalized"=c(ass$col), "Adjusted"=c(sweep(ass$col, 2, sqrt(abs(ass$phi)), "*")),
                    "Std. error"=c(errs$col), "Pr(>|z|)"=c(2 * pnorm(-abs(ass$col/errs$col))))
 
       rownames(phi) <- colnames(ass$phi)

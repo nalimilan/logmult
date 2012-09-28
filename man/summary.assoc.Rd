@@ -30,16 +30,17 @@
   Criterion value.
 
   Association coefficients are printed with their standard errors, p-values and significance
-  stars. The \dQuote{Estimate} columns contains \emph{normalized scores}, i.e. their (weighted)
+  stars. The \dQuote{Normalized} columns contains \emph{normalized scores}, i.e. their (weighted)
   sum is 0, their (weighted) sum of squares is 1, and their (weighted) cross-dimensional
   correlation is null. For models with only one layer (\code{\link{rc}}, \code{\link{hmskew}},
   \code{\link{yrcskew}}), \emph{adjusted} scores are printed in the \dQuote{Adjusted} column:
   these correspond to normalized scores times the square root of the corresponding intrinsic
   association parameter (phi).
 
-  p-values are computed under the assumption that estimators of coefficients are normally distributed,
-  even if jackknife of bootstrap are used. See \code{\link{se.assoc}} for details about checking this
-  assumption and the validity of jackknife or bootstrap results.
+  p-values correspond to normalized scores, and are computed under the assumption that estimators
+  of coefficients are normally distributed, even if jackknife of bootstrap are used. See
+  \code{\link{se.assoc}} for details about checking this assumption and the validity of jackknife
+  or bootstrap results.
 
   Note that setting the \code{weighting} argument to a value different from that used at the
   time of the fit discards the computed standard errors, if any.
