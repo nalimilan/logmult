@@ -56,7 +56,6 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
       if(nastart) {
           cat("Running base model to find starting values...\n")
 
-          # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
           args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
                        data=tab, family=family, weights=weights,
                        tolerance=tolerance, iterMax=iterMax)
@@ -78,7 +77,6 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
   }
 
-  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(f), data=tab,
                family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)

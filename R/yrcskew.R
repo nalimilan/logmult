@@ -70,7 +70,6 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       # with large tables
       cat("Running base model to find starting values...\n")
 
-      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(basef),
                    data=tab, family=family,
                    tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
@@ -94,7 +93,6 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
                                        vars[1], vars[2],
                                        vars[1], vars[2], vars[1], vars[2], nd.skew)
 
-  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=eval(as.formula(f)), data=tab,
                constrain="YRCSkew\\(.*\\)0$",
                family=family, start=start, etastart=etastart,

@@ -73,7 +73,6 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   if(nastart) {
       cat("Running base model to find starting values...\n")
 
-      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
                    family=family, eliminate=eliminate,
                    tolerance=1e-6, iterMax=iterMax)
@@ -172,7 +171,6 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   if(!is.null(base)) {
       cat("Running second base model to find starting values...\n")
 
-      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(paste(f1, diagstr, f2, f2.skew)),
                    data=tab, family=family, start=start, eliminate=eliminate,
                    constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
@@ -197,7 +195,6 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   if(!is.null(base))
       cat("Running real model...\n")
 
-  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(paste(f1, diagstr, f2, f2.skew)), data=tab,
                family=family, start=start, etastart=etastart, eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)

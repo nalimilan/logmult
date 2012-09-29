@@ -58,7 +58,6 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(nastart) {
       cat("Running base model to find starting values...\n")
 
-      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
                    family=family, eliminate=eliminate,
                    tolerance=1e-6, iterMax=iterMax)
@@ -125,7 +124,6 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(!is.null(base)) {
       cat("Running second base model to find starting values...\n")
 
-      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(paste(f1, diagstr, f2)),
                    data=tab, family=family,
                    eliminate=eliminate, constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
@@ -151,7 +149,6 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(!is.null(base))
       cat("Running real model...\n")
 
-  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(paste(f1, diagstr, f2)), data=tab,
                family=family, start=start, etastart=etastart,
                eliminate=eliminate,

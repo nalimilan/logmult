@@ -42,13 +42,10 @@ anoas <- function(tab, nd=3, symmetric=FALSE, diagonal=FALSE, ...) {
 
   cat("Fitting independence model...\n")
 
-  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
                data=tab, family=poisson)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
 
-  models[[1]] <- do.call("gnm", args)
+  models[[1]] <- do.call("gnm", c(args, list(...)))
 
 
   cat("Fitting model with 1 dimension...\n")
@@ -118,14 +115,11 @@ anoasL <- function(tab, nd=3, layer.effect=c("homogeneous.scores", "heterogeneou
 
   cat("Fitting conditional independence model...\n")
 
-  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
                                           vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)),
                data=tab, family=poisson)
-  dots <- as.list(substitute(list(...)))[-1]
-  args <- c(args, dots)
 
-  models[[1]] <- do.call("gnm", args)
+  models[[1]] <- do.call("gnm", c(args, list(...)))
 
 
   cat("Fitting model with 1 dimension...\n")

@@ -88,7 +88,6 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
       cat("Running base model to find starting values...\n")
 
       if(symmetric) {
-          # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
           args <- list(formula=as.formula(sprintf("%s + instances(MultHomog(%s, %s), %i)", f1, vars[1], vars[2], nd)),
                        data=tab, family=family, eliminate=eliminate,
                        tolerance=1e-6, iterMax=iterMax)
@@ -101,7 +100,6 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                          sqrt(seq(0, 1, length.out=dim(tab)[3])), rep(NA, nrow(tab)))
       }
       else {
-          # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
           args <- list(formula=as.formula(sprintf("%s + instances(Mult(%s, %s), %i)", f1, vars[1], vars[2], nd)),
                        data=tab, family=family, eliminate=eliminate,
                        tolerance=1e-6, iterMax=iterMax, verbose=verbose, trace=trace)

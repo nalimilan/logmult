@@ -64,7 +64,6 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       cat("Running base model to find starting values...\n")
 
       # Setting tolerance to a value below 1e-6 can lead to convergence issues with large tables
-      # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
       args <- list(formula=as.formula(basef),
                    data=tab, family=family,
                    tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
@@ -81,7 +80,6 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
   f <- sprintf("%s + HMSkew(%s, %s)", basef, vars[1], vars[2])
 
-  # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(f), data=tab,
                family=family, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
