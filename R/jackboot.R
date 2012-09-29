@@ -310,6 +310,9 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
           cat("Model replicate did not converge.\nData was:\n")
       }
 
+  }
+
+  if(!is.null(base) && (is.null(model) || !model$converged)) {
 
       print(tab)
       cat(sprintf("Trying again with starting values from base model...\n"))
@@ -320,26 +323,15 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
                         error=function(e) NULL)
   }
 
-  if(!is.null(base) && (is.null(model) || !model$converged)) {
-      cat(sprintf("Model failed again. Trying with default starting values...\n"))
+  if((is.null(model) || !model$converged)) {
+      cat(sprintf("Model failed again. Trying one last time with default starting values...\n"))
       model <- tryCatch(suppressWarnings(update(model, tab=tab, start=NA, etastart=NULL,
                                                 verbose=verbose, trace=verbose, se="none")),
                         error=function(e) NULL)
   }
 
   if(is.null(model) || !model$converged) {
-      cat(sprintf("Model failed again. Trying one last time with random starting values...\n"))
-
-      # Without the quote(NULL), update.gnm() does call$start <- NULL, which removes it,
-      # and eventually restores the default value (NA)
-      model <- tryCatch(suppressWarnings(update(model, tab=tab, start=quote(NULL), etastart=NULL,
-                                                verbose=verbose, trace=verbose, se="none")),
-                        error=function(e) NULL)
-  }
-
-  if(is.null(model) || !model$converged) {
-      warning("Model failed to converge four times: ignoring the results of this replicate.",
-              immediate.=TRUE)
+      cat("Model failed to converge three times: ignoring the results of this replicate.\n")
 
       # This NA value is skipped when computing variance-covariance matrix
       return(NA)
