@@ -12,12 +12,22 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       cl <- parallel::makePSOCKcluster(rep("localhost", ncpus), outfile="", methods=FALSE)
       on.exit(parallel::stopCluster(cl))
 
+      libpaths <- .libPaths()
+      parallel::clusterExport(cl, "libpaths", env=environment())
+      parallel::clusterEvalQ(cl, library(logmult, lib.loc=libpaths,
+                                         warn.conflicts=FALSE, quietly=TRUE, verbose=FALSE))
+
       # Printing output from all nodes at the same time would be a mess, only print "."
       trace <- FALSE
   }
   else if(ncpus > 1 && require(snow)) {
       cl <- snow::makeSOCKcluster(rep("localhost", ncpus), outfile="")
       on.exit(snow::stopCluster(cl))
+
+      libpaths <- .libPaths()
+      snow::clusterExport(cl, "libpaths", env=environment())
+      snow::clusterEvalQ(cl, library(logmult, lib.loc=libpaths,
+                                     warn.conflicts=FALSE, quietly=TRUE, verbose=FALSE))
 
       # Printing output from all nodes at the same time would be a mess, only print "."
       trace <- FALSE
@@ -291,8 +301,6 @@ boot.assoc <- function(data, indices, args) {
 # Replicate model with new data, and combine assoc components into a vector
 replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose, trace, ...,
                             base=NULL) {
-  suppressMessages(library(logmult))
-
   # Models can generate an error if they fail repeatedly
   # Remove warnings because we handle them below
   model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
