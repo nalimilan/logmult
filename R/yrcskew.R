@@ -85,12 +85,6 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       cat("Running real model...\n")
   }
 
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2")
-
   # We integrate computations in the formula rather than doing them separately
   # because gnm() does not seem to allow using objects outside of the data argument
   # in formulas called from functions. This seems to be a problem with how the formula's
