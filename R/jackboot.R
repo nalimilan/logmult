@@ -316,14 +316,14 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
 
       model <- tryCatch(suppressWarnings(update(model, tab=tab,
                                                 start=parameters(base), etastart=as.numeric(predict(base)),
-                                                verbose=TRUE, trace=TRUE, se="none")),
+                                                verbose=TRUE, trace=FALSE, se="none")),
                         error=function(e) NULL)
   }
 
   if(!is.null(base) && (is.null(model) || !model$converged)) {
       cat(sprintf("Model failed again. Trying with default starting values...\n"))
       model <- tryCatch(suppressWarnings(update(model, tab=tab, start=NA, etastart=NULL,
-                                                verbose=TRUE, trace=TRUE, se="none")),
+                                                verbose=TRUE, trace=FALSE, se="none")),
                         error=function(e) NULL)
   }
 
@@ -333,7 +333,7 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
       # Without the quote(NULL), update.gnm() does call$start <- NULL, which removes it,
       # and eventually restores the default value (NA)
       model <- tryCatch(suppressWarnings(update(model, tab=tab, start=quote(NULL), etastart=NULL,
-                                                verbose=TRUE, trace=TRUE, se="none")),
+                                                verbose=TRUE, trace=FALSE, se="none")),
                         error=function(e) NULL)
   }
 

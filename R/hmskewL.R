@@ -6,7 +6,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                     weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
                     nreplicates=100, ncpus=getOption("boot.ncpus"),
                     family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-8, iterMax=5000,
-                    trace=TRUE, verbose=TRUE, ...) {
+                    trace=FALSE, verbose=TRUE, ...) {
   layer.effect.skew <- match.arg(layer.effect.skew)
   layer.effect.symm <- match.arg(layer.effect.symm)
   diagonal <- match.arg(diagonal)
