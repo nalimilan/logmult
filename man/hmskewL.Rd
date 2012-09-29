@@ -86,10 +86,10 @@ hmskewL(tab, nd.symm = NA,
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
-  The default starting values correspond to the parameters computed for the model without association parameters
-  (\dQuote{base model}); association parameters start with random starting values. In some complex cases,
-  using \code{start = NA} to get completely random starting values can be more efficient, but it is also
-  less stable.
+  The default starting values correspond to the parameters computed for the model with main parameters constrained to the
+  values they would have without skew association parameters (\dQuote{second base model}); association parameters start
+  with random values. In some complex cases, using \code{start = NULL} to get completely random starting values can be
+  more efficient, but it is also less stable.
 }
 \value{
   A \code{rcL} object, with all the components of a \code{\link{gnm}} object, plus an
