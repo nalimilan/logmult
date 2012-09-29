@@ -11,8 +11,10 @@
 }
 \usage{
 hmskewL(tab, nd.symm = NA,
-        layer.effect.skew = c("homogeneous.scores", "heterogeneous", "none"),
-        layer.effect.symm = c("heterogeneous", "uniform", "homogeneous.scores", "none"),
+        layer.effect.skew = c("homogeneous.scores", "heterogeneous",
+                              "none"),
+        layer.effect.symm = c("heterogeneous", "uniform",
+                              "homogeneous.scores", "none"),
         diagonal = c("none", "heterogeneous", "homogeneous"),
         weighting = c("marginal", "uniform", "none"),
         se = c("none", "jackknife", "bootstrap"),
