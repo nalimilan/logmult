@@ -64,7 +64,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                         w=tab[!is.na(tab)], cl=cl,
                         model=model, assoc1=assoc1, assoc2=assoc2,
                         weighting=weighting, family=family, weights=weights,
-                        verbose=verbose, ..., base=base)
+                        verbose=verbose, trace=trace, ..., base=base)
 
       rowsna <- rowSums(is.na(jack$values))
       nacount <- sum(rowsna > 0)
@@ -90,7 +90,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                                  R=nreplicates, cl=cl,
                                  args=list(model=model, assoc1=assoc1, assoc2=assoc2,
                                            weighting=weighting, family=family,
-                                           weights=weights, verbose=verbose,
+                                           weights=weights, verbose=verbose, trace=trace,
                                            ..., base=base))
 
       rowsna <- rowSums(is.na(boot.results$t))
@@ -111,7 +111,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
   }
 
   # "." progress indicators need this
-  if(verbose)
+  if(verbose && !trace)
       cat("\n")
 
   if(nacount > 0)
@@ -289,7 +289,7 @@ boot.assoc <- function(data, indices, args) {
 }
 
 # Replicate model with new data, and combine assoc components into a vector
-replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose, ...,
+replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose, trace, ...,
                             base=NULL) {
   suppressMessages(library(logmult))
 
@@ -298,7 +298,7 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
   model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
                                             start=parameters(model.orig),
                                             etastart=as.numeric(predict(model.orig)),
-                                            verbose=FALSE, trace=FALSE, se="none")),
+                                            verbose=trace, trace=trace, se="none")),
                     error=function(e) NULL)
 
   if(is.null(model) || !model$converged) {
@@ -316,14 +316,14 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
 
       model <- tryCatch(suppressWarnings(update(model, tab=tab,
                                                 start=parameters(base), etastart=as.numeric(predict(base)),
-                                                verbose=TRUE, trace=FALSE, se="none")),
+                                                verbose=verbose, trace=verbose, se="none")),
                         error=function(e) NULL)
   }
 
   if(!is.null(base) && (is.null(model) || !model$converged)) {
       cat(sprintf("Model failed again. Trying with default starting values...\n"))
       model <- tryCatch(suppressWarnings(update(model, tab=tab, start=NA, etastart=NULL,
-                                                verbose=TRUE, trace=FALSE, se="none")),
+                                                verbose=verbose, trace=verbose, se="none")),
                         error=function(e) NULL)
   }
 
@@ -333,7 +333,7 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
       # Without the quote(NULL), update.gnm() does call$start <- NULL, which removes it,
       # and eventually restores the default value (NA)
       model <- tryCatch(suppressWarnings(update(model, tab=tab, start=quote(NULL), etastart=NULL,
-                                                verbose=TRUE, trace=FALSE, se="none")),
+                                                verbose=verbose, trace=verbose, se="none")),
                         error=function(e) NULL)
   }
 
@@ -360,7 +360,7 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
                     else find.stable.scores(ass2, ass2.orig))
   }
 
-  if(verbose)
+  if(verbose && !trace)
       cat(".")
 
   ret
