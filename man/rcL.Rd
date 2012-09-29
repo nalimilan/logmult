@@ -121,7 +121,7 @@ rcL(tab, nd = 1,
 
   \dontshow{
       # Limit the workload for CRAN checks
-      options(boot.cores=2)
+      options(boot.ncpus=2)
   }
 
   # "Uniform weights" in the authors' terms mean "no weighting" for us,
@@ -178,7 +178,7 @@ rcL(tab, nd = 1,
   data(gss7590)
   \dontshow{
       # Limit the workload for CRAN checks
-      options(boot.cores=2)
+      options(boot.ncpus=2)
   }
   model <- rcL(gss7590, nd=2, weighting="none", se="jackknife")
   model
