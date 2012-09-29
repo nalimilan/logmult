@@ -118,60 +118,19 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   \code{\link{plot.rc}}, \code{\link{gnm}}
 }
 \examples{
-  \dontshow{
-      ## Goodman (1979), scores not reported but present in LEM examples
-      # as "GOO91_1G" (where scores reported here come from)
-      # No symmetric RC scores seem to be reported in a published paper
-      data(occupationalStatus)
-      # We use a simpler (collapsed) table
-      occupationalStatus[5,]<-colSums(occupationalStatus[5:6,])
-      occupationalStatus[,5]<-rowSums(occupationalStatus[,5:6])
-      occupationalStatus <- occupationalStatus[-6,-6]
-
-      model <- rc(occupationalStatus, diagonal=TRUE, symmetric=TRUE,
-                  weighting="none")
-      stopifnot(round(model$assoc$phi[1,1], d=3) == 6.10)
-      stopifnot(isTRUE(all.equal(round(c(model$assoc$row), d=3),
-                                 c(0.532, 0.438, 0.206, -0.031,
-                                   -0.216, -0.426, -0.503))))
-
-      model <- rc(occupationalStatus, diagonal=TRUE, symmetric=TRUE,
-                  weighting="uniform")
-      stopifnot(round(model$assoc$phi[1,1], d=3) == 0.871)
-      stopifnot(isTRUE(all.equal(round(c(model$assoc$row), d=3),
-                                 c(1.409, 1.159, 0.544, -0.082,
-                                  -0.571, -1.127, -1.332))))
-
-      # Marginal weighted scores from ass2 in LEM are weird: we need
-      # to run cor(3) on the fitted table to get correct values, which is not
-      # possible for symmetric scores
-  }
-
   ## Goodman (1991), Table 17.1 (p. 1097)
   data(criminal)
   model <- rc(criminal)
+
   model$assoc # These are the phi (.07), mu and nu
   model$assoc$row[,1,1] * model$assoc$phi[1,1] # These are the mu'
   model$assoc$col[,1,1] * model$assoc$phi[1,1] # These are the nu'
-  \dontshow{
-      stopifnot(round(model$assoc$phi[1,1], d=2) == 0.07)
-      # Scores have reversed signs compared to the orignal article
-      stopifnot(isTRUE(all.equal(round(model$assoc$row[,1,1], d=2),
-                                 c(1.26, 0.82, -0.56, -1.21),
-                                 check.attributes=FALSE)))
-      stopifnot(isTRUE(all.equal(round(model$assoc$col[,1,1], d=2),
-                                 c(-1.44, -1.30, -0.33, 1.00, 0.89),
-                                 check.attributes=FALSE)))
-
-  }
 
   ## Becker & Clogg (1989), Table 5 (p. 145)
   # See also ?rcL to run all models in one call
+  \dontrun{
   data(color)
-  \dontshow{
-      # Limit the workload for CRAN checks
-      options(boot.ncpus=2)
-  }
+
   # "Uniform weights" in the authors' terms mean "no weighting" for us
   # See ?rcL for average marginals
   caithness.unweighted <- rc(color[,,1], nd=2, weighting="none",
@@ -182,6 +141,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
                             se="jackknife")
   aberdeen.marginal <- rc(color[,,2], nd=2, weighting="marginal",
                           se="jackknife")
+
   caithness.unweighted
   caithness.marginal
   aberdeen.unweighted
@@ -194,34 +154,6 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   # (ours are much smaller for the marginal-weighted case)
   # Or:
   summary(caithness.unweighted)
-
-  \dontshow{
-      stopifnot(isTRUE(all.equal(c(round(caithness.unweighted$assoc$phi, d=3)),
-                                 c(3.067, 0.375))))
-      stopifnot(isTRUE(all.equal(c(round(caithness.unweighted$assoc$row, d=3)),
-                                 c(0.411,  0.478, -0.122, -0.767, 0.472,
-                                  -0.030, -0.804,  0.362))))
-      stopifnot(isTRUE(all.equal(c(round(caithness.unweighted$assoc$col, d=3)),
-                                 c(0.574, 0.279,  0.121, -0.261, -0.714,
-                                   0.271, 0.148, -0.838,  0.449, -0.030))))
-
-      stopifnot(isTRUE(all.equal(c(round(caithness.marginal$assoc$phi, d=3)),
-                                 c(0.494, 0.110))))
-      stopifnot(isTRUE(all.equal(c(round(caithness.marginal$assoc$row, d=3)),
-                                 c(0.894,  1.045, -0.166, -1.52, 1.246,
-                                   0.271, -1.356,  0.824))))
-      stopifnot(isTRUE(all.equal(c(round(caithness.marginal$assoc$col, d=3)),
-                                 c(c(1.313, 0.425, -0.019, -1.213, -2.567,
-                                     0.782, 0.518, -1.219,  0.945,  0.038)))))
-
-      # This is one of the very few articles reporting jackknife standard errors
-      # Our results are very close for the unweighted solution;
-      # but for marginal weighting their errors are probably wrong,
-      # as they are larger than the unweighted ones, while phi are much smaller.
-      stopifnot(isTRUE(all.equal(c(round(se(caithness.unweighted)$phi, d=3)),
-                                 c(0.282, 0.053))))
-      stopifnot(isTRUE(all.equal(c(round(se(aberdeen.unweighted)$phi, d=3)),
-                                 c(0.221, 0.040))))
   }
 
 
@@ -236,63 +168,27 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   # Uniformly weighted scores
   summary(model, weighting="uniform")
 
-  \dontshow{
-      unweighted <- assoc(model, weighting="none")
-      marginal <- assoc(model, weighting="marginal")
-      uniform <- assoc(model, weighting="uniform")
-
-      stopifnot(all.equal(round(c(unweighted$row, unweighted$row * sqrt(unweighted$phi[1]),
-                                  marginal$row, marginal$row * sqrt(marginal$phi[1]),
-                                  uniform$row, uniform$row * sqrt(uniform$phi[1])), 2),
-                          c(0.57, 0.56, 0.15, -0.01, -0.23, 0.04, -0.42, -0.2, -0.19, -0.16, -0.1,
-                            1.61, 1.6, 0.42, -0.04, -0.66, 0.11, -1.19, -0.56, -0.54, -0.46, -0.29,
-                            1.78, 1.78, 0.37, -0.17, -0.91, 0, -1.53, -0.78, -0.76, -0.66, -0.47,
-                            1.53, 1.52, 0.32, -0.14, -0.78, 0, -1.31, -0.67, -0.65, -0.57, -0.4,
-                            1.88, 1.87, 0.48, -0.04,  -0.77, 0.12, -1.38, -0.65, -0.63, -0.53, -0.34, 
-                            1.87, 1.87, 0.48, -0.04, -0.77, 0.12, -1.38, -0.65, -0.63, -0.53, -0.34)))
-      stopifnot(all.equal(round(c(unweighted$col, unweighted$col * sqrt(unweighted$phi[1]),
-                                  marginal$col, marginal$col * sqrt(marginal$phi[1]),
-                                  uniform$col, uniform$col * sqrt(uniform$phi[1])), 2),
-                          c(-0.56, -0.41, -0.08, 0.07, 0.41, 0.58,
-                            -1.6, -1.16, -0.24, 0.19, 1.16, 1.65,
-                            -1.89, -1.39, -0.33, 0.16, 1.29, 1.85,
-                            -1.62, -1.19, -0.28, 0.14, 1.1, 1.59,
-                            -1.38, -1, -0.21, 0.16, 1, 1.43,
-                            -1.37, -1, -0.21, 0.16, 1, 1.42)))
-  }
 
   ## Wong (2010), Table 2.7 (p. 48-49)
+  \dontrun{
   data(gss8590)
-  \dontshow{
-      # Limit the workload for CRAN checks
-      options(boot.ncpus=2)
-  }
+
   # The table used in Wong (2010) is not perfectly consistent
   # with that of Wong (2001)
   tab <- margin.table(gss8590[,,c(2,4)], 1:2)
   tab[2,4] <- 49
+
   model <- rc(tab, nd=2, weighting="none", se="jackknife")
+
   model
   summary(model) # Jackknife standard errors are slightly different
                  # from their asymptotic counterparts
 
   # Compare with bootstrap standard errors
   model2 <- rc(tab, nd=2, weighting="none", se="bootstrap")
-  summary(model2)
-
-  \dontshow{
-      # A few scores differ from reported results by .001
-      stopifnot(isTRUE(all.equal(round(c(model$assoc$phi), d=3),
-                                 c(2.601, 1.522))))
-      stopifnot(isTRUE(all.equal(round(c(model$assoc$row), d=3),
-                                 c(0.743,  0.088, -0.200, -0.632,
-                                   0.276, -0.061, -0.777,  0.562))))
-      stopifnot(isTRUE(all.equal(round(c(model$assoc$col), d=3),
-                                 c(0.765,  0.020, -0.322, -0.55, 0.088,
-                                  -0.137, -0.549, -0.120, -0.01, 0.816))))
-  }
-
   plot(model, conf.ellipses=0.95)
+  summary(model2)
+  }
 }
 
 \keyword{ models }

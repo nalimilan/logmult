@@ -117,12 +117,8 @@ rcL(tab, nd = 1,
 \examples{
   ## Becker & Clogg (1989), Table 5 (p. 145)
   # See also ?rc for more details
+  \dontrun{
   data(color)
-
-  \dontshow{
-      # Limit the workload for CRAN checks
-      options(boot.ncpus=2)
-  }
 
   # "Uniform weights" in the authors' terms mean "no weighting" for us,
   # and "average marginals" means "marginal" with rcL
@@ -142,87 +138,20 @@ rcL(tab, nd = 1,
   plot(marginal, layer="Caithness", conf.ellipses=0.95)
   plot(marginal, layer="Aberdeen", conf.ellipses=0.95)
   par(opar)
-
-  \dontshow{
-      stopifnot(isTRUE(all.equal(c(round(unweighted$assoc$phi, d=3)),
-                                 c(3.067,  2.854, 0.375, 0.294))))
-      stopifnot(isTRUE(all.equal(c(round(unweighted$assoc$row, d=3)),
-                                 c(0.411, 0.478, -0.122, -0.767, 0.472,
-                                  -0.030, -0.804, 0.362, 0.492, 0.399, -0.128,
-                                  -0.763, 0.452, -0.053, -0.797, 0.397))))
-      stopifnot(isTRUE(all.equal(c(round(unweighted$assoc$col, d=3)),
-                                 c(0.574, 0.279,  0.121, -0.261, -0.714, 0.271, 0.148, 
-                                  -0.838, 0.449, -0.030,  0.595,  0.225, 0.135, -0.231,
-                                  -0.724, 0.420,  0.094, -0.867,  0.206, 0.147))))
-
-      stopifnot(isTRUE(all.equal(c(round(marginal$assoc$phi, d=3)),
-                                 c(0.465, 0.415, 0.111, 0.085))))
-      stopifnot(isTRUE(all.equal(c(round(marginal$assoc$row, d=3)),
-                                 c(0.883, 1.035, -0.188, -1.554,  1.244,  0.268,
-                                  -1.337, 0.863,  1.175,  0.936, -0.246, -1.512,
-                                   1.184, 0.184, -1.317, 0.976))))
-      stopifnot(isTRUE(all.equal(c(round(marginal$assoc$col, d=3)),
-                                 c(1.361, 0.424, -0.051, -1.301, -2.731,  0.803,  0.544,
-                                  -1.175, 0.970,  0.075,  1.398,  0.212, -0.067, -1.260,
-                                  -2.848, 0.811,  0.463, -1.177,  0.942, 1.144))))
-
-      # This is one of the very few articles reporting jackknife standard errors
-      # Our results are very close for the unweighted solution;
-      # but for marginal weighting their errors are probably wrong,
-      # as they are larger than the unweighted ones, while phi are much smaller.
-      stopifnot(isTRUE(all.equal(c(round(se(unweighted)$phi, d=3)),
-                                 c(c(0.282, 0.221, 0.053, 0.04)))))
   }
+
 
   ## Wong (2010), Table 4.7 (p. 103), model 9
+  \dontrun{
   data(gss7590)
-  \dontshow{
-      # Limit the workload for CRAN checks
-      options(boot.ncpus=2)
-  }
+
   model <- rcL(gss7590, nd=2, weighting="none", se="jackknife")
+
   model
   summary(model) # Jackknife standard errors are slightly different
                  # from their asymptotic counterparts
-  # See ?plot.rcL for plotting
-  \dontshow{
-      stopifnot(all.equal(round(c(model$assoc$phi), d=3),
-                          c(3.075, 3.474,  2.949, 2.460,
-                            0.539, 1.686, -0.770, 1.891)))
-      stopifnot(all.equal(round(c(model$assoc$row[,,1]), d=3),
-                          c(0.640,  0.239, -0.168, -0.711,
-                            0.731, -0.217, -0.636,  0.121)))
-      stopifnot(all.equal(round(c(model$assoc$col[,,1]), d=3),
-                          c(0.765,  0.250, -0.398, -0.273, -0.344,
-                            0.071, -0.480, -0.198, -0.216,  0.824)))
 
-     # Check scores of heterogeneous model (scores not given by Wong)
-     model.heterog <- rcL(gss7590, nd=2, layer.effect="heterogeneous",
-                          weighting="none")
-     sep.models <- lapply(1:4, function(i) rc(gss7590[,,i], nd=2,
-                                              weighting="none"))
-     # Level 2 does not converge properly because there are too few farmers:
-     # values are always slightly different and cannot be checked
-     stopifnot(isTRUE(all.equal(model.heterog$assoc$phi[-2,],
-                                rbind(sep.models[[1]]$assoc$phi,
-                                      sep.models[[3]]$assoc$phi,
-                                      sep.models[[4]]$assoc$phi),
-                                check.attributes=FALSE,
-                                tolerance=1e-6)))
-     stopifnot(isTRUE(all.equal(model.heterog$assoc$row[,,-2],
-                                array(c(sep.models[[1]]$assoc$row,
-                                      sep.models[[3]]$assoc$row,
-                                      sep.models[[4]]$assoc$row),
-                                      dim=c(nrow(gss7590), 2, 3)),
-                                check.attributes=FALSE,
-                                tolerance=1e-6)))
-     stopifnot(isTRUE(all.equal(model.heterog$assoc$col[,,-2],
-                                array(c(sep.models[[1]]$assoc$col,
-                                      sep.models[[3]]$assoc$col,
-                                      sep.models[[4]]$assoc$col),
-                                      dim=c(ncol(gss7590), 2, 3)),
-                                check.attributes=FALSE,
-                                tolerance=1e-6)))
+  # See ?plot.rcL for plotting
   }
 }
 

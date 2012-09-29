@@ -165,10 +165,13 @@
 \examples{
   ## Wong (2010), Figures 2.2 and 2.1 (p. 50-51)
   data(gss8590)
+
+  \dontrun{
   model <- rc(margin.table(gss8590[,,c(2,4)], 1:2),
               nd=2, weighting="none", se="jackknife")
   plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.ellipses=0.95)
   plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=0.95)
+  }
 
   ## Wong (2010), Figures 4.1 and 4.2 (p. 108-109)
   data(gss7590)
