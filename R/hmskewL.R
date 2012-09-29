@@ -326,12 +326,14 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
   homogeneous <- TRUE
 
-  mu1 <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*\\)HMSkew.*\\)[.:]\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)$",
-                                                   vars[3], vars[1], vars[2],
-                                                   paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
-  mu2 <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*\\Q%s\\E.*\\)HMSkew.*\\)[.:]\\Q%s\\E\\|\\Q%s\\E(\\Q%s\\E)\\.1$",
-                                                   vars[3], vars[1], vars[2],
-                                                   paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q")))]
+  mu1 <- parameters(model)[pickCoef(model, sprintf("HMSkew.*\\)([.:]\\Q%s\\E\\|\\Q%s\\E)?(\\Q%s\\E)(:(\\Q%s\\E))?$",
+                                                   vars[1], vars[2],
+                                                   paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q"),
+                                                   paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
+  mu2 <- parameters(model)[pickCoef(model, sprintf("HMSkew.*\\)([.:]\\Q%s\\E\\|\\Q%s\\E)?(\\Q%s\\E)(:(\\Q%s\\E))?\\.1$",
+                                                   vars[1], vars[2],
+                                                   paste(c(rownames(tab), colnames(tab)), collapse="\\E|\\Q"),
+                                                   paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
   phi <- parameters(model)[pickCoef(model, sprintf("Mult\\(.*HMSkew\\(.*[.:]\\Q%s\\E(\\Q%s\\E)$",
                                              vars[3],
                                              paste(dimnames(tab)[[3]], collapse="\\E|\\Q")))]
@@ -341,23 +343,28 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
      length(mu1) == length(mu2) &&
      length(mu1) == nr) {
       homogeneous <- TRUE
+
+      layer <- matrix(phi, nl, 2)
+
       sc <- array(NA, dim=c(nr, 2, 1))
       sc[,1,1] <- mu1
       sc[,2,1] <- mu2
   }
-  else if(length(phi) == nl &&
+  else if(length(phi) == 0 &&
           length(mu1) == length(mu2) &&
           length(mu1) == nr * nl) {
           homogeneous <- FALSE
-          sc <- array(NA, dim=c(nr, nl, 1))
-          sc[,1,] <- mu1
-          sc[,2,] <- mu2
+
+      layer <- matrix(1, nl, 2)
+
+      sc <- array(NA, dim=c(nr, 2, nl))
+      sc[,1,] <- t(matrix(mu1, nl, nr))
+      sc[,2,] <- t(matrix(mu2, nl, nr))
   }
   else {
       stop("No dimensions found. Are you sure this is a van der Heijden & Mooijaart skewness model with layer effect?")
   }
 
-  layer <- matrix(phi, nl, 1)
 
 
   if(length(pickCoef(model, "Diag\\(")) > nr)
@@ -386,7 +393,7 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
       if(homogeneous)
           layer <- layer * phi
       else
-          layer[l,] <- layer[l, , drop=FALSE] * phi
+          layer[l,] <- layer[l,] * phi
   }
 
   # By convention, keep layer coefficients positive for the first layer category
@@ -427,8 +434,6 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
   sc[abs(sc) < sqrt(.Machine$double.eps)] <- 0
 
   ## Prepare objects
-  layer <- cbind(layer, layer)
-
   rownames(sc) <- rownames(tab)
   colnames(sc) <- colnames(layer) <- paste("Dim", 1:2, sep="")
   rownames(layer) <- dimnames(tab)[[3]]
