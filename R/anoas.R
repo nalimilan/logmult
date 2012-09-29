@@ -172,14 +172,14 @@ summary.anoas <- function(object, ...) {
 
   result <- data.frame(df, dev, dev/dev[1] * 100, diss, bic, aic, c(NA, diff(dev)), c(NA, diff(df)))
 
-  names(result) <- c("Res. Df", "Resid. Dev", "Dev./Indep. (%)", "Dissim. (%)", "BIC", "AIC", "Deviance", "Df")
+  names(result) <- c("Res. Df", "Res. Dev", "Dev./Indep. (%)", "Dissim. (%)", "BIC", "AIC", "Dev.", "Df")
 
   if(inherits(object, "anoasL"))
       rownames(result) <- c("Conditional indep.", paste("RC(", seq(1, length(object) - 1), ")-L",
                                                         if(attr(object, "symmetric")) " symmetric" else "", sep=""))
   else
-      rownames(result) <- c("Independence", paste("RC(", seq(1, length(object) - 1), ")",
-                                                  if(attr(object, "symmetric")) " symmetric" else "", sep=""))
+      rownames(result) <- c("Indep.", paste("RC(", seq(1, length(object) - 1), ")",
+                                            if(attr(object, "symmetric")) " symmetric" else "", sep=""))
 
   class(result) <- c("summary.anoas", "data.frame")
 
