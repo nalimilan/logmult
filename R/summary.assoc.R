@@ -34,17 +34,17 @@ assocTable <- function(object, ass, ...) {
 
 
   if(inherits(ass, "assoc.symm")) {
+      varnames <- paste(names(dimnames(object$data))[1:2], collapse="|")
+
       if(dim(ass$row)[3] > 1) {
-          rownames(row) <- outer(paste(names(dimnames(object$data))[1], "|", names(dimnames(object$data))[2],
-                                       rownames(ass$row), sep=""),
+          rownames(row) <- outer(paste(varnames, rownames(ass$row), sep=""),
                                  outer(colnames(ass$row),
                                        paste(names(dimnames(object$data))[3], dimnames(ass$col)[[3]], sep=""),
                                        paste2),
                                  paste2)
       }
       else {
-          rownames(row) <- outer(paste(names(dimnames(object$data))[1], "|", names(dimnames(object$data))[2],
-                                 rownames(ass$row), sep=""),
+          rownames(row) <- outer(paste(varnames, rownames(ass$row), sep=""),
                                  colnames(ass$row), paste2)
       }
 
