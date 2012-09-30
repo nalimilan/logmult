@@ -16,6 +16,6 @@
       Quantitative Techniques in the Social Sciences (4), Table 3.1, p. 40.
 }
 \examples{
-  ## see \link{\code{rc}}
+  ## see ?rc
 }
 \keyword{datasets}

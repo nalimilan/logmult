@@ -15,6 +15,6 @@
   van der Heijden, P.G.M., and Mooijaart, A. (1995). Some new log bilinear models for the analysis
     of asymmetry in a square contingency table. \emph{Sociol. Methods and Research} 24, 7-29.}
 \examples{
-  ## see \link{\code{yskew}}, \link{\code{hmskew}} and \link{\code{plot.hmskew}}
+  ## see ?yrcskew, ?hmskew and ?plot.hmskew
 }
 \keyword{datasets}

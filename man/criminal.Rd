@@ -18,6 +18,6 @@
     Table 1.
 }
 \examples{
-  ## see \link{\code{rc}}
+  ## see ?rc
 }
 \keyword{datasets}

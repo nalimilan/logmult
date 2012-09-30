@@ -14,6 +14,6 @@
   Wong, R.S-K. (2010). Association models. SAGE. 32, Table 4.3.
 }
 \examples{
-  ## see \link{\code{rcL}} and \link{\code{plot.rcL}}
+  ## see ?rcL and ?plot.rcL
 }
 \keyword{datasets}

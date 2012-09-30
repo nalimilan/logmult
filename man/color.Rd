@@ -17,6 +17,6 @@ data(color)
     Association Models. \emph{J. of the Am. Stat. Association} 84(405), 142-151.
 }
 \examples{
-  ## see \link{\code{rc}}
+  ## see ?rc
 }
 \keyword{datasets}
