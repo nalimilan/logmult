@@ -48,6 +48,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s",
                 vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3])
+
   eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
   base <- NULL

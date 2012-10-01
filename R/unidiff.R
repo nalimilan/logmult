@@ -56,14 +56,11 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                                vars[3], vars[1], rownames(tab)[1], vars[2], colnames(tab)[1])
   }
 
-
-  # FIXME: we should be able to eliminate 3:1, but this triggers a "numerically singular system" error
-#  if(missing(eliminate))
-#      eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
+  eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(f), data=tab, constrain=constrain,
-               family=family, tolerance=tolerance, iterMax=iterMax,
+               family=family, eliminate=eliminate, tolerance=tolerance, iterMax=iterMax,
                trace=trace, verbose=verbose)
 
   model <- do.call("gnm", c(args, list(...)))

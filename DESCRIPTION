@@ -7,7 +7,7 @@ Authors@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
                   role=c("aut", "cre"))
 Enhances: gnm
 Imports: stats, graphics, qvcalc
-Depends: gnm (>= 1.0-4)
+Depends: gnm (>= 1.0-5)
 Suggests: boot, ellipse, parallel, snow
 Description: Functions to fit log-multiplicative models using gnm, with
   support for convenient printing, plots, and jackknife/bootstrap
