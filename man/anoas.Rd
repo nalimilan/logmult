@@ -21,9 +21,9 @@ anoasL(tab, nd = 3,
   \item{nd}{ the number of dimensions to include in the most complex model. Cannot exceed
     \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
     and twice this threshold otherwise (quasi-symmetry model).}
-  \item{symmetric}{ See ?rc or ?rcL}
-  \item{layer.effect}{ See ?rcL.}
-  \item{diagonal}{ See ?rc or ?rcL.}
+  \item{symmetric}{ See \code{\link{rc}} or \code{\link{rcL}}}
+  \item{layer.effect}{ See \code{\link{rcL}}.}
+  \item{diagonal}{ See \code{\link{rc}} or \code{\link{rcL}}.}
   \item{\dots}{ more arguments to be passed to \code{\link{rc}} or \code{\link{rcL}}.}
 }
 \details{
