@@ -13,8 +13,9 @@
 data(gss8590)
 }
 \references{
-  Wong, R.S-K. (2001). Multidimensional Association Models : A Multilinear Approach
+  Wong, R.S-K. (2001). Multidimensional Association Models : A Multilinear Approach.
     \emph{Sociol. Methods & Research} 30, 197-240, Table 2.
+
   Wong, R.S-K. (2010). \emph{Association models}. SAGE. 32, Table 2.3 B.
 }
 \examples{

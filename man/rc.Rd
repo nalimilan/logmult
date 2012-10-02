@@ -4,9 +4,9 @@
 \alias{print.rc.symm}
 \title{Fitting Row-Column Association Models}
 \description{
-  Fit log-multiplicative row-column association models, also called RC(M) or
-  Goodman Type II (1979) models, with one or several dimensions. Supported variants (for square tables)
-  include symmetric (homogeneous) row and column scores, posibly combined with separate diagonal parameters.
+  Fit log-multiplicative row-column association models, also called RC(M) models or Goodman's (1979) Model II,
+  with one or several dimensions. Supported variants (for square tables) include symmetric (homogeneous)
+  row and column scores, possibly combined with separate diagonal parameters.
 }
 \usage{
 rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,

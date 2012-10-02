@@ -16,12 +16,12 @@
 \arguments{
   \item{x}{an object resulting from a call to \code{\link{unidiff}}}
   \item{exponentiate}{whether the exponential of the layer coefficients should be plotted
-      rather than their value in log scale (see \dQuote{Details} below.}
+      rather than their value in log scale (see \dQuote{Details} below).}
   \item{se.type}{whether to use quasi-standard errors or \dQuote{traditional} standard errors
       to compute confidence intervals.}
   \item{conf.int}{the confidence level to retain for confidence bars.}
   \item{numeric.auto}{whether layer names should be converted to numeric values when possible
-      (see \dQuote{Details} below.}
+      (see \dQuote{Details} below).}
   \item{type}{what type of plot should be drawn: see \code{\link{plot}}.}
   \item{xlab}{a title for the x axis: see see \code{\link{title}}.}
   \item{ylab}{a title for the y axis: see see \code{\link{title}}.}

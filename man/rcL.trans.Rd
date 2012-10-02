@@ -58,11 +58,11 @@ rcL.trans(tab, nd = 1,
 \details{
   This function fits log-multiplicative row-column association models with regression-type layer effect which are
   \strong{experimental} models combining the principles behind RC(M)-L (Wong, 2010; see \code{\link{rcL}}) and regression-type
-  models (Goodman & Hout, 1998). More specifically, like RC(M)-L models, row and column scores are allowed to vary accross
+  models (Goodman & Hout, 1998). More specifically, like RC(M)-L models, row and column scores are allowed to vary across
   a layer variable, and the pattern of this variation follows the regression-type inspiration: for each dimension, a set of
   scores describes the first layer, another set describes the total variation of these scores need to describe the
   association observed for the last layer, and one parameter per layer describes the position of the layer between the
-  first and the last layer. Compared with the RC(M)-L model with homogeneous scores accross layers, this models allows
+  first and the last layer. Compared with the RC(M)-L model with homogeneous scores across layers, this models allows
   for a finer description of changes since the ordering and distances of categories on a dimension are allowed to vary,
   and not only the general strength of the association. It is designed to describe transitions from one state to another,
   and is best suited for ordered layer variables like time (though the model is not sensitive to reordering of the layers).

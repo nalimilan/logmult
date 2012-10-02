@@ -108,7 +108,7 @@
                 use \code{pch} values 21, 24, 22, 23 and 25, in this order, cycling if needed.}
   \item{xlim}{numeric vector of length 2, giving the x coordinates range.}
   \item{ylim}{numeric vector of length 2, giving the y coordinates range.}
-  \item{asp}{the y/x aspect ratio, see \code{link{plot.window}}.}
+  \item{asp}{the y/x aspect ratio, see \code{\link{plot.window}}.}
   \item{xlab}{a title for the x axis: see \code{\link{title}}. For RC(M) axes and Cartesian coordinates,
               the default is \dQuote{Dimension N (phi)}; it is empty in other cases where axes have no meaning.}
   \item{ylab}{a title for the y axis: see \code{\link{title}}. For RC(M) axes and Cartesian coordinates,

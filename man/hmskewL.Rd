@@ -75,13 +75,13 @@ hmskewL(tab, nd.symm = NA,
   If \code{layer.effect.skew} is set to \sQuote{heterogeneous}, different scores will be computed for each level,
   which is equivalent to fitting separate models using \code{\link{hmskew}} on the k two-way tables.
   If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ik} = \mu_i} and \eqn{\nu_{ik} = \nu_i} for all
-  layers k: only the \eqn{\phi_k} are allowed to vary accross layers. If it is set to \sQuote{none}, then in addition
+  layers k: only the \eqn{\phi_k} are allowed to vary across layers. If it is set to \sQuote{none}, then in addition
   to the previous conditions all \eqn{\phi_{km}} are forced to be equal for all layers k, which amounts to a stability
-  of the association accross layers.
+  of the association across layers.
 
   When \code{nd.symm} is different from \code{NA}, the symmetric association works exactly like a call to \code{rcL},
   with parameters \code{nd.symm} and \code{layer.effect.symm} translated respectively to \code{nd} and
-  \code{layer.effect}. When \code{nd.symm == NA}, symmetric association parameters are either stable accross layers,
+  \code{layer.effect}. When \code{nd.symm == NA}, symmetric association parameters are either stable across layers,
   are multiplied by a layer coefficient (UNIDIFF model, see \code{\link{unidiff}}), or are different for each layer,
   when \code{layer.effect.symm} is respectively \code{none}, \code{uniform} and \code{heterogeneous}.
 
