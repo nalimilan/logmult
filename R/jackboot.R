@@ -96,8 +96,8 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       boot.results <- numeric(0)
   }
   else {
-      boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc,
-                                 R=nreplicates, cl=cl,
+      boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc, R=nreplicates,
+                                 parallel="snow", cl=cl, ncpus=ncpus,
                                  args=list(model=model, assoc1=assoc1, assoc2=assoc2,
                                            weighting=weighting, family=family,
                                            weights=weights, verbose=verbose, trace=trace,
