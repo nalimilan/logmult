@@ -1,4 +1,4 @@
-plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
+plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"), which=NULL,
                     mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
                     conf.ellipses=NA, replicates=FALSE,
                     coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
@@ -13,13 +13,13 @@ plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"),
   if(!length(x$assoc) > 0)
       stop("x must contain an association component")
 
-  plot.assoc(x$assoc, dim=dim, what=what, mass=mass, luminosity=luminosity,
+  plot.assoc(x$assoc, dim=dim, what=what, which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
-plot.rc.symm <- function(x, dim=c(1, 2),
+plot.rc.symm <- function(x, dim=c(1, 2), which=NULL,
                          mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
@@ -33,13 +33,13 @@ plot.rc.symm <- function(x, dim=c(1, 2),
   if(!length(x$assoc) > 0)
       stop("x must contain an association component")
 
-  plot.assoc(x$assoc, dim=dim, what="rows", mass=mass, luminosity=luminosity,
+  plot.assoc(x$assoc, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
-plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
+plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), which=NULL,
                         mass=TRUE, luminosity=length(x$assoc.hmskew$diagonal > 0), arrow=45,
                         conf.ellipses=NA, replicates=FALSE,
                         coords=c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
@@ -66,13 +66,13 @@ plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
   if(what == "skew-symmetric" && missing(ylab))
       ylab <- ""
 
-  plot.assoc(ass, dim=dim, what="rows", mass=mass, luminosity=luminosity,
+  plot.assoc(ass, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
-plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
+plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), which=NULL,
                          mass=TRUE, luminosity=length(x$assoc.yrcskew$diagonal > 0), arrow=45,
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
@@ -98,13 +98,13 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"),
   if(what == "skew-symmetric" && missing(ylab))
       ylab <- ""
 
-  plot.assoc(ass, dim=dim, what="rows", mass=mass, luminosity=luminosity,
+  plot.assoc(ass, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
-plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
+plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"), which=NULL,
                     mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
                     conf.ellipses=NA, replicates=FALSE,
                     coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
@@ -119,13 +119,13 @@ plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
   if(!length(x$assoc) > 0)
       stop("x must contain an association component")
 
-  plot.assoc(x$assoc, dim=dim, layer=layer, what=what, mass=mass, luminosity=luminosity,
+  plot.assoc(x$assoc, dim=dim, layer=layer, what=what, which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
-plot.rcL.symm <- function(x, dim=c(1, 2), layer=1,
+plot.rcL.symm <- function(x, dim=c(1, 2), layer=1, which=NULL,
                           mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
                           conf.ellipses=NA, replicates=FALSE,
                           coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
@@ -139,14 +139,14 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer=1,
   if(!length(x$assoc) > 0)
       stop("x must contain an association component")
 
-  plot.assoc(x$assoc, dim=dim, layer=layer, what="rows", mass=mass, luminosity=luminosity,
+  plot.assoc(x$assoc, dim=dim, layer=layer, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 
-plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symmetric"),
+plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symmetric"), which=NULL,
                          mass=TRUE, luminosity=length(x$assoc.hmskew$diagonal > 0), arrow=45,
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("polar", "cartesian"), rev.axes=c(FALSE, FALSE),
@@ -173,14 +173,14 @@ plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symm
   if(what == "skew-symmetric" && missing(ylab))
       ylab <- ""
 
-  plot.assoc(ass, dim=dim, layer=layer, what="rows", mass=mass, luminosity=luminosity,
+  plot.assoc(ass, dim=dim, layer=layer, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
              xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
 }
 
 plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
-                       mass=TRUE, luminosity=length(x$diagonal > 0), arrow=NULL,
+                       which=NULL, mass=TRUE, luminosity=length(x$diagonal > 0), arrow=NULL,
                        conf.ellipses=NA, replicates=FALSE,
                        coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                        cex=par("cex"), col=c("blue", "red"), groups=NULL,
@@ -240,6 +240,11 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   what <- match.arg(what)
   coords <- match.arg(coords)
 
+  if(inherits(x, "assoc.symm")) {
+       stopifnot(identical(x$row, x$col))
+       what <- "rows"
+  }
+
   # Plotting only uses one layer, so get rid of others to make code cleaner below
   x$phi <- x$phi[layer,]
 
@@ -258,35 +263,75 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   else if(length(x$diagonal) > 0)
       x$diagonal <- x$diagonal[1,]
 
-  if(inherits(x, "assoc.symm")) {
-       stopifnot(identical(x$row, x$col))
-       sc <- x$row
-       p <- x$row.weights
+  if(what != "both") {
+      if(is.null(which))
+          which <- TRUE
+
+      if(is.logical(which))
+          which <- seq.int(1, nr)[which]
+      else if(is.character(which) && what == "rows")
+          which <- match(which, rownames(x$row), nomatch=0)
+      else if(is.character(which) && what == "columns")
+          which <- match(which, rownames(x$col), nomatch=0)
+      else if(!isTRUE(all(which >= 1 & which <= nr)))
+          stop("Value of 'which' is invalid.")
+
+      if(what == "rows")
+          which <- list(which, FALSE)
+      else
+          which <- list(FALSE, which)
   }
-  else if(what == "rows") {
-       sc <- x$row
-       p <- x$row.weights
+  else {
+      if(is.null(which))
+          which <- list(TRUE, TRUE)
+      else if(!is.list(which) || length(which) != 2)
+          stop("'which' must be a list with exactly two components when 'what == \"both\"'.")
+
+      if(is.logical(which[[1]]))
+          which[[1]] <- seq.int(1, nr)[which[[1]]]
+      else if(is.character(which[[1]]))
+          which[[1]] <- match(which[[1]], rownames(x$row))
+      else if(!isTRUE(all(which[[1]] >= 1 & which[[1]] <= nr)))
+          stop("First component of 'which' is invalid.")
+
+      if(is.logical(which[[2]]))
+          which[[2]] <- seq.int(1, nc)[which[[2]]]
+      else if(is.character(which[[2]]))
+          which[[2]] <- match(which[[2]], rownames(x$col))
+      else if(!isTRUE(all(which[[2]] >= 1 & which[[2]] <= nc)))
+          stop("Second component of 'which' is invalid.")
+  }
+
+  nwr <- length(which[[1]])
+  nwc <- length(which[[2]])
+
+  if(what == "rows") {
+       sc <- x$row[which[[1]],, drop=FALSE]
+       p <- x$row.weights[which[[1]]]
        if(length(col) == 2)
            col <- col[1]
   }
   else if(what == "columns") {
-       sc <- x$col
-       p <- x$col.weights
+       sc <- x$col[which[[2]],, drop=FALSE]
+       p <- x$col.weights[which[[2]]]
        if(length(col) == 2)
            col <- col[2]
   }
   else {
-       sc <- rbind(x$row, x$col)
-       p <- c(x$row.weights, x$col.weights)
+       sc <- rbind(x$row[which[[1]],, drop=FALSE], x$col[which[[2]],, drop=FALSE])
+       p <- c(x$row.weights[which[[1]]], x$col.weights[which[[2]]])
 
        if(length(col) == 2)
-           col <- c(rep(col[1], nr), rep(col[2], nr))
+           col <- c(rep(col[1], nwr), rep(col[2], nwc))
 
        if(length(groups) == 0)
-           groups <- c(rep(2, nr), rep(1, nr))
+           groups <- c(rep(2, nwr), rep(1, nwc))
   }
 
   nsc <- nrow(sc)
+
+  if(nsc == 0)
+      stop("Values of 'what' and 'which' combined do not retain any point to plot.")
 
   if(length(col) == 0)
       col <- "black"
@@ -302,7 +347,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   # Integrate phi to scores for graphical representation
   # Cf. Wong (2010), eq. 2.17 and 2.38, or Clogg & Shihadeh (1994), p. 91
-  sc[,dim] <- sweep(sc[,dim], 2, sqrt(abs(x$phi[dim])), "*")
+  sc[, dim] <- sweep(sc[, dim, drop=FALSE], 2, sqrt(abs(x$phi[dim])), "*")
 
   # If phi is negative, change sign of columns so that the interpretation
   # is consistent with positive phi
@@ -310,19 +355,19 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   # find.stable.scores() and find.stable.scores.hmskew() do the same and wee need to be consistent
   if(!inherits(x, "assoc.symm")) {
       if(what == "columns")
-          sc[,dim] <- sweep(sc[,dim], 2, sign(x$phi[dim]), "*")
+          sc[, dim] <- sweep(sc[, dim, drop=FALSE], 2, sign(x$phi[dim]), "*")
       else if(what == "both")
-          sc[-(1:nr),dim] <- sweep(sc[-(1:nr),dim], 2, sign(x$phi[dim]), "*")
+          sc[-(1:nwr), dim] <- sweep(sc[-(1:nwr), dim, drop=FALSE], 2, sign(x$phi[dim]), "*")
 
       # For printing below
       x$phi[dim] <- abs(x$phi[dim])
   }
 
   if(isTRUE(rev.axes[1]))
-      sc[,dim[1]] <- -sc[,dim[1]]
+      sc[, dim[1]] <- -sc[, dim[1]]
 
   if(isTRUE(rev.axes[2]))
-      sc[,dim[2]] <- -sc[,dim[2]]
+      sc[, dim[2]] <- -sc[, dim[2]]
 
   if(missing(xlim))
       xlim <- range(sc[,dim[1]])
@@ -343,7 +388,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       if(missing(ylab))
           ylab <- sprintf("Dimension %i (%.2f)", dim[2], x$phi[dim[2]])
 
-      plot(sc[,dim], xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, type="n", ...)
+      plot(sc[, dim, drop=FALSE], xlim=xlim, ylim=ylim, asp=asp,
+           xlab=xlab, ylab=ylab, main=main, type="n", ...)
 
       abline(h=0, lty="dotted")
       abline(v=0, lty="dotted")
@@ -352,7 +398,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       opar <- par(mar=c(1, 1, 1, 1))
       on.exit(par(opar))
 
-      plot(sc[,dim], xlim=xlim, ylim=ylim, asp=asp, xlab="", ylab="", main=main,
+      plot(sc[, dim, drop=FALSE], xlim=xlim, ylim=ylim, asp=asp, xlab="", ylab="", main=main,
            xaxt="n", yaxt="n", type="n", bty="n", ...)
 
       abline(h=0, col="grey")
@@ -374,25 +420,21 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       start <- c((dim[1] - 1) * (nr + nc), (dim[2] - 1) * (nr + nc))
 
       if(what %in% c("rows", "both")) {
-
-
-          for(i in 1:nr)
-              polygon(ellipse(covmat[start + i, start + i], centre=sc[i, dim], level=conf.ellipses),
+          for(i in 1:nwr)
+              polygon(ellipse(covmat[start + which[[1]][i], start + which[[1]][i]],
+                              centre=sc[i, dim], level=conf.ellipses),
                       border="dark grey", lty="dashed", lwd=2)
       }
 
       if(what %in% c("columns", "both")) {
-          for(j in 1:nc)
-              polygon(ellipse(covmat[start + nr + j, start + nr + j], centre=sc[i + j, dim], level=conf.ellipses),
+          for(j in 1:nwc)
+              polygon(ellipse(covmat[start + nr + which[[2]][j], start + nr + which[[2]][j]],
+                              centre=sc[i + j, dim], level=conf.ellipses),
                       border="dark grey", lty="dashed", lwd=2)
       }
   }
 
   if(replicates) {
-      nt <- if(what == "both") nr + nc
-            else if(what == "rows") nr
-            else nc
-
       if(length(x$boot.results) > 0)
           pts <- x$boot.results$t
       else if(length(x$jack.results) > 0)
@@ -406,20 +448,20 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
                (layer - 1) * nd * (nr + nc) + c((dim[1] - 1) * (nr + nc), (dim[2] - 1) * (nr + nc)) + 1
 
       if(what %in% c("rows", "both")) {
-          points(pts[, seq.int(start[1], start[1] + nr - 1)],
-                 pts[, seq.int(start[2], start[2] + nr - 1)],
-                 pch=rep(rep(1:18, length.out=nt)[1:nr], each=npts),
-                 col=rep(rainbow(nt, alpha=0.5)[1:nr], each=npts),
+          points(pts[, seq.int(start[1], start[1] + nr - 1)[which[[1]]]],
+                 pts[, seq.int(start[2], start[2] + nr - 1)[which[[1]]]],
+                 pch=rep(rep(1:18, length.out=nsc)[1:nwr], each=npts),
+                 col=rep(rainbow(nsc, alpha=0.5)[1:nwr], each=npts),
                  cex=0.5)
 
           i <- nr
       }
 
       if(what %in% c("columns", "both")) {
-          points(pts[, nr + seq.int(start[1], start[1] + nc - 1)],
-                 pts[, nr + seq.int(start[2], start[2] + nc - 1)],
-                 pch=rep(rep(1:18, length.out=nt)[i:(i + nr)], each=npts),
-                 col=rep(rainbow(nt, alpha=0.5)[i + 1:nr], each=npts),
+          points(pts[, nr + seq.int(start[1], start[1] + nc - 1)[which[[2]]]],
+                 pts[, nr + seq.int(start[2], start[2] + nc - 1)[which[[2]]]],
+                 pch=rep(rep(1:18, length.out=nsc)[-(1:nwr)], each=npts),
+                 col=rep(rainbow(nsc, alpha=0.5)[-(1:nwr)], each=npts),
                  cex=0.5)
       }
   }
@@ -433,7 +475,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
 
   # If no diagonal-specific parameters are present, we use the association of the point to itself
-  dg <- x$diagonal
+  dg <- c(x$diagonal[which[[1]]], x$diagonal[which[[2]]])
   if(length(dg) == 0)
       dg <- rep(0, nsc)
 
@@ -442,7 +484,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   # Draw small circles after bigger ones
   ord <- order(p, decreasing=TRUE)
   p <- p[ord]
-  sc <- sc[ord,]
+  sc <- sc[ord, , drop=FALSE]
   dg <- dg[ord]
   col <- col[ord]
   groups <- groups[ord]
@@ -473,10 +515,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       bg <- col
   }
 
-  points(sc[,dim], cex=size,
+  points(sc[, dim, drop=FALSE], cex=size,
          bg=bg, pch=pch, col="white")
   box()
-  pointLabel(sc[,dim[1]], sc[,dim[2]], rownames(sc))
+  pointLabel(sc[, dim[1]], sc[, dim[2]], rownames(sc))
 }
 
 # Function taken from the directlabels package, but it is in the public domain

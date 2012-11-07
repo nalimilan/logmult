@@ -10,28 +10,31 @@
 \title{Plotting Scores from Association Models}
 \description{Graphical display of scores from association models in two dimensions}
 \usage{
-\method{plot}{rc}(x, dim = c(1, 2), what = c("both", "rows", "columns"),
+\method{plot}{rc}(x, dim = c(1, 2),
+     what = c("both", "rows", "columns"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
-\method{plot}{rc.symm}(x, dim = c(1, 2),
+\method{plot}{rc.symm}(x, dim = c(1, 2), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
-\method{plot}{hmskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
+\method{plot}{hmskew}(x, dim = c(1, 2),
+     what = c("skew-symmetric", "symmetric"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
      arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
-\method{plot}{yrcskew}(x, dim = c(1, 2), what = c("skew-symmetric", "symmetric"),
+\method{plot}{yrcskew}(x, dim = c(1, 2),
+     what = c("skew-symmetric", "symmetric"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0),
      arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
@@ -39,14 +42,14 @@
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{rcL}(x, dim = c(1, 2), layer = 1,
-     what = c("both", "rows", "columns"),
+     what = c("both", "rows", "columns"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, ...)
 
-\method{plot}{rcL.symm}(x, dim = c(1, 2), layer = 1,
+\method{plot}{rcL.symm}(x, dim = c(1, 2), layer = 1, which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
@@ -54,7 +57,7 @@
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{hmskewL}(x, dim = c(1, 2), layer = 1,
-     what = c("skew-symmetric", "symmetric"),
+     what = c("skew-symmetric", "symmetric"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
      arrow=45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
@@ -62,7 +65,7 @@
      xlim, ylim, asp, xlab, ylab, main, ...)
 
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
-     what = c("both", "rows", "columns"),
+     what = c("both", "rows", "columns"), which = NULL,
      mass = TRUE, luminosity = length(x$diagonal > 0),
      arrow = NULL, conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
@@ -78,6 +81,9 @@
   \item{what}{for \code{rc} and \code{assoc} objects, whether points corresponding to rows, columns
               or both should be plotted; for \code{hmskew} and \code{yrcskew} objects, what association
               should be plotted.}
+  \item{which}{an optional subset of points to be plotted, specified via a logical, integer or character
+               vector indexing the row or column component of the association object; if \code{what = both},
+               a list of two such vectors, resp. for rows and columns.}
   \item{mass}{whether the size of the point symbols should reflect on the mass of the categories;
               this only makes sense when marginal weights were used when fitting the model. The precise
               formula is that the \code{pch} of a symbol is equal to the \code{pch} argument, times the
