@@ -105,7 +105,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                         vars[1], vars[2])
 
           if(nastart)
-              start <- c(parameters(base), rep(NA, (nrow(tab)^2 + nrow(tab))/2 - 1))
+              start <- c(parameters(base), rep(NA, (nrow(tab)^2 + nrow(tab))/2))
       }
   }
   else if(nd.symm == 0) {
