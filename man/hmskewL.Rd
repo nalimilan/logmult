@@ -6,8 +6,8 @@
   Fits an extension of the skew-symmetric association model proposed in van der Heijden & Mooijaart (1995)
   to describe asymmetry of square tables. This model introduces a layer effect by which the strength of
   skew-symmetric association, and optionnally scores, can vary over the levels of the third dimension of the table.
-  It can be combined with symmetric association models like a quasi-symmetry (the default) or symmetric (homogeneous)
-  RC(M)-L models, with or without layer effect.
+  Skew-symmetric association can be combined with quasi-symmetry (the default), quasi-independence, or
+  symmetric (homogeneous) RC(M) associations, with or without layer effect.
 }
 \usage{
 hmskewL(tab, nd.symm = NA,
@@ -29,7 +29,8 @@ hmskewL(tab, nd.symm = NA,
     (i.e. of the same length).}
   \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
     \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (the model is already saturated at that point).
-    If \code{NA}, a quasi-symmetric association is used instead of a RC(M) model.}
+    If \code{NA} (the default), a full quasi-symmetric association is used instead of a RC(M) model; if \code{0},
+    quasi-independence is used.}
   \item{layer.effect.skew}{ determines the form of the interaction between skew-symmetric association and layers.
     See \dQuote{Details} below.}
   \item{layer.effect.symm}{ determines the form of the interaction between symmetric row-column association,
@@ -94,8 +95,9 @@ hmskewL(tab, nd.symm = NA,
   more efficient, but it is also less stable.
 }
 \value{
-  A \code{rcL} object, with all the components of a \code{\link{gnm}} object, plus an
-    \code{assoc} component holding the most relevant association information:
+  A \code{hmskewL} object, which is a subclass of an \code{rcL.symm} object (see \code{\link{rcL}}) if
+    \code{nd.symm} is strictly positive. In addition to this class, it contains a \code{assoc.hmskew} component
+    holding information about the \emph{skew-symmetric} association:
   \item{phi }{The intrisic association parameters, one per dimension and per layer.}
   \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
     sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}

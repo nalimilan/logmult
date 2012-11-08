@@ -30,8 +30,8 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   if(!all(rownames(tab) == colnames(tab)))
       stop("tab must have identical row and column names for asymmetry models")
 
-  if(!is.na(nd.symm) && nd.symm <= 0)
-      stop("nd.symm must be NA or strictly positive")
+  if(!is.na(nd.symm) && nd.symm < 0)
+      stop("nd.symm must be NA, zero or positive")
 
   if(!is.na(nd.symm) && nd.symm/2 > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions of symmetric association cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
@@ -53,6 +53,9 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   if(is.na(nd.symm))
       basef <- sprintf("Freq ~ %s + %s %s+ Symm(%s, %s)",
                        vars[1], vars[2], diagstr, vars[1], vars[2])
+  else if(nd.symm == 0)
+      basef <- sprintf("Freq ~ %s + %s %s",
+                       vars[1], vars[2], diagstr)
   else
       basef <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                        vars[1], vars[2], diagstr, vars[1], vars[2], nd.symm)
@@ -89,7 +92,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   if(is.null(model))
       return(NULL)
 
-  if(!is.na(nd.symm)) {
+  if(!is.na(nd.symm) && nd.symm > 0) {
       model$assoc <- assoc.rc.symm(model, weighting=weighting)
       class(model) <- c("hmskew", "rc.symm", "rc", "assocmod", class(model))
   }
@@ -103,13 +106,13 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
 
   if(se %in% c("jackknife", "bootstrap")) {
-      assoc1 <- if(is.na(nd.symm)) assoc.hmskew else assoc.rc.symm
-      assoc2 <- if(is.na(nd.symm)) NULL else assoc.hmskew
+      assoc1 <- if(!is.na(nd.symm) && nd.symm > 0) assoc.rc.symm else assoc.hmskew
+      assoc2 <- if(!is.na(nd.symm) && nd.symm > 0) assoc.hmskew else NULL
 
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                      weighting, family, weights, base, verbose, trace, ...)
 
-      if(!is.na(nd.symm)) {
+      if(!is.na(nd.symm) && nd.symm > 0) {
           model$assoc$covtype <- se
           model$assoc$covmat <- jb$covmat1
           model$assoc$adj.covmats <- jb$adj.covmats1
@@ -131,7 +134,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       }
   }
   else {
-      if(!is.na(nd.symm)) {
+      if(!is.na(nd.symm) && nd.symm > 0) {
           model$assoc$covtype <- se
           model$assoc$covmat <- numeric(0)
           model$assoc$adj.covmats <- numeric(0)

@@ -4,8 +4,8 @@
 \title{Fitting van der Heijen & Mooijaart Skew-Symmetric Association Model}
 \description{
   Fits a skew-symmetric association model proposed in van der Heijden & Mooijaart (1995)
-  to describe asymmetry of square tables. This model can be combined with symmetric association models
-  like a quasi-symmetry (the default) or symmetric (homogeneous) RC(M) models.
+  to describe asymmetry of square tables. Skew-symmetric association can be combined with
+  quasi-symmetry (the default), quasi-independence, or symmetric (homogeneous) RC(M) associations.
 }
 \usage{
 hmskew(tab, nd.symm = NA, diagonal = FALSE,
@@ -21,7 +21,8 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
     if present, dimensions above two will be collapsed.}
   \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
     \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (the model is already saturated at that point).
-    If \code{NA}, a quasi-symmetric association is used instead of a RC(M) model.}
+    If \code{NA} (the default), a full quasi-symmetric association is used instead of a RC(M) model; if \code{0},
+    quasi-independence is used.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model.}
   \item{weighting}{ what weights should be used when normalizing the scores.}
@@ -78,9 +79,9 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
   less stable.
 }
 \value{
-  A \code{hmskew} object, which is a subclass of an \code{rc.symm} object (see \code{\link{rc}}) unless
-    \code{nd} is \code{NA}. In addition to this class, it contains a \code{assoc.hmskew} component holding
-    information about the \emph{asymmetric} association:
+  A \code{hmskew} object, which is a subclass of an \code{rc.symm} object (see \code{\link{rc}}) if
+    \code{nd.symm} is strictly positive. In addition to this class, it contains a \code{assoc.hmskew} component
+    holding information about the \emph{skew-symmetric} association:
   \item{phi }{The intrisic association parameters, one per dimension.}
   \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
     sum of squares is 1, and their (weighted) cross-dimensional correlation is null.}

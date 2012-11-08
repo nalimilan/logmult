@@ -17,17 +17,14 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   if(length(dim(tab)) < 3)
       stop("tab must have (at least) three dimensions")
 
-  if(!is.na(nd.symm) && nd.symm <= 0)
-      stop("nd must be strictly positive")
-
   if(nrow(tab) != ncol(tab))
       stop("tab must be a square table for asymmetry models")
 
   if(!all(rownames(tab) == colnames(tab)))
       stop("tab must have identical row and column names for asymmetry models")
 
-  if(!is.na(nd.symm) && nd.symm <= 0)
-      stop("nd.symm must be NA or strictly positive")
+  if(!is.na(nd.symm) && nd.symm < 0)
+      stop("nd.symm must be NA, zero or positive")
 
   if(!is.na(nd.symm) && nd.symm/2 > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions of symmetric association cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
@@ -110,6 +107,12 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
           if(nastart)
               start <- c(parameters(base), rep(NA, (nrow(tab)^2 + nrow(tab))/2 - 1))
       }
+  }
+  else if(nd.symm == 0) {
+      f2 <- ""
+
+      if(nastart)
+          start <- parameters(base)
   }
   else {
       if(layer.effect.symm == "uniform") {
@@ -208,7 +211,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   model$call <- match.call()
 
-  if(is.na(nd.symm)) {
+  if(is.na(nd.symm) || nd.symm == 0) {
       assoc1 <- NULL
   }
   else if(layer.effect.symm == "none") {
@@ -252,7 +255,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
                      else if(!is.null(base)) base
                      else NULL,
                      verbose, trace, ...)
-      if(!is.na(nd.symm)) {
+      if(!is.na(nd.symm) && nd.symm > 0) {
           model$assoc$covtype <- se
           model$assoc$covmat <- jb$covmat1
           model$assoc$adj.covmats <- jb$adj.covmats1
@@ -274,7 +277,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       }
   }
   else {
-      if(!is.na(nd.symm)) {
+      if(!is.na(nd.symm) && nd.symm > 0) {
           model$assoc$covtype <- se
           model$assoc$covmat <- numeric(0)
           model$assoc$adj.covmats <- numeric(0)
