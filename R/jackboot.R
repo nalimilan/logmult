@@ -1,6 +1,6 @@
 # Run jackknife or bootstrap replicates of the model
 jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, base, verbose, trace, ...) {
+                     weighting, family, weights, verbose, trace, start, etastart, ...) {
   cat("Computing", se, "standard errors...\n")
 
   if(is.null(ncpus))
@@ -74,7 +74,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                         w=tab[!is.na(tab)], cl=cl,
                         model=model, assoc1=assoc1, assoc2=assoc2,
                         weighting=weighting, family=family, weights=weights,
-                        verbose=verbose, trace=trace, ..., base=base)
+                        verbose=verbose, trace=trace, start=start, etastart=etastart, ...)
 
       rowsna <- rowSums(is.na(jack$values))
       nacount <- sum(rowsna > 0)
@@ -101,7 +101,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                                  args=list(model=model, assoc1=assoc1, assoc2=assoc2,
                                            weighting=weighting, family=family,
                                            weights=weights, verbose=verbose, trace=trace,
-                                           ..., base=base))
+                                           start=start, etastart=etastart, ...))
 
       rowsna <- rowSums(is.na(boot.results$t))
       nacount <- sum(rowsna > 0)
@@ -299,8 +299,8 @@ boot.assoc <- function(data, indices, args) {
 }
 
 # Replicate model with new data, and combine assoc components into a vector
-replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose, trace, ...,
-                            base=NULL) {
+replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting,
+                            verbose, trace, start, etastart, ...) {
   # Models can generate an error if they fail repeatedly
   # Remove warnings because we handle them below
   model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
@@ -320,13 +320,13 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting, verbose,
 
   }
 
-  if(!is.null(base) && (is.null(model) || !model$converged)) {
+  if(!is.null(start) && (is.null(model) || !model$converged)) {
 
       print(tab)
       cat(sprintf("Trying again with starting values from base model...\n"))
 
       model <- tryCatch(suppressWarnings(update(model, tab=tab,
-                                                start=parameters(base), etastart=as.numeric(predict(base)),
+                                                start=start, etastart=etastart,
                                                 verbose=verbose, trace=verbose, se="none")),
                         error=function(e) NULL)
   }

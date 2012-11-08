@@ -110,7 +110,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       assoc2 <- if(!is.na(nd.symm) && nd.symm > 0) assoc.hmskew else NULL
 
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, base, verbose, trace, ...)
+                     weighting, family, weights, verbose, trace, start, etastart, ...)
 
       if(!is.na(nd.symm) && nd.symm > 0) {
           model$assoc$covtype <- se
