@@ -64,6 +64,15 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                    tolerance=1e-6, iterMax=iterMax)
 
       base <- do.call("gnm", c(args, list(...)))
+
+      res <- if(symmetric) residEVDL(base, nd, layer.effect)
+             else residSVDL(base, nd, layer.effect)
+
+      # Using NA for all linear parameters usually gives better results than linear parameter values
+      if(layer.effect == "homogeneous.scores")
+          start <- c(rep(NA, length(parameters(base))), rbind(matrix(NA, dim(tab)[3], ncol(res)), res))
+      else
+          start <- c(rep(NA, length(parameters(base))), res)
   }
 
   if(symmetric) {
@@ -73,9 +82,6 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
           for(i in 1:nd)
               f2 <- paste(f2, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)",
                                       vars[3], vars[1], vars[2], i))
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd * (dim(tab)[3] + nrow(tab) + ncol(tab))))
       }
       else if(layer.effect == "heterogeneous") {
           stop("Symmetric association with heterogeneous layer effect is currently not supported")
@@ -85,62 +91,23 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
           for(i in 1:nd)
               f2 <- paste(f2, sprintf("+ MultHomog(%s:%s, %s:%s, inst = %i)", 
                                       vars[3], vars[1], vars[3], vars[2], i))
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd * nrow(tab)))
       }
       else {
           f2 <- sprintf("+ instances(MultHomog(%s, %s), %i)", vars[1], vars[2], nd)
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd * nrow(tab)))
       }
   }
   else {
       if(layer.effect == "homogeneous.scores") {
           f2 <- sprintf("+ instances(Mult(%s, %s, %s), %i)",
                         vars[3], vars[1], vars[2], nd)
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd * (nrow(tab) + ncol(tab) + dim(tab)[3])))
       }
       else if(layer.effect == "heterogeneous") {
           f2 <- sprintf("+ instances(Mult(%s:%s, %s:%s), %i)",
                         vars[3], vars[1], vars[3], vars[2], nd)
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd * dim(tab)[3] * (nrow(tab) + ncol(tab))))
       }
       else {
           f2 <- sprintf("+ instances(Mult(%s, %s), %i)",
                         vars[1], vars[2], nd)
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd * (nrow(tab) + ncol(tab))))
-      }
-  }
-
-  # Heterogeneous diagonal parameters can make the convergence really slow unless
-  # correct starting values are used
-  if(!is.null(base)) {
-      cat("Running second base model to find starting values...\n")
-
-      args <- list(formula=as.formula(paste(f1, diagstr, f2)),
-                   data=tab, family=family,
-                   eliminate=eliminate, constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
-                   tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
-
-      base2 <- do.call("gnm", c(args, list(...)))
-
-      # If model fails (can always happen), do not fail completely but start with random values
-      if(is.null(base2)) {
-          start <- NULL
-      }
-      else {
-          start <- parameters(base2)
-
-          if(is.null(etastart))
-              etastart <- as.numeric(predict(base2))
       }
   }
 

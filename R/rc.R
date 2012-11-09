@@ -44,38 +44,33 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
 
   nastart <- length(start) == 1 && is.na(start)
 
-  if(symmetric) {
+  if(nastart) {
+      cat("Running base model to find starting values...\n")
+
+      args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
+                   data=tab, family=family, weights=weights,
+                   tolerance=tolerance, iterMax=iterMax)
+
+      base <- do.call("gnm", c(args, list(...)))
+
+      res <- if(symmetric) residEVD(base, nd)
+             else residSVD(base, nd)
+
+      # Using NA for all linear parameters usually gives better results than linear parameter values
+      start <- c(rep(NA, length(parameters(base))), res)
+
+      if(is.null(etastart))
+          etastart <- as.numeric(predict(base))
+
+      cat("Running real model...\n")
+  }
+
+  if(symmetric)
       f <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
-
-
-      if(nastart)
-          start <- NULL
-  }
-  else {
-      if(nastart) {
-          cat("Running base model to find starting values...\n")
-
-          args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),
-                       data=tab, family=family, weights=weights,
-                       tolerance=tolerance, iterMax=iterMax)
-
-          base <- do.call("gnm", c(args, list(...)))
-
-          # residSVD evaluates the variable names in parent.frame(), which uses any object
-          # called "vars" in the global environment if not handled like this
-          res <- eval(parse(text=sprintf("residSVD(base, %s, %s, %i)", vars[1], vars[2], nd)))
-          start <- c(parameters(base), res)
-
-          if(is.null(etastart))
-              etastart <- as.numeric(predict(base))
-
-          cat("Running real model...\n")
-      }
-
+  else
       f <- sprintf("Freq ~ %s + %s %s+ instances(Mult(%s, %s), %i)",
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
-  }
 
   args <- list(formula=as.formula(f), data=tab,
                family=family, start=start, etastart=etastart,

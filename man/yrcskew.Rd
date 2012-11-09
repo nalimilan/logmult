@@ -37,8 +37,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
      to a family function. See \code{\link{family}} details of family functions.}
   \item{weights}{ an optional vector of weights to be used in the fitting process.}
   \item{start}{either \code{NA} (the default) to use reasonable starting values, \code{NULL} to use
-     random starting values, or a vector of starting values for the parameters in the model;
-     if a starting value is \code{NA}, the default starting value will be used.}
+     random starting values, or a vector of starting values for the parameters in the model.}
   \item{etastart}{ starting values for the linear predictor; set to \code{NULL} to use either default
      starting values (if \code{start = NA}), or random starting values (in all other cases).}
   \item{tolerance}{ a positive numeric value specifying the tolerance level for
@@ -78,7 +77,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   The default starting values for main parameters are taken from the model without association parameters
   (\dQuote{base model}); association parameters start with random starting values. In some complex
   cases, using \code{start = NULL} to get completely random starting values can be more efficient, but it is also
-  less stable.
+  less stable and can converge to non-optimal solutions.
 }
 \value{
   A \code{yrcskew} object, which is a subclass of an \code{rc.symm} object (see\code{\link{rc}}) unless

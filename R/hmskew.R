@@ -53,33 +53,40 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   if(is.na(nd.symm))
       basef <- sprintf("Freq ~ %s + %s %s+ Symm(%s, %s)",
                        vars[1], vars[2], diagstr, vars[1], vars[2])
-  else if(nd.symm == 0)
-      basef <- sprintf("Freq ~ %s + %s %s",
-                       vars[1], vars[2], diagstr)
-  else
+  else if(nd.symm > 0)
       basef <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                        vars[1], vars[2], diagstr, vars[1], vars[2], nd.symm)
-
+  else
+      basef <- sprintf("Freq ~ %s + %s %s",
+                       vars[1], vars[2], diagstr)
 
   if(!is.null(start) && is.na(start)) {
-      # Without good starting values, estimation can fail when running start-up iterations
-      # with large tables
-      cat("Running base model to find starting values...\n")
+      if(is.na(nd.symm) || nd.symm == 0) {
+          cat("Running symmetric model to find starting values...\n")
 
-      # Setting tolerance to a value below 1e-6 can lead to convergence issues with large tables
-      args <- list(formula=as.formula(basef),
-                   data=tab, family=family,
-                   tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
+          # Setting tolerance to a value below 1e-6 can lead to convergence issues with large tables
+          args <- list(formula=as.formula(basef),
+                       data=tab, family=family,
+                       tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
 
-      base <- do.call("gnm", c(args, list(...)))
+          base <- do.call("gnm", c(args, list(...)))
 
-      start <- c(parameters(base), rep(NA, 2 * nrow(tab)))
+          # Using NA for all linear parameters usually give better results than linear parameter values
+          start <- c(rep(NA, length(parameters(base))), residEVD(base, 1, skew=TRUE))
 
-      if(is.null(etastart))
-          etastart <- as.numeric(predict(base))
+          if(is.null(etastart))
+              etastart <- as.numeric(predict(base))
 
-      cat("Running real model...\n")
+          cat("Running real model...\n")
+      }
+      else {
+          # Do not set starting values when a RC symmetric association is used: the result does not converge,
+          # even when setting only the symmetric or skew-symmetric association
+          # (this is probably because both associations interact much)
+          start <- NULL
+      }
   }
+
 
   f <- sprintf("%s + HMSkew(%s, %s)", basef, vars[1], vars[2])
 

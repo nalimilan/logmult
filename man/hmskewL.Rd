@@ -48,9 +48,8 @@ hmskewL(tab, nd.symm = NA,
      a family function; a family function, or the result of a call
      to a family function. See \code{\link{family}} details of family functions.}
   \item{weights}{ an optional vector of weights to be used in the fitting process.}
-  \item{start}{either \code{NA} (the default) to use reasonable starting values, \code{NULL} to use
-     random starting values, or a vector of starting values for the parameters in the model;
-     if a starting value is \code{NA}, the default starting value will be used.}
+  \item{start}{either \code{NA} (the default) to use optimal starting values, \code{NULL} to use
+     random starting values, or a vector of starting values for the parameters in the model.}
   \item{etastart}{ starting values for the linear predictor; set to \code{NULL} to use either default
      starting values (if \code{start = NA}), or random starting values (in all other cases).}
   \item{tolerance}{ a positive numeric value specifying the tolerance level for
@@ -89,10 +88,10 @@ hmskewL(tab, nd.symm = NA,
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
-  The default starting values correspond to the parameters computed for the model with main parameters constrained to the
-  values they would have without skew association parameters (\dQuote{second base model}); association parameters start
-  with random values. In some complex cases, using \code{start = NULL} to get completely random starting values can be
-  more efficient, but it is also less stable.
+  The default starting values for skew association parameters are computed using an eigen value decomposition from the
+  results of the model without skew association component (\dQuote{base model}); if \code{nd.symm} is not \code{NA} and
+  strictly positive, random starting values are used. In some complex cases, using \code{start = NULL} to start with
+  random values can be more efficient, but it is also less stable and can converge to non-optimal solutions.
 }
 \value{
   A \code{hmskewL} object, which is a subclass of an \code{rcL.symm} object (see \code{\link{rcL}}) if

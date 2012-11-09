@@ -57,8 +57,49 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s",
                 vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3])
 
+  if(is.na(nd.symm)) {
+      if(layer.effect.symm == "homogeneous.scores")
+          # Handled at the top of the function
+          stop()
+      else if(layer.effect.symm == "heterogeneous")
+          f1.symm <- sprintf("+ %s:Symm(%s, %s)",
+                             vars[3], vars[1], vars[2])
+      else if(layer.effect.symm == "uniform")
+          f1.symm <- sprintf("+ Mult(Exp(%s), Symm(%s, %s))", 
+                             vars[3], vars[1], vars[2])
+      else
+          f1.symm <- sprintf("+ Symm(%s, %s)", 
+                             vars[1], vars[2])
+  }
+  else if(!is.na(nd.symm) && nd.symm > 0) {
+      if(layer.effect.symm == "uniform") {
+          # Handled at the top of the function
+          stop()
+      }
+      else if(layer.effect.symm == "homogeneous.scores") {
+          f1.symm <- ""
+
+          for(i in 1:nd.symm)
+              f1.symm <- paste(f1.symm, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)",
+                                                vars[3], vars[1], vars[2], i))
+      }
+      else if(layer.effect.symm == "heterogeneous") {
+          stop("Symmetric association with heterogeneous layer effect is currently not supported")
+
+          f1.symm <- sprintf("+ instances(MultHomog(%s:%s, %s:%s), %i)",
+                             vars[3], vars[1], vars[3], vars[2], nd.symm)
+      }
+      else {
+          f1.symm <- sprintf("+ instances(MultHomog(%s, %s), %i)",
+                             vars[1], vars[2], nd.symm)
+      }
+  }
+  else {
+      f1.symm <- ""
+  }
+
   if(is.na(nd.symm))
-     eliminate <- eval(parse(text=sprintf("quote(Symm(%s, %s))", vars[1], vars[2])))
+      eliminate <- eval(parse(text=sprintf("quote(Symm(%s, %s))", vars[1], vars[2])))
   else
       eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
@@ -66,139 +107,50 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   nastart <- length(start) == 1 && is.na(start)
 
-
   if(nastart) {
-      cat("Running base model to find starting values...\n")
+      if(is.na(nd.symm) || nd.symm == 0) {
+          cat("Running base model to find starting values...\n")
 
-      args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
-                   family=family, eliminate=eliminate,
-                   tolerance=1e-6, iterMax=iterMax)
+          args <- list(formula=as.formula(paste(f1, diagstr, f1.symm)), data=tab,
+                       family=family, eliminate=eliminate,
+                       tolerance=1e-6, iterMax=iterMax)
 
-      args <- c(args, list(...))
+          args <- c(args, list(...))
 
-      base <- do.call("gnm", args)
+          base <- do.call("gnm", args)
 
-      start <- parameters(base)
-  }
+          # Using NA for all linear parameters usually gives better results than linear parameter values
+          if(layer.effect.skew == "homogeneous.scores")
+              start <- c(rep(NA, length(parameters(base))), rep(NA, dim(tab)[3]),
+                         residEVDL(base, 1, layer.effect.skew, skew=TRUE))
+          else
+              start <- c(rep(NA, length(parameters(base))),
+                         residEVDL(base, 1, layer.effect.skew, skew=TRUE))
 
-  if(is.na(nd.symm)) {
-      if(layer.effect.symm == "homogeneous.scores") {
-          # Handled at the top of the function
-          stop()
-      }
-      else if(layer.effect.symm == "heterogeneous") {
-          f2 <- sprintf("+ %s:Symm(%s, %s)",
-                        vars[3], vars[1], vars[2])
+          if(is.null(etastart))
+              etastart <- as.numeric(predict(base))
 
-          if(nastart)
-              start <- c(parameters(base), rep(NA, dim(tab)[3] * ((nrow(tab)^2 + nrow(tab))/2 - 1)))
-      }
-      else if(layer.effect.symm == "uniform") {
-          f2 <- sprintf("+ Mult(Exp(%s), Symm(%s, %s))", 
-                        vars[3], vars[1], vars[2])
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, dim(tab)[3] + (nrow(tab)^2 + nrow(tab))/2))
+          cat("Running real model...\n")
       }
       else {
-          f2 <- sprintf("+ Symm(%s, %s)", 
-                        vars[1], vars[2])
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, (nrow(tab)^2 + nrow(tab))/2))
-      }
-  }
-  else if(nd.symm == 0) {
-      f2 <- ""
-
-      if(nastart)
-          start <- parameters(base)
-  }
-  else {
-      if(layer.effect.symm == "uniform") {
-          # Handled at the top of the function
-          stop()
-      }
-      else if(layer.effect.symm == "homogeneous.scores") {
-          f2 <- ""
-
-          for(i in 1:nd.symm)
-              f2 <- paste(f2, sprintf("+ Mult(%s, MultHomog(%s, %s), inst = %i)",
-                                      vars[3], vars[1], vars[2], i))
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd.symm * (nrow(tab) + dim(tab)[3])))
-      }
-      else if(layer.effect.symm == "heterogeneous") {
-          stop("Symmetric association with heterogeneous layer effect is currently not supported")
-
-          f2 <- sprintf("+ instances(MultHomog(%s:%s, %s:%s), %i)",
-                        vars[3], vars[1], vars[3], vars[2], nd.symm)
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd.symm * dim(tab)[3] * nrow(tab)))
-      }
-      else {
-          f2 <- sprintf("+ instances(MultHomog(%s, %s), %i)",
-                        vars[1], vars[2], nd.symm)
-
-          if(nastart)
-              start <- c(parameters(base), rep(NA, nd.symm * nrow(tab)))
+          # Do not set starting values when a RC symmetric association is used: the result does not converge,
+          # even when setting only the symmetric or skew-symmetric association
+          # (this is probably because both associations interact much)
+          start <- NULL
       }
   }
 
-  if(layer.effect.skew == "heterogeneous") {
+  if(layer.effect.skew == "heterogeneous")
       f2.skew <- sprintf("+ HMSkew(%s:%s, %s:%s)",
                          vars[1], vars[3], vars[2], vars[3])
-
-      if(nastart)
-          start <- c(start, rep(NA, dim(tab)[3] * 2 * nrow(tab)))
-  }
-  else if(layer.effect.skew == "homogeneous.scores") {
+  else if(layer.effect.skew == "homogeneous.scores")
       f2.skew <- sprintf("+ Mult(%s, HMSkew(%s, %s))",
                          vars[3], vars[1], vars[2])
-
-      if(nastart)
-          start <- c(start, rep(NA, dim(tab)[3] + 2 * nrow(tab)))
-  }
-  else {
+  else
       f2.skew <- sprintf("+ HMSkew(%s, %s)", 
                          vars[1], vars[2])
 
-      if(nastart)
-          start <- c(start, rep(NA, 2 * nrow(tab)))
-  }
-
-  # Heterogeneous diagonal parameters can make the convergence really slow unless
-  # correct starting values are used
-  if(!is.null(base)) {
-      cat("Running second base model to find starting values...\n")
-
-      args <- list(formula=as.formula(paste(f1, diagstr, f2, f2.skew)),
-                   data=tab, family=family, start=start, eliminate=eliminate,
-                   constrain=seq(1, length(parameters(base))), constrainTo=parameters(base),
-                   tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
-
-      base2 <- do.call("gnm", c(args, list(...)))
-
-      # If model fails (can always happen), do not fail completely but start with random values
-      if(is.null(base2))
-          start <- NULL
-      else {
-          start <- parameters(base2)
-
-          if(is.null(etastart))
-              etastart <- as.numeric(predict(base2))
-      }
-  }
-
-  if(!is.null(base) && is.null(etastart))
-      etastart <- as.numeric(predict(base))
-
-  if(!is.null(base))
-      cat("Running real model...\n")
-
-  args <- list(formula=as.formula(paste(f1, diagstr, f2, f2.skew)), data=tab,
+  args <- list(formula=as.formula(paste(f1, diagstr, f1.symm, f2.skew)), data=tab,
                family=family, start=start, etastart=etastart, eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
