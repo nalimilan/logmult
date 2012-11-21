@@ -21,7 +21,9 @@ getResid <- function(model, layer=NULL, what=c("ratio", "residuals"),
       res <- residuals(model, "working")
 
       weights <- res
-      weights[] <- if(!is.null(model$weights)) as.vector(model$weights) else 1
+      # weights() returns NA for NA cells, which (contrary to model$weights)
+      # ensures it's the same lenth as obs
+      weights[] <- if(!is.null(model$weights)) as.vector(weights(model, "working")) else 1
       res <- res * weights
 
       if(!is.null(layer)) {
@@ -49,7 +51,9 @@ getResid <- function(model, layer=NULL, what=c("ratio", "residuals"),
       fitted <- fitted(model)
 
       weights <- obs
-      weights[] <- if(!is.null(model$weights)) as.vector(model$weights) else 1
+      # weights() returns NA for NA cells, which (contrary to model$weights)
+      # ensures it's the same lenth as obs
+      weights[] <- if(!is.null(model$weights)) as.vector(weights(model, "working")) else 1
       obs <- obs * weights
       fitted <- fitted * weights
 

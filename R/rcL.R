@@ -155,7 +155,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   if(se %in% c("jackknife", "bootstrap")) {
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, NULL,
-                     weighting, family, weights, verbose, trace, start, etastart, ...)
+                     weighting, NULL, NULL, family, weights,
+                     verbose, trace, start, etastart, ...)
       model$assoc$covmat <- jb$covmat
       model$assoc$adj.covmats <- jb$adj.covmats
       model$assoc$boot.results <- jb$boot.results

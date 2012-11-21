@@ -202,7 +202,8 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   if(se %in% c("jackknife", "bootstrap")) {
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, verbose, trace, start, etastart, ...)
+                     weighting, NULL, NULL, family, weights,
+                     verbose, trace, start, etastart, ...)
       if(!is.na(nd.symm) && nd.symm > 0) {
           model$assoc$covtype <- se
           model$assoc$covmat <- jb$covmat1

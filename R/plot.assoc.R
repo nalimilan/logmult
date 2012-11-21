@@ -241,7 +241,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   coords <- match.arg(coords)
 
   if(inherits(x, "assoc.symm")) {
-       stopifnot(identical(x$row, x$col))
+       #stopifnot(identical(x$row, x$col))
        what <- "rows"
   }
 
@@ -504,6 +504,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   if(luminosity) {
       col <- rgb2hsv(col2rgb(col))
+
+      # Supplementary points do not have diagonal values
+      dg[!is.finite(dg)] <- 0
+
       # 1.2 is here to ensure no point is drawn completely black or white
       bg <- hsv(col["h",], col["s",], v=(1-pmin(1, abs(dg)/max(abs(dg)))/1.2))
 #       col <- grey(l=(1-pmin(1, abs(dg)/max)/1.2))

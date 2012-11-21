@@ -13,11 +13,14 @@
 \title{Identifying Scores from Association Models}
 \description{Identify log-multiplicative association scores from over-parameterized gnm models.}
 \usage{
-\method{assoc}{rc}(model, weighting = c("marginal", "uniform", "none"), ...)
+\method{assoc}{rc}(model, weighting = c("marginal", "uniform", "none"),
+                   rowsup = NULL, colsup = NULL, ...)
 
-\method{assoc}{rc.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
+\method{assoc}{rc.symm}(model, weighting = c("marginal", "uniform", "none"),
+                        rowsup = NULL, colsup = NULL, ...)
 
-\method{assoc}{hmskew}(model, weighting = c("marginal", "uniform", "none"), ...)
+\method{assoc}{hmskew}(model, weighting = c("marginal", "uniform", "none"),
+                       rowsup = NULL, colsup = NULL, ...)
 
 \method{assoc}{yrcskew}(model, weighting = c("marginal", "uniform", "none"), ...)
 
@@ -35,6 +38,10 @@
   \item{model}{a \code{\link{gnm}} object, usually obtained using \code{\link{rc}}, \code{\link{hmskew}},
                \code{\link{yrcskew}}, \code{\link{rcL}}, or \code{\link{rcL.trans}}, but not necessarily.}
   \item{weighting}{the weights to be used when normalizing scores (see \sQuote{Details}).}
+  \item{rowsup}{a matrix with the same columns as the model data giving supplementary (passive) rows
+                to include in the result.}
+  \item{colsup}{a matrix with the same rows as the model data giving supplementary (passive) columns
+                to include in the result.}
   \item{...}{currently unused.}
 }
 \details{

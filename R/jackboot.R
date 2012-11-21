@@ -1,6 +1,7 @@
 # Run jackknife or bootstrap replicates of the model
 jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, verbose, trace, start, etastart, ...) {
+                     weighting, rowsup=NULL, colsup=NULL, family, weights,
+                     verbose, trace, start, etastart, ...) {
   cat("Computing", se, "standard errors...\n")
 
   if(is.null(ncpus))
@@ -37,7 +38,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       ncpus <- 1
   }
 
-  ass1 <- assoc1(model, weighting=weighting)
+  ass1 <- assoc1(model, weighting=weighting, rowsup=rowsup, colsup=colsup)
 
   nl1 <- nrow(ass1$phi)
   nd1 <- ncol(ass1$phi)
@@ -53,7 +54,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       int <- 1:len1
   }
   else {
-      ass2 <- assoc2(model, weighting=weighting)
+      ass2 <- assoc2(model, weighting=weighting, rowsup=rowsup, colsup=colsup)
 
       nl2 <- nrow(ass2$phi)
       nd2 <- ncol(ass2$phi)
@@ -69,12 +70,36 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 
   nacount <- 0
 
+  # Add supplementary rows and columns to 'tab' so that they are included in the sample
+  if(!is.null(rowsup) && !is.null(colsup)) {
+      # Block matrix that is symmetric if rowsup and colsup are transposes of each other
+      tab2 <- as.table(cbind(rbind(tab, rowsup),
+                                  rbind(colsup, matrix(NA, nrow(rowsup), ncol(colsup)))))
+      dimnames(tab2) <- list(c(rownames(tab), rownames(rowsup)),
+                             c(colnames(tab), colnames(colsup)))
+      names(dimnames(tab2)) <- names(dimnames(tab))
+      tab <- tab2
+  }
+  else if(!is.null(rowsup)) {
+      tab2 <- as.table(rbind(tab, rowsup))
+      names(dimnames(tab2)) <- names(dimnames(tab))
+      tab <- tab2
+  }
+  else if(!is.null(colsup)) {
+      tab2 <- as.table(cbind(tab, colsup))
+      names(dimnames(tab2)) <- names(dimnames(tab))
+      tab <- tab2
+  }
+
+
   if(se == "jackknife") {
       jack <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
                         w=tab[!is.na(tab)], cl=cl,
-                        model=model, assoc1=assoc1, assoc2=assoc2,
-                        weighting=weighting, family=family, weights=weights,
-                        verbose=verbose, trace=trace, start=start, etastart=etastart, ...)
+                        model=model, tab=tab, assoc1=assoc1, assoc2=assoc2,
+                        weighting=weighting, rowsup=rowsup, colsup=colsup,
+                        family=family, weights=weights,
+                        verbose=verbose, trace=trace,
+                        start=start, etastart=etastart, ...)
 
       rowsna <- rowSums(is.na(jack$values))
       nacount <- sum(rowsna > 0)
@@ -98,9 +123,10 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
   else {
       boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc, R=nreplicates,
                                  parallel="snow", cl=cl, ncpus=ncpus,
-                                 args=list(model=model, assoc1=assoc1, assoc2=assoc2,
-                                           weighting=weighting, family=family,
-                                           weights=weights, verbose=verbose, trace=trace,
+                                 args=list(model=model, tab=tab, assoc1=assoc1, assoc2=assoc2,
+                                           weighting=weighting, rowsup=rowsup, colsup=colsup,
+                                           family=family, weights=weights,
+                                           verbose=verbose, trace=trace,
                                            start=start, etastart=etastart, ...))
 
       rowsna <- rowSums(is.na(boot.results$t))
@@ -267,9 +293,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 }
 
 # Additional arguments are needed so that update() finds them even when using parLapply
-jackknife.assoc <- function(x, model, ...) {
-  tab <- model$data
-
+jackknife.assoc <- function(x, tab, model, rowsup, colsup, ...) {
   if(sum(tab[-x], na.rm=TRUE) > 0) {
       mat <- tab
       mat[] <- -1
@@ -277,11 +301,23 @@ jackknife.assoc <- function(x, model, ...) {
       tab <- tab + mat
   }
 
-  replicate.assoc(model, tab, ...)
+  if(!is.null(rowsup) || !is.null(colsup))
+      # Remove supplementary rows and columns and recreate them separately
+      tab <- as.table(tab[seq(nrow(model$data)), seq(ncol(model$data))])
+  else
+      tab <- as.table(tab)
+
+  if(!is.null(rowsup))
+      rowsup <- tab[-seq(nrow(model$data)), seq(ncol(model$data))]
+
+  if(!is.null(colsup))
+      colsup <- tab[seq(nrow(model$data)), -seq(ncol(model$data))]
+
+  replicate.assoc(model, tab, rowsup, colsup, ...)
 }
 
 boot.assoc <- function(data, indices, args) {
-  tab <- args$model$data
+  tab <- args$tab
 
   # Create a table from the indices - one index identifies an observation in the original table,
   # following the cumulative sum, from 1 to sum(tab)
@@ -290,20 +326,33 @@ boot.assoc <- function(data, indices, args) {
                                       sum)
 
   # Basic sanity check
-  stopifnot(sum(tab, na.rm=TRUE) == sum(args$model$data, na.rm=TRUE))
+  stopifnot(sum(tab, na.rm=TRUE) == sum(args$model$data, args$rowsup, args$colsup, na.rm=TRUE))
+
+  if(!is.null(args$rowsup) || !is.null(args$colsup))
+      # Remove supplementary rows and columns and recreate them separately
+      args$tab <- as.table(tab[seq(nrow(args$model$data)), seq(ncol(args$model$data))])
+  else
+      args$tab <- as.table(tab)
+
+  if(!is.null(args$rowsup))
+      args$rowsup <- tab[-seq(nrow(args$model$data)), seq(ncol(args$model$data))]
+
+  if(!is.null(args$colsup))
+      args$colsup <- tab[seq(nrow(args$model$data)), -seq(ncol(args$model$data))]
 
   # We need to pass all arguments through "args" to prevent them
   # from being catched by boot(), especially "weights"
-  args$tab <- tab
   do.call(replicate.assoc, args)
 }
 
 # Replicate model with new data, and combine assoc components into a vector
-replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting,
+replicate.assoc <- function(model.orig, tab, assoc1, assoc2,
+                            weighting, rowsup, colsup,
                             verbose, trace, start, etastart, ...) {
   # Models can generate an error if they fail repeatedly
   # Remove warnings because we handle them below
   model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
+                                            rowsup=rowsup, colsup=colsup,
                                             start=parameters(model.orig),
                                             etastart=as.numeric(predict(model.orig)),
                                             verbose=trace, trace=trace, se="none")),
@@ -345,16 +394,16 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2, weighting,
       return(NA)
   }
 
-  ass1 <- assoc1(model, weighting=weighting)
-  ass1.orig <- assoc1(model.orig, weighting=weighting)
+  ass1 <- assoc1(model, weighting=weighting, rowsup=rowsup, colsup=colsup)
+  ass1.orig <- assoc1(model.orig, weighting=weighting, rowsup=rowsup, colsup=colsup)
 
   ret <- if(inherits(ass1, c("assoc.hmskew", "assoc.hmskewL"))) find.stable.scores.hmskew(ass1, ass1.orig)
          else find.stable.scores(ass1, ass1.orig)
 
   # For double association models like some hmskew and yrcskew variants
   if(!is.null(assoc2)) {
-      ass2 <- assoc2(model, weighting=weighting)
-      ass2.orig <- assoc2(model.orig, weighting=weighting)
+      ass2 <- assoc2(model, weighting=weighting, rowsup=rowsup, colsup=colsup)
+      ass2.orig <- assoc2(model.orig, weighting=weighting, rowsup=rowsup, colsup=colsup)
 
       ret <- c(ret, if(inherits(ass2, c("assoc.hmskew", "assoc.hmskewL"))) find.stable.scores.hmskew(ass2, ass2.orig)
                     else find.stable.scores(ass2, ass2.orig))

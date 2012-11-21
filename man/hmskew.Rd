@@ -10,6 +10,7 @@
 \usage{
 hmskew(tab, nd.symm = NA, diagonal = FALSE,
        weighting = c("marginal", "uniform", "none"),
+       rowsup = NULL, colsup = NULL,
        se = c("none", "jackknife", "bootstrap"),
        nreplicates = 100, ncpus = getOption("boot.ncpus"),
        family = poisson, weights = NULL,
@@ -26,6 +27,10 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model.}
   \item{weighting}{ what weights should be used when normalizing the scores.}
+  \item{rowsup}{ if present, a matrix with the same columns as \code{tab} and rows corresponding to the columns
+                of \code{colsup}, giving supplementary (passive) rows.}
+  \item{colsup}{ if present, a matrix with the same rows as \code{tab} and columns corresponding to the rows of
+                \code{colsup}, giving supplementary (passive) columns.}
   \item{se}{ which method to use to compute standard errors for parameters.}
   \item{nreplicates}{ the number of bootstrap replicates, if enabled.}
   \item{ncpus}{ the number of processes to use for jackknife or bootstrap parallel computing. Defaults to

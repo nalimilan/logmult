@@ -13,8 +13,8 @@ HMSkew <- function(row, col, inst=NULL) {
 class(HMSkew) <- "nonlin"
 
 hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
-                   weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
-                   nreplicates=100, ncpus=getOption("boot.ncpus"),
+                   weighting=c("marginal", "uniform", "none"),  rowsup=NULL, colsup=NULL,
+                   se=c("none", "jackknife", "bootstrap"), nreplicates=100, ncpus=getOption("boot.ncpus"),
                    family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-8, iterMax=5000,
                    trace=FALSE, verbose=TRUE, ...) {
   weighting <- match.arg(weighting)
@@ -35,6 +35,18 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
   if(!is.na(nd.symm) && nd.symm/2 > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions of symmetric association cannot exceed 2 * (min(nrow(tab), ncol(tab)) - 1)")
+
+  if(!is.null(rowsup) && !is.matrix(rowsup))
+      stop("'rowsup' must be a matrix")
+
+  if(!is.null(colsup) && !is.matrix(colsup))
+      stop("'colsup' must be a matrix")
+
+  if(!is.null(rowsup) && ncol(rowsup) != ncol(tab))
+      stop("'rowsup' must have one column for each column in 'tab'")
+
+  if(!is.null(colsup) && nrow(colsup) != nrow(tab))
+      stop("'colsup' must have one row for each row in 'tab'")
 
   if(length(dim(tab)) > 2)
       tab <- margin.table(tab, 1:2)
@@ -100,14 +112,14 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       return(NULL)
 
   if(!is.na(nd.symm) && nd.symm > 0) {
-      model$assoc <- assoc.rc.symm(model, weighting=weighting)
+      model$assoc <- assoc.rc.symm(model, weighting=weighting, rowsup=rowsup, colsup=colsup)
       class(model) <- c("hmskew", "rc.symm", "rc", "assocmod", class(model))
   }
   else {
       class(model) <- c("hmskew", "assocmod", class(model))
   }
 
-  model$assoc.hmskew <- assoc.hmskew(model, weighting=weighting)
+  model$assoc.hmskew <- assoc.hmskew(model, weighting=weighting, rowsup=rowsup, colsup=colsup)
 
   model$call <- match.call()
 
@@ -117,7 +129,8 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
       assoc2 <- if(!is.na(nd.symm) && nd.symm > 0) assoc.hmskew else NULL
 
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, verbose, trace, start, etastart, ...)
+                     weighting,  rowsup=rowsup, colsup=colsup,
+                     family, weights, verbose, trace, start, etastart, ...)
 
       if(!is.na(nd.symm) && nd.symm > 0) {
           model$assoc$covtype <- se
@@ -159,13 +172,27 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   model
 }
 
-assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
+assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"),
+                         rowsup=NULL, colsup=NULL, ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
   # gnm doesn't include coefficients for NA row/columns, so get rid of them too
   tab <- as.table(model$data[!is.na(rownames(model$data)),
                              !is.na(colnames(model$data))])
+
+  if(!is.null(rowsup) && !is.matrix(rowsup))
+      stop("'rowsup' must be a matrix")
+
+  if(!is.null(colsup) && !is.matrix(colsup))
+      stop("'colsup' must be a matrix")
+
+  if(!is.null(rowsup) && ncol(rowsup) != ncol(tab))
+      stop("'rowsup' must have one column for each column in model data")
+
+  if(!is.null(colsup) && nrow(colsup) != nrow(tab))
+      stop("'colsup' must have one row for each row in model data")
+
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, et Becker & Clogg (1989), p. 144.
   weighting <- match.arg(weighting)
@@ -251,8 +278,18 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"), ...)
   obj <- list(phi = phi, row = sc, col = sc, diagonal = dg,
               weighting = weighting, row.weights = p, col.weights = p)
 
+  ## Supplementary rows/columns
+  if(!is.null(rowsup) || !is.null(colsup)) {
+      sup <- sup.scores.rc(model, tab, obj, rowsup, colsup, symmetry="skew-symmetric", str="HMSkew")
+
+      obj$row <- sup$row
+      obj$col <- sup$col
+      obj$row.weights <- sup$row.weights
+      obj$col.weights <- sup$col.weights
+  }
+
   class(obj) <- c("assoc.hmskew", "assoc.symm", "assoc")
   obj
 }
 
-assoc <- function(model, weighting, ...) UseMethod("assoc", model)
+assoc <- function(model, weighting, rowsup, colsup, ...) UseMethod("assoc", model)

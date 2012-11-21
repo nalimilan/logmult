@@ -11,6 +11,7 @@
 \usage{
 rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
    weighting = c("marginal", "uniform", "none"),
+   rowsup = NULL, colsup = NULL,
    se = c("none", "jackknife", "bootstrap"),
    nreplicates = 100, ncpus = getOption("boot.ncpus"),
    family = poisson, weights = NULL,
@@ -27,6 +28,11 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
     taking quasi-independence, rather than independence, as the baseline model. Valid only for square tables.}
   \item{weighting}{ what weights should be used when normalizing the scores.}
+  \item{rowsup}{ if present, a matrix with the same columns as \code{tab} giving supplementary (passive) rows.
+                If \code{symmetric = TRUE}, \code{rowsup} and \code{colsup} must be specified together and
+                rows of \code{rowsup} must correspond to columns of \code{colsup}.}
+  \item{colsup}{ if present, a matrix with the same rows as \code{tab} giving supplementary (passive) columns.
+                See \code{rowsup}.}
   \item{se}{ which method to use to compute standard errors for parameters (see \code{\link{se.assoc}}).}
   \item{nreplicates}{ the number of bootstrap replicates, if enabled.}
   \item{ncpus}{ the number of processes to use for jackknife or bootstrap parallel computing. Defaults to

@@ -120,7 +120,8 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       assoc2 <- if(is.na(nd.symm)) NULL else assoc.yrcskew
 
       jb <- jackboot(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
-                     weighting, family, weights, verbose, trace, start, etastart, ...)
+                     weighting, NULL, NULL, family, weights,
+                     verbose, trace, start, etastart, ...)
 
       if(!is.na(nd.symm)) {
           model$assoc$covtype <- se
