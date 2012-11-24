@@ -18,21 +18,12 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
   cp <- ass$col.weights
   weighting <- ass$weighting
 
-  # Model with association parameters constrained to their ajusted value
   args <- list()
   args$formula <- model$formula
-  args$data <- tab
   args$family <- model$family
   args$tolerance <- model$tolerance
   args$verbose <- FALSE
-  args$constrain <- which(grepl(str, names(parameters(model))))
 
-  if(symmetry != "asymmetric")
-      args$constrainTo <- sweep(row[,, 1], 2, sqrt(phi[1,]), "*")
-  else
-      args$constrainTo <- sweep(rbind(row[,, 1], col[,, 1]), 2, sqrt(phi[1,]), "*")
-
-  model2 <- do.call("gnm", args)
 
   # Diagonal does not make sense in this model since table is not square,
   # or has NA diagonal if both rowsup and colsup have been supplied
@@ -40,93 +31,126 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
       args$formula <- as.formula(paste(deparse(args$formula),
                                        sprintf("- Diag(%s, %s)", vars[1], vars[2])))
 
-      if(is.null(colsup)) {
-          args$data <- as.table(rowsup)
-      }
-      else if(is.null(rowsup)) {
-          args$data <- as.table(colsup)
-      }
-      else {
-          # Block matrix that is symmetric if rowsup and colsup are transposes of each other
-          args$data <- as.table(cbind(rbind(matrix(NA, nrow(colsup), ncol(rowsup)), rowsup),
-                                      rbind(colsup, matrix(NA, nrow(rowsup), ncol(colsup)))))
-          dimnames(args$data) <- list(c(rownames(model$data), rownames(rowsup)),
-                                      c(colnames(model$data), colnames(colsup)))
-      }
+  if(is.null(colsup)) {
+      args$data <- as.table(rowsup)
+  }
+  else if(is.null(rowsup)) {
+      args$data <- as.table(colsup)
+  }
+  else {
+      # Block matrix that is symmetric if rowsup and colsup are transposes of each other
+      args$data <- as.table(cbind(rbind(matrix(NA, nrow(colsup), ncol(rowsup)), rowsup),
+                                  rbind(colsup, matrix(NA, nrow(rowsup), ncol(colsup)))))
+      dimnames(args$data) <- list(c(rownames(model$data), rownames(rowsup)),
+                                  c(colnames(model$data), colnames(colsup)))
+  }
 
-      names(dimnames(args$data)) <- names(dimnames(model$data))
+  names(dimnames(args$data)) <- names(dimnames(model$data))
 
-      if(symmetry == "skew-symmetric") {
-          hmterm <- sprintf("+ HMSkew(%s, %s)", vars[1], vars[2])
+  if(symmetry == "skew-symmetric") {
+      hmterm <- sprintf("+ HMSkew(%s, %s)", vars[1], vars[2])
 
-          args2 <- args
-          args2$constrain <- NULL
-          args2$constrainTo <- NULL
-          args2$formula <- as.formula(sub(paste("\\Q", hmterm, "\\E", sep=""),
-                                          "", deparse(args$formula)))
+      args2 <- args
+      args2$constrain <- NULL
+      args2$constrainTo <- NULL
+      args2$formula <- as.formula(sub(paste("\\Q", hmterm, "\\E", sep=""),
+                                      "", deparse(args$formula)))
 
-          base <- do.call("gnm", args2)
-          args$start <- c(rep(NA, length(parameters(base))), residEVD(base, 1, skew=TRUE))
+      base <- do.call("gnm", args2)
+      args$start <- c(rep(NA, length(parameters(base))), residEVD(base, 1, skew=TRUE))
 
-          hmnames <- names(gnm:::gnmTools(gnm:::gnmTerms(as.formula(paste("Freq ~ -1", hmterm)),
-                                                         data=args$data),
-                                          as.data.frame(args$data), FALSE)$start)
+      hmnames <- names(gnm:::gnmTools(gnm:::gnmTerms(as.formula(paste("Freq ~ -1", hmterm)),
+                                                     data=args$data),
+                                      as.data.frame(args$data), FALSE)$start)
 
-          cnames <- c(names(parameters(base)), hmnames)
-      }
-      else {
-          cnames <- names(gnm:::gnmTools(gnm:::gnmTerms(args$formula, data=args$data),
-                                         as.data.frame(args$data), FALSE)$start)
-      }
+      cnames <- c(names(parameters(base)), hmnames)
+  }
+  else {
+      cnames <- names(gnm:::gnmTools(gnm:::gnmTerms(args$formula, data=args$data),
+                                     as.data.frame(args$data), FALSE)$start)
+  }
 
-      args$constrain <- which(cnames %in% names(parameters(model2)))
-      args$constrainTo <- parameters(model2)[match(cnames, names(parameters(model2)), nomatch=0)]
-      msup <- do.call("gnm", args)
+  args$constrain <- which(cnames %in% names(parameters(model)) & grepl(str, cnames))
 
-      sup <- parameters(msup)[setdiff(pickCoef(msup, str), args$constrain)]
+  if(symmetry != "asymmetric")
+      args$constrainTo <- sweep(cbind(row[,, 1]), 2, sqrt(phi[1,]), "*")
+  else if(length(rowsup) > 0 && length(colsup) > 0)
+      args$constrainTo <- sweep(rbind(row[,, 1], col[,, 1]), 2, sqrt(phi[1,]), "*")
+  else if(length(rowsup) > 0)
+      args$constrainTo <- sweep(cbind(row[,, 1]), 2, sqrt(phi[1,]), "*")
+  else
+      args$constrainTo <- sweep(cbind(col[,, 1]), 2, sqrt(phi[1,]), "*")
 
-      if(symmetry != "asymmetric")
-          dim(sup) <- c(sum(nrow(rowsup)), ncol(phi))
-      else
-          dim(sup) <- c(sum(nrow(rowsup), ncol(colsup)), ncol(phi))
+  msup <- do.call("gnm", args)
 
-      sup <- sweep(sup, 2, sqrt(phi[1,]), "/")
+  sup <- parameters(msup)[setdiff(pickCoef(msup, str), args$constrain)]
 
+  if(symmetry != "asymmetric") {
+      dim(sup) <- c(sum(nrow(rowsup)), ncol(phi))
 
-  if(length(rowsup) > 0) {
       if(weighting == "none")
           rpsup <- rep(1, nrow(rowsup))
       else if(weighting == "uniform")
           rpsup <- rep(1/nrow(rowsup), nrow(rowsup))
       else
-          rpsup <- prop.table(apply(rowsup, 1, sum, na.rm=TRUE))
+          rpsup <- prop.table(apply(rowsup, 1, sum, na.rm=TRUE) + apply(colsup, 2, sum, na.rm=TRUE))
 
-      rp <- c(rp, rpsup)
+      rp <- cp <- c(rp, rpsup)
 
-      row2 <- rbind(cbind(row[,,1]), sup[seq(nrow(rowsup)), , drop=FALSE])
+      rsup <- sup[seq(nrow(rowsup)), , drop=FALSE]
+
+      rsup <- sweep(rsup, 2, colSums(sweep(rsup, 1, rpsup/sum(rpsup), "*")), "-")
+      rsup <- sweep(rsup, 2, sqrt(phi[1,]), "/")
+
+      row2 <- rbind(cbind(row[,,1]), rowsup)
       dim(row2)[3] <- 1
       names(dimnames(row2)) <- names(dimnames(row))
       rownames(row2) <- c(rownames(row), rownames(rowsup))
       colnames(row2) <- colnames(row)
-      row <- row2
+      row <- col <- row2
   }
+  else {
+      dim(sup) <- c(sum(nrow(rowsup), ncol(colsup)), ncol(phi))
 
-  if(length(colsup) > 0) {
-      if(weighting == "none")
-          cpsup <- rep(1, ncol(colsup))
-      else if(weighting == "uniform")
-          cpsup <- rep(1/ncol(colsup), ncol(colsup))
-      else
-          cpsup <- prop.table(apply(colsup, 2, sum, na.rm=TRUE))
+      if(length(rowsup) > 0) {
+          if(weighting == "none")
+              rpsup <- rep(1, nrow(rowsup))
+          else if(weighting == "uniform")
+              rpsup <- rep(1/nrow(rowsup), nrow(rowsup))
+          else
+              rpsup <- prop.table(apply(rowsup, 1, sum, na.rm=TRUE))
 
-      cp <- c(cp, cpsup)
+          rp <- c(rp, rpsup)
 
-      if(symmetry != "asymmetric") {
-          col <- row
-          rp <- cp <- (rp + cp)/2
+          rsup <- sup[seq(nrow(rowsup)), , drop=FALSE]
+
+          rsup <- sweep(rsup, 2, colSums(sweep(rsup, 1, rpsup/sum(rpsup), "*")), "-")
+          rsup <- sweep(rsup, 2, sqrt(phi[1,]), "/")
+
+          row2 <- rbind(cbind(row[,,1]), rsup)
+          dim(row2)[3] <- 1
+          names(dimnames(row2)) <- names(dimnames(row))
+          rownames(row2) <- c(rownames(row), rownames(rowsup))
+          colnames(row2) <- colnames(row)
+          row <- row2
       }
-      else {
-          col2 <- rbind(cbind(col[,,1]), sup[-seq(nrow(rowsup)), , drop=FALSE])
+
+      if(length(colsup) > 0) {
+          if(weighting == "none")
+              cpsup <- rep(1, ncol(colsup))
+          else if(weighting == "uniform")
+              cpsup <- rep(1/ncol(colsup), ncol(colsup))
+          else
+              cpsup <- prop.table(apply(colsup, 2, sum, na.rm=TRUE))
+
+          cp <- c(cp, cpsup)
+
+          csup <- sup[-seq(nrow(rowsup)), , drop=FALSE]
+
+          csup <- sweep(csup, 2, colSums(sweep(csup, 1, cpsup/sum(cpsup), "*")), "-")
+          csup <- sweep(csup, 2, sqrt(phi[1,]), "/")
+
+          col2 <- rbind(cbind(col[,,1]), csup)
           dim(col2)[3] <- 1
           names(dimnames(col2)) <- names(dimnames(col))
           rownames(col2) <- c(rownames(col), colnames(colsup))
