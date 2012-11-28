@@ -3,7 +3,7 @@ plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"), which=NUL
                     conf.ellipses=NA, replicates=FALSE,
                     coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                     cex=par("cex"), col=c("blue", "red"), groups=NULL,
-                    xlim, ylim, asp, xlab, ylab, main, ...) {
+                    xlim, ylim, asp, xlab, ylab, main, font, ...) {
   what <- match.arg(what)
   coords <- match.arg(coords)
 
@@ -16,7 +16,7 @@ plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"), which=NUL
   plot.assoc(x$assoc, dim=dim, what=what, which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
+             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, font=font, ...)
 }
 
 plot.rc.symm <- function(x, dim=c(1, 2), which=NULL,
@@ -36,7 +36,7 @@ plot.rc.symm <- function(x, dim=c(1, 2), which=NULL,
   plot.assoc(x$assoc, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
+             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, font=font, ...)
 }
 
 plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), which=NULL,
@@ -44,7 +44,7 @@ plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), w
                         conf.ellipses=NA, replicates=FALSE,
                         coords=c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
                         cex=par("cex"), col="blue", groups=NULL,
-                        xlim, ylim, asp, xlab, ylab, main, ...) {
+                        xlim, ylim, asp, xlab, ylab, main, font, ...) {
   if(!inherits(x, "hmskew"))
       stop("x must be a hmskew object")
 
@@ -69,7 +69,7 @@ plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), w
   plot.assoc(ass, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
+             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, font=font, ...)
 }
 
 plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), which=NULL,
@@ -77,7 +77,7 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), 
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
                          cex=par("cex"), col="blue", groups=NULL,
-                         xlim, ylim, asp, xlab, ylab, main, ...) {
+                         xlim, ylim, asp, xlab, ylab, main, font, ...) {
   if(!inherits(x, "yrcskew"))
       stop("x must be a yrcskew object")
 
@@ -101,7 +101,7 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), 
   plot.assoc(ass, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
+             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, font=font, ...)
 }
 
 plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"), which=NULL,
@@ -109,7 +109,7 @@ plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
                     conf.ellipses=NA, replicates=FALSE,
                     coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                     cex=par("cex"), col=c("blue", "red"), groups=NULL,
-                    xlim, ylim, asp, xlab, ylab, main, ...) {
+                    xlim, ylim, asp, xlab, ylab, main, font, ...) {
   what <- match.arg(what)
   coords <- match.arg(coords)
 
@@ -122,7 +122,7 @@ plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
   plot.assoc(x$assoc, dim=dim, layer=layer, what=what, which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
+             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, font=font, ...)
 }
 
 plot.rcL.symm <- function(x, dim=c(1, 2), layer=1, which=NULL,
@@ -130,7 +130,7 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer=1, which=NULL,
                           conf.ellipses=NA, replicates=FALSE,
                           coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                           cex=par("cex"), col="blue", groups=NULL,
-                          xlim, ylim, asp, xlab, ylab, main, ...) {
+                          xlim, ylim, asp, xlab, ylab, main, font, ...) {
   coords <- match.arg(coords)
 
   if(!inherits(x, "rcL.symm"))
@@ -142,7 +142,7 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer=1, which=NULL,
   plot.assoc(x$assoc, dim=dim, layer=layer, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
+             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, font=font, ...)
 }
 
 
@@ -151,7 +151,7 @@ plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symm
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("polar", "cartesian"), rev.axes=c(FALSE, FALSE),
                          cex=par("cex"), col="blue", groups=NULL,
-                         xlim, ylim, asp, xlab, ylab, main, ...) {
+                         xlim, ylim, asp, xlab, ylab, main, font, ...) {
   if(!inherits(x, "hmskewL"))
       stop("x must be a hmskewL object")
 
@@ -176,7 +176,7 @@ plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symm
   plot.assoc(ass, dim=dim, layer=layer, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, ...)
+             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main, font=font, ...)
 }
 
 plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
@@ -184,7 +184,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
                        conf.ellipses=NA, replicates=FALSE,
                        coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                        cex=par("cex"), col=c("blue", "red"), groups=NULL,
-                       xlim, ylim, asp, xlab, ylab, main, ...) {
+                       xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   if(!(inherits(x, "assoc")))
       stop("x must be an assoc object")
 
@@ -345,6 +345,16 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(length(cex) != nsc)
       cex <- rep(cex, length=nsc)
 
+  if(missing(pch) && length(groups) > 0)
+      pch <- rep(c(21, 24, 22, 23, 25), length.out=8)[groups]
+  else if(missing(pch))
+      pch <- rep(21, length.out=nsc)
+
+  if(missing(font))
+      font <- rep(1, length.out=nsc)
+  else if(length(font) != nsc)
+      font <- rep(font, length.out=nsc)
+
   # Integrate phi to scores for graphical representation
   # Cf. Wong (2010), eq. 2.17 and 2.38, or Clogg & Shihadeh (1994), p. 91
   sc[, dim] <- sweep(sc[, dim, drop=FALSE], 2, sqrt(abs(x$phi[dim])), "*")
@@ -383,10 +393,12 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   if(coords == "cartesian") {
       if(missing(xlab))
-          xlab <- sprintf("Dimension %i (%.2f)", dim[1], x$phi[dim[1]])
+          xlab <- sprintf("Dimension %i (%s)",
+                          dim[1], prettyNum(round(x$phi[dim[1]], 2), nsmall=2))
 
       if(missing(ylab))
-          ylab <- sprintf("Dimension %i (%.2f)", dim[2], x$phi[dim[2]])
+          ylab <- sprintf("Dimension %i (%s)",
+                          dim[2], prettyNum(round(x$phi[dim[2]], 2), nsmall=2))
 
       plot(sc[, dim, drop=FALSE], xlim=xlim, ylim=ylim, asp=asp,
            xlab=xlab, ylab=ylab, main=main, type="n", ...)
@@ -481,12 +493,15 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   dg <- dg + sqrt(sc[,dim[1]]^2 + sc[,dim[2]]^2)
 
+
   # Draw small circles after bigger ones
   ord <- order(p, decreasing=TRUE)
   p <- p[ord]
   sc <- sc[ord, , drop=FALSE]
   dg <- dg[ord]
   col <- col[ord]
+  pch <- pch[ord]
+  font <- font[ord]
   groups <- groups[ord]
 
   if(mass)
@@ -494,35 +509,35 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   else
       size <- cex
 
-  if(length(groups) == 0)
-      pch <- 21
-  else
-      pch <- rep(c(21, 24, 22, 23, 25), length.out=8)[groups]
-
   if(is.null(col))
       col <- rep("black", length.out=nsc)
 
   if(luminosity) {
       col <- rgb2hsv(col2rgb(col))
 
-      # Supplementary points do not have diagonal values
-      dg[!is.finite(dg)] <- 0
-
       # 1.2 is here to ensure no point is drawn completely black or white
-      bg <- hsv(col["h",], col["s",], v=(1-pmin(1, abs(dg)/max(abs(dg)))/1.2))
-#       col <- grey(l=(1-pmin(1, abs(dg)/max)/1.2))
+      v <- 1 - abs(dg)/max(c(0, abs(dg)), na.rm=TRUE)/1.2
 
-      if(any(dg < 0))
+      # Supplementary points do not have diagonal values
+      v[!is.finite(v)] <- 0.5
+
+      bg <- hsv(col["h",], col["s",], v=v)
+
+      if(any(dg[!is.na(dg)] < 0))
           warning("Some diagonal parameters are negative. Corresponding points will be colored according to their absolute value.")
   }
   else {
       bg <- col
   }
 
+  # Draw white border for filled symbols that support it
+  border <- ifelse(pch %in% 21:25, "white", bg)
+
   points(sc[, dim, drop=FALSE], cex=size,
-         bg=bg, pch=pch, col="white")
+         bg=bg, pch=pch, col=border)
+
   box()
-  pointLabel(sc[, dim[1]], sc[, dim[2]], rownames(sc))
+  pointLabel(sc[, dim[1]], sc[, dim[2]], rownames(sc), font=font)
 }
 
 # Function taken from the directlabels package, but it is in the public domain
