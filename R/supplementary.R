@@ -75,11 +75,11 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
   if(symmetry != "asymmetric")
       args$constrainTo <- sweep(cbind(row[,, 1]), 2, sqrt(phi[1,]), "*")
   else if(length(rowsup) > 0 && length(colsup) > 0)
-      args$constrainTo <- sweep(rbind(row[,, 1], col[,, 1]), 2, sqrt(phi[1,]), "*")
+      args$constrainTo <- sweep(rbind(cbind(row[,, 1]), cbind(col[,, 1])), 2, sqrt(phi[1,]), "*")
   else if(length(rowsup) > 0)
-      args$constrainTo <- sweep(cbind(row[,, 1]), 2, sqrt(phi[1,]), "*")
-  else
       args$constrainTo <- sweep(cbind(col[,, 1]), 2, sqrt(phi[1,]), "*")
+  else
+      args$constrainTo <- sweep(cbind(row[,, 1]), 2, sqrt(phi[1,]), "*")
 
   msup <- do.call("gnm", args)
 
@@ -102,7 +102,7 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
       rsup <- sweep(rsup, 2, colSums(sweep(rsup, 1, rpsup/sum(rpsup), "*")), "-")
       rsup <- sweep(rsup, 2, sqrt(phi[1,]), "/")
 
-      row2 <- rbind(cbind(row[,,1]), rowsup)
+      row2 <- rbind(cbind(row[,,1]), rsup)
       dim(row2)[3] <- 1
       names(dimnames(row2)) <- names(dimnames(row))
       rownames(row2) <- c(rownames(row), rownames(rowsup))
@@ -145,7 +145,7 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
 
           cp <- c(cp, cpsup)
 
-          csup <- sup[-seq(nrow(rowsup)), , drop=FALSE]
+          csup <- sup[seq(NROW(rowsup) + 1, nrow(sup)), , drop=FALSE]
 
           csup <- sweep(csup, 2, colSums(sweep(csup, 1, cpsup/sum(cpsup), "*")), "-")
           csup <- sweep(csup, 2, sqrt(phi[1,]), "/")
