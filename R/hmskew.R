@@ -234,24 +234,20 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"),
   phi <- sv$d[1:2]
 
   # Since both dimensions share the same singular value, we cannot distinguish them
-  # and their order is random. Use the convention that we want a positive skew association for cell (1, 2)
-  # (implicit in the original article)
-  if(sc[1,2] * sc[2,1] - sc[1,1] * sc[2,2] < 0)
-      sc <- sc[,2:1]
+  # and their order is random. The sign of the association reconstructed from scores
+  # must be the same as the original one: we use one cell, since all signs are the same.
+  # This operation affects the results, while the next one is merely a display convention.
+  sc[, 1] <- sc[, 1] * sign((sc[1, 2] * sc[2, 1] - sc[1, 1] * sc[2, 2])/lambda[1, 2])
 
-  # Since rotation is also random, align first category to position 0 on the vertical axis,
-  # and on the positive side of the horizontal axis (like original article does with *last* category)
-  if(abs(sc[1,2]) > .Machine$double.eps)
-      angle <- acos(sc[1,1]/sqrt(sum(sc[1,]^2)))
-  else if (sc[1,1] < 0)
-      angle <- pi
-  else
-      angle <- 0
+  # Use the convention that we want the null score to be for the first category
+  # on the second dimension, and a positive score on the first dimension
+  # (like original article does with *last* category).
+  # These two operations do not change the actual association.
+  if(which.min(abs(sc[1,])) == 1)
+      sc <- sc[, 2:1]
 
-  if(sc[1,2] < -.Machine$double.eps)
-      angle <- -angle
-
-  sc <- sc %*% matrix(c(cos(angle), sin(angle), -sin(angle), cos(angle)), 2, 2)
+  if(sc[1, 1] < 0)
+      sc <- -sc
 
   # The reference category is not really at 0, and this makes the display ugly
   sc[abs(sc) < sqrt(.Machine$double.eps)] <- 0
