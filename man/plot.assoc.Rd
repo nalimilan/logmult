@@ -16,14 +16,14 @@
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
-     xlim, ylim, asp, xlab, ylab, main, ...)
+     xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rc.symm}(x, dim = c(1, 2), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
-     xlim, ylim, asp, xlab, ylab, main, ...)
+     xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{hmskew}(x, dim = c(1, 2),
      what = c("skew-symmetric", "symmetric"), which = NULL,
@@ -31,7 +31,7 @@
      arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
-     xlim, ylim, asp, xlab, ylab, main, ...)
+     xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{yrcskew}(x, dim = c(1, 2),
      what = c("skew-symmetric", "symmetric"), which = NULL,
@@ -39,7 +39,7 @@
      arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
-     xlim, ylim, asp, xlab, ylab, main, ...)
+     xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rcL}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"), which = NULL,
@@ -47,14 +47,14 @@
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
-     xlim, ylim, asp, xlab, ylab, main, ...)
+     xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rcL.symm}(x, dim = c(1, 2), layer = 1, which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
-     xlim, ylim, asp, xlab, ylab, main, ...)
+     xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{hmskewL}(x, dim = c(1, 2), layer = 1,
      what = c("skew-symmetric", "symmetric"), which = NULL,
@@ -62,7 +62,7 @@
      arrow=45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
-     xlim, ylim, asp, xlab, ylab, main, ...)
+     xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"), which = NULL,
@@ -70,7 +70,7 @@
      arrow = NULL, conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
-     xlim, ylim, asp, xlab, ylab, main, ...)
+     xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 }
 \arguments{
   \item{x}{an association model, or an object inheriting from class \code{assoc}.}
@@ -121,6 +121,10 @@
               the default is \dQuote{Dimension N (phi)}; it is empty in other cases where axes have no meaning.}
   \item{main}{an overall title for the plot: see \code{\link{title}}. If missing for RC(M)-L models, the name of
               the plotted layer will be used.}
+  \item{pch}{a vector of plotting \sQuote{character}, i.e., symbol to use for each point, recycled as necessary;
+             see \code{\link{points}}.}
+  \item{font}{an integer vector indicating the font to use for each label, recycled as necessary;
+              see \code{link{par}}.}
   \item{...}{Further arguments passed to \code{\link{plot}}.}
 }
 \details{
