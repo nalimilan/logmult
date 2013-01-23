@@ -78,7 +78,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
           # Setting tolerance to a value below 1e-6 can lead to convergence issues with large tables
           args <- list(formula=as.formula(basef),
-                       data=tab, family=family,
+                       data=tab, family=family, weights=weights,
                        tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
 
           base <- do.call("gnm", c(args, list(...)))
@@ -103,7 +103,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   f <- sprintf("%s + HMSkew(%s, %s)", basef, vars[1], vars[2])
 
   args <- list(formula=as.formula(f), data=tab,
-               family=family, start=start, etastart=etastart,
+               family=family, weights=weights, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
   model <- do.call("gnm", c(args, list(...)))

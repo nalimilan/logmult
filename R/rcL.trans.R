@@ -89,7 +89,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
 
       if(symmetric) {
           args <- list(formula=as.formula(sprintf("%s + instances(MultHomog(%s, %s), %i)", f1, vars[1], vars[2], nd)),
-                       data=tab, family=family, eliminate=eliminate,
+                       data=tab, family=family, weights=weights, eliminate=eliminate,
                        tolerance=1e-6, iterMax=iterMax)
 
           base <- do.call("gnm", c(args, list(...)))
@@ -101,7 +101,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
       }
       else {
           args <- list(formula=as.formula(sprintf("%s + instances(Mult(%s, %s), %i)", f1, vars[1], vars[2], nd)),
-                       data=tab, family=family, eliminate=eliminate,
+                       data=tab, family=family, weights=weights, eliminate=eliminate,
                        tolerance=1e-6, iterMax=iterMax, verbose=verbose, trace=trace)
 
           base <- do.call("gnm", c(args, list(...)))
@@ -122,7 +122,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr,
                if(symmetric) "RCTransSymm" else "RCTrans", vars[1], vars[2], vars[3], nd)
 
-  args <- list(formula=as.formula(f), data=tab,  family=family,
+  args <- list(formula=as.formula(f), data=tab, family=family, weights=weights,
                # Both constraints are really needed: the computed scores are wrong without them
                # (rows are ordered along an oblique axis, and columns get weird values)
                constrain=sprintf("RCTrans.*\\).\\Q%s\\E(\\Q%s\\E|\\Q%s\\E)$",

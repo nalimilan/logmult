@@ -85,7 +85,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                    vars[1], vars[2], diagstr, vars[1], vars[2], nd)
 
   args <- list(formula=as.formula(f), data=tab,
-               family=family, start=start, etastart=etastart,
+               family=family, weights=weights, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
   model <- do.call("gnm", c(args, list(...)))

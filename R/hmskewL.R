@@ -112,7 +112,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
           cat("Running base model to find starting values...\n")
 
           args <- list(formula=as.formula(paste(f1, diagstr, f1.symm)), data=tab,
-                       family=family, eliminate=eliminate,
+                       family=family, weights=weights, eliminate=eliminate,
                        tolerance=1e-6, iterMax=iterMax)
 
           args <- c(args, list(...))

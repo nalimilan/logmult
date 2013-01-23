@@ -71,7 +71,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       cat("Running base model to find starting values...\n")
 
       args <- list(formula=as.formula(basef),
-                   data=tab, family=family,
+                   data=tab, weights=weights, family=family,
                    tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
 
       base <- do.call("gnm", c(args, list(...)))
@@ -95,7 +95,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
   args <- list(formula=eval(as.formula(f)), data=tab,
                constrain="YRCSkew\\(.*\\)0$",
-               family=family, start=start, etastart=etastart,
+               family=family, weights=weights, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
   model <- do.call("gnm", c(args, list(...)))

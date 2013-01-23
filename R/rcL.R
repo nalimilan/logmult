@@ -60,7 +60,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       cat("Running base model to find starting values...\n")
 
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
-                   family=family, eliminate=eliminate,
+                   family=family, weights=weights, eliminate=eliminate,
                    tolerance=1e-6, iterMax=iterMax)
 
       base <- do.call("gnm", c(args, list(...)))
@@ -118,7 +118,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       cat("Running real model...\n")
 
   args <- list(formula=as.formula(paste(f1, diagstr, f2)), data=tab,
-               family=family, start=start, etastart=etastart,
+               family=family, weights=weights, start=start, etastart=etastart,
                eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
 
