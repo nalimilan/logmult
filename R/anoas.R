@@ -165,12 +165,12 @@ summary.anoas <- function(object, ...) {
   df <- sapply(object, function(model) if(!is.null(model)) model$df.residual else NA)
   dev <- sapply(object, function(model) if(!is.null(model)) model$deviance else NA)
   diss <- sapply(object, function(model) {
-      if(!is.null(model)) sum(abs(fitted(model) - model$data))/sum(abs(fitted(model)))*100/2
+      if(!is.null(model)) sum(na.omit(abs(c(residuals(model, "response")))))/sum(na.omit(abs(c(fitted(model)))))/2
       else NA })
-  bic <- sapply(object, function(model) if(!is.null(model)) model$deviance - log(sum(model$data)) * model$df.residual else NA)
-  aic <- sapply(object, function(model) if(!is.null(model)) model$deviance - 2 * model$df.residual else NA)
+  bic <- sapply(object, function(model) if(!is.null(model)) extractAIC(model, k=log(sum(na.omit(c(model$data)))))[2] else NA)
+  aic <- sapply(object, function(model) if(!is.null(model)) extractAIC(model)[2] else NA)
 
-  result <- data.frame(df, dev, dev/dev[1] * 100, diss, bic, aic, c(NA, diff(dev)), c(NA, diff(df)))
+  result <- data.frame(df, dev, dev/dev[1] * 100, diss * 100, bic, aic, c(NA, diff(dev)), c(NA, diff(df)))
 
   names(result) <- c("Res. Df", "Res. Dev", "Dev./Indep. (%)", "Dissim. (%)", "BIC", "AIC", "Dev.", "Df")
 
