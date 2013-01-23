@@ -47,6 +47,7 @@ S3method(plot, rcL.symm)
 S3method(plot, hmskewL)
 
 export(anoas)
+export(anoasL)
 S3method(print, anoas)
 S3method(summary, anoas)
 S3method(print, summary.anoas)

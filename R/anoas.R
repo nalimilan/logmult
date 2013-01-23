@@ -148,7 +148,7 @@ anoasL <- function(tab, nd=3, layer.effect=c("homogeneous.scores", "heterogeneou
                            ...)
   }
 
-  class(models) <- c("anoas", "anoasL")
+  class(models) <- c("anoasL", "anoas")
   attr(models, "symmetric") <- symmetric
 
   models
