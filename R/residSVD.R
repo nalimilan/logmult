@@ -99,6 +99,9 @@ residSVD <- function(model, d=1, layer=NULL, what=c("ratio", "residuals"),
     res[is.infinite(res)] <- NA
     res[miss] <- (rowMeans(res, na.rm=TRUE)[row(res)[miss]] + colMeans(res, na.rm=TRUE)[col(res)[miss]])/2
 
+    # Last resort, happens when a full row/column is NA (makes sense with rcL)
+    res[!is.finite(res)] <- 0
+
     if(any(miss)) {
         # Arbitrary value so that convergence test works the first time
         recons.old <- 1
@@ -139,6 +142,9 @@ residEVD <- function(model, d=1, layer=NULL, what=c("ratio", "residuals"),
     # Make rowMeans() work
     res[is.infinite(res)] <- NA
     res[miss] <- rowMeans(res, na.rm=TRUE)[row(res)[miss]]
+
+    # Last resort, happens when a full row/column is NA (makes sense with rcL)
+    res[!is.finite(res)] <- 0
 
     # EVD of skew-symmetric matrices, cf. Constantine & Gower,
     # Graphical Representation of Asymmetric Matrices,
