@@ -117,12 +117,13 @@ anoasL <- function(tab, nd=3, layer.effect=c("homogeneous.scores", "heterogeneou
   else
       diagstr <- ""
 
+  eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
   cat("Fitting conditional independence model...\n")
 
   args <- list(formula=as.formula(sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s %s",
                                           vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3], diagstr)),
-               data=tab, family=poisson)
+               data=tab, family=poisson, eliminate=eliminate)
 
   models[[1]] <- do.call("gnm", c(args, list(...)))
 
