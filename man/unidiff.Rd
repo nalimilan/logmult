@@ -12,7 +12,8 @@
 unidiff(tab, diagonal = c("included", "excluded", "only"),
         constrain = "auto", family = poisson,
         tolerance = 1e-8, iterMax = 5000,
-        trace = FALSE, verbose = TRUE, ...)
+        trace = FALSE, verbose = TRUE,
+        checkEstimability = TRUE, ...)
 }
 \arguments{
   \item{tab}{a three-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -38,6 +39,8 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
+  \item{checkEstimability}{ a logical value indicating whether the estimability of the contrasts should
+     be checked via \code{\link{checkEstimable}}. Disabling this check can improve performance for large models.}
   \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
 }
 \details{

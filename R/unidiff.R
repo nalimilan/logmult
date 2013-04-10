@@ -3,7 +3,8 @@
 unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                     constrain="auto", family=poisson,
                     tolerance=1e-8, iterMax=5000,
-                    trace=FALSE, verbose=TRUE, ...) {
+                    trace=FALSE, verbose=TRUE,
+                    checkEstimability=TRUE, ...) {
   diagonal <- match.arg(diagonal)
 
   tab <- as.table(tab)
@@ -71,7 +72,7 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
   model$unidiff <- list()
   
   model$unidiff$layer <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\.\\)", vars[3])),
-                                      "first", check=FALSE)
+                                      "first", check=checkEstimability)
 
 
   if(diagonal == "included") {
@@ -92,13 +93,13 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       }
 
       colnames(con) <- names(ind)
-      model$unidiff$interaction <- gnm:::se(model, con)
+      model$unidiff$interaction <- gnm:::se(model, con, checkEstimability=checkEstimability)
   }
   else if(diagonal == "only"){
       # Quasi-variances cannot be computed for these coefficients, so hide the warning
       # Also skip the reference level
       suppressMessages(model$unidiff$interaction <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\Q%s\\E\\)", vars[3])),
-                                                                 ref="first", check=TRUE)$qvframe[-1,])
+                                                                 ref="first", check=checkEstimability)$qvframe[-1,])
 
      # Diag() sorts levels alphabetically, which is not practical
      model$unidiff$interaction[c(1 + order(rownames(tab))),] <- model$unidiff$interaction
