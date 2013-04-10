@@ -127,6 +127,10 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
 print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
   cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
 
+  cat("\nLayer coefficients:\n")
+  print(setNames(exp(x$unidiff$layer$qvframe$estimate), row.names(x$unidiff$layer$qvframe)),
+        digits=digits, print.gap=2, ...)
+
   if(x$unidiff$diagonal == "included") {
       cat("\nFull two-way interaction coefficients:\n")
       interaction <- x$data[,,1]
