@@ -1,7 +1,7 @@
 
 se <- function(x, ...) UseMethod("se", x)
 
-se.default <- function(x, ...) gnm::se(x)
+se.default <- function(x, ...) gnm::se(x, ...)
 
 se.rc <- function(x, type=c("se", "quasi.se"), ...) {
   if(!inherits(x, "rc")) 
@@ -10,7 +10,7 @@ se.rc <- function(x, type=c("se", "quasi.se"), ...) {
   if(length(x$assoc) == 0)
       stop("x must have an association component")
 
-  se.assoc(x$assoc)
+  se.assoc(x$assoc, type=type, ...)
 }
 
 se.rcL <- function(x, type=c("se", "quasi.se"), ...) {
@@ -20,7 +20,7 @@ se.rcL <- function(x, type=c("se", "quasi.se"), ...) {
   if(length(x$assoc) == 0)
       stop("x must have an association component")
 
-  se.assoc(x$assoc)
+  se.assoc(x$assoc, type=type, ...)
 }
 
 se.hmskew <- function(x, type=c("se", "quasi.se"), ...) {
@@ -28,11 +28,12 @@ se.hmskew <- function(x, type=c("se", "quasi.se"), ...) {
       stop("x must be a hmskew object")
 
   if(length(x[["assoc"]]) > 0 && length(x$assoc.hmskew) > 0)
-      return(list(assoc=se.assoc(x$assoc), assoc.hmskew=se.assoc(x$assoc.hmskew)))
+      return(list(assoc=se.assoc(x$assoc, type=type, ...),
+                  assoc.hmskew=se.assoc(x$assoc.hmskew, type=type, ...)))
   if(length(x[["assoc"]]) > 0)
-      return(se.assoc(x$assoc))
+      return(se.assoc(x$assoc, type=type, ...))
   else if(length(x$assoc.hmskew) > 0)
-      return(se.assoc(x$assoc.hmskew))
+      return(se.assoc(x$assoc.hmskew, type=type, ...))
   else
       stop("x must have an association or a skew-association component")
 }
@@ -42,11 +43,12 @@ se.hmskewL <- function(x, type=c("se", "quasi.se"), ...) {
       stop("x must be a hmskew object")
 
   if(length(x[["assoc"]]) > 0 && length(x$assoc.hmskew) > 0)
-      return(list(assoc=se.assoc(x$assoc), assoc.hmskew=se.assoc(x$assoc.hmskewL)))
+      return(list(assoc=se.assoc(x$assoc, type=type, ...),
+                  assoc.hmskew=se.assoc(x$assoc.hmskewL, type=type, ...)))
   if(length(x[["assoc"]]) > 0)
-      return(se.assoc(x$assoc))
+      return(se.assoc(x$assoc, type=type, ...))
   else if(length(x$assoc.hmskew) > 0)
-      return(se.assoc(x$assoc.hmskew))
+      return(se.assoc(x$assoc.hmskew, type=type, ...))
   else
       stop("x must have an association or a skew-association component")
 }
@@ -56,7 +58,8 @@ se.yrcskew <- function(x, type=c("se", "quasi.se"), ...) {
       stop("x must be a yrcskew object")
 
   if(length(x[["assoc"]]) > 0 && length(x$assoc.yrcskew) > 0)
-      return(list(assoc=se.assoc(x$assoc), assoc.yrcskew=se.assoc(x$assoc.yrcskew)))
+      return(list(assoc=se.assoc(x$assoc, type=type, ...),
+                  assoc.yrcskew=se.assoc(x$assoc.yrcskew, type=type, ...)))
   if(length(x[["assoc"]]) > 0)
       return(se.assoc(x$assoc))
   else if(length(x$assoc.yrcskew) > 0)
