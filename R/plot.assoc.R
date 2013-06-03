@@ -343,8 +343,11 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(length(col) == 0)
       col <- "black"
 
-  if(length(groups) != nsc)
+  if(length(groups) > 0 && length(groups) != nsc)
       groups <- rep(groups, length=nsc)
+
+  if(length(groups) > 0 && !is.numeric(groups))
+      groups <- factor(groups)
 
   if(length(col) != nsc)
       col <- rep(col, length=nsc)

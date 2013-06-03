@@ -110,8 +110,9 @@
   \item{col}{a vector indicating the color of the point symbols, recycled as necessary; as a special case, a
              vector of length 2 can be passed, to indicate the color of row and column points, respectively.
              See also \code{luminosity}.}
-  \item{groups}{a vector indicating what point symbols should be used, recycled as necessary; groups will
-                use \code{pch} values 21, 24, 22, 23 and 25, in this order, cycling if needed.}
+  \item{groups}{a vector indicating what symbol should be used for each point, recycled as necessary; groups will
+                use \code{pch} values 21, 24, 22, 23 and 25, in this order, cycling if needed. If not an integer,
+                the number of the factor level will be used.}
   \item{xlim}{numeric vector of length 2, giving the x coordinates range.}
   \item{ylim}{numeric vector of length 2, giving the y coordinates range.}
   \item{asp}{the y/x aspect ratio, see \code{\link{plot.window}}.}
