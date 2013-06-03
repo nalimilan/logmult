@@ -79,6 +79,12 @@ getResid <- function(model, layer=NULL, what=c("ratio", "residuals"),
       obs[obs == 0] <- 1
       suppressWarnings(res <- log(obs/fitted))
 
+      # Weight SVD/EVD by expected frequencies to prevent cells at the intersection
+      # of rows and columns with small counts from influencing too much the result.
+      rp <- apply(obs, 1, sum, na.rm=TRUE)/sum(obs, na.rm=TRUE)
+      cp <- apply(obs, 2, sum, na.rm=TRUE)/sum(obs, na.rm=TRUE)
+      res <- res * sqrt(rp %o% cp)
+
       if(symmetry == "symmetric")
           res <- (res * weights + t(res * weights))/(weights + t(weights))
       else if(symmetry == "skew-symmetric")
