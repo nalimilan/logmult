@@ -31,8 +31,8 @@ getResid <- function(model, layer=NULL, what=c("ratio", "residuals"),
           weights <- weights[,, layer]
       }
       else if(is.array(res) && dim(res) > 2) {
-          res <- margin.table(res, 1:2)
-          weights <- margin.table(weights, 1:2)
+          res <- apply(res, 1:2, sum, na.rm=TRUE)
+          weights <- apply(weights, 1:2, sum, na.rm=TRUE)
       }
       else {
           res <- as.matrix(res)
@@ -63,9 +63,9 @@ getResid <- function(model, layer=NULL, what=c("ratio", "residuals"),
           weights <- weights[,, layer]
       }
       else if(is.array(obs) && dim(obs) > 2) {
-          obs <- margin.table(obs, 1:2)
-          fitted <- margin.table(fitted, 1:2)
-          weights <- margin.table(weights, 1:2)
+          obs <- apply(obs, 1:2, sum, na.rm=TRUE)
+          fitted <- apply(fitted, 1:2, sum, na.rm=TRUE)
+          weights <- apply(weights, 1:2, sum, na.rm=TRUE)
       }
       else {
           obs <- as.matrix(obs)
