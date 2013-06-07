@@ -46,11 +46,9 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   if(length(dim(tab)) > 2)
       tab <- margin.table(tab, 1:2)
 
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2")
+  tab <- prepareTable(tab, TRUE)
+  vars <- names(dimnames(tab))
+
 
   if(diagonal && !is.na(nd.symm))
       diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
@@ -168,32 +166,17 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
-#   # Reproduce original 2x2 table if it was modified (e.g. by yrcskew())
-#   # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-#   tab <- as.data.frame(model$data[!is.na(rownames(model$data)),
-#                                   !colnames(model$data) %in% c("mincat", "maxcat", "skew")])
-#   tab <- xtabs(sprintf("Freq ~ %s + %s", colnames(tab)[1], colnames(tab)[2]),
-#                data=tab)
-#   tab <- as.table(tab)
-  # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-  tab <- as.table(model$data[!is.na(rownames(model$data)),
-                             !is.na(colnames(model$data))])
-
-  weighting <- match.arg(weighting)
+  tab <- prepareTable(model$data, TRUE)
+  vars <- names(dimnames(tab))
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, et Becker & Clogg (1989), p. 144.
+  weighting <- match.arg(weighting)
   if(weighting == "marginal")
       p <- prop.table(apply(tab, 1, sum, na.rm=TRUE) + apply(tab, 2, sum, na.rm=TRUE))
   else if(weighting == "uniform")
       p <- rep(1/nrow(tab), nrow(tab))
   else
       p <- rep(1, nrow(tab))
-
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2")
 
 
   ## Get skew association coefficients

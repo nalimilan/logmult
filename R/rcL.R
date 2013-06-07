@@ -33,11 +33,9 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   if(length(dim(tab)) > 3)
       tab <- margin.table(tab, 1:3)
 
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2", "Var3")
+  tab <- prepareTable(tab, FALSE)
+  vars <- names(dimnames(tab))
+
 
   if(diagonal == "heterogeneous")
       diagstr <- sprintf("+ %s:Diag(%s, %s) ", vars[3], vars[1], vars[2])
@@ -179,10 +177,8 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
-  # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-  tab <- as.table(model$data[!is.na(rownames(model$data)),
-                             !is.na(colnames(model$data)),
-                             !is.na(dimnames(model$data)[3])])
+  tab <- prepareTable(model$data, FALSE)
+  vars <- names(dimnames(tab))
 
   nr <- nrow(tab)
   nc <- ncol(tab)
@@ -203,11 +199,6 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
       cp <- rep(1, nc)
   }
 
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2", "Var3")
 
   # Find out the number of dimensions
   nd <- 0
@@ -414,10 +405,8 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
-  # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-  tab <- as.table(model$data[!is.na(rownames(model$data)),
-                             !is.na(colnames(model$data)),
-                             !is.na(dimnames(model$data)[3])])
+  tab <- prepareTable(model$data, FALSE)
+  vars <- names(dimnames(tab))
 
   nr <- nrow(tab)
   nc <- ncol(tab)
@@ -432,11 +421,6 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
   else
       p <- rep(1, nr)
 
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2", "Var3")
 
   # Find out the number of dimensions
   nd <- 0

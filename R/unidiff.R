@@ -20,11 +20,9 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
   if(length(dim(tab)) > 3)
       tab <- margin.table(tab, 1:3)
 
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2", "Var3")
+  tab <- prepareTable(tab, TRUE)
+  vars <- names(dimnames(tab))
+
 
   f <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s",
                vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3])

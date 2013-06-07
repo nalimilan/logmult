@@ -27,26 +27,12 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   if(!symmetric && nd > min(nrow(tab), ncol(tab)) - 1)
       stop("Number of dimensions cannot exceed min(nrow(tab), ncol(tab)) - 1")
 
-  if(!is.null(rowsup) && !is.matrix(rowsup))
-      stop("'rowsup' must be a matrix")
-
-  if(!is.null(colsup) && !is.matrix(colsup))
-      stop("'colsup' must be a matrix")
-
-  if(!is.null(rowsup) && ncol(rowsup) != ncol(tab))
-      stop("'rowsup' must have one column for each column in 'tab'")
-
-  if(!is.null(colsup) && nrow(colsup) != nrow(tab))
-      stop("'colsup' must have one row for each row in 'tab'")
-
   if(length(dim(tab)) > 2)
       tab <- margin.table(tab, 1:2)
 
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2")
+  tab <- prepareTable(tab, TRUE, rowsup, colsup)
+  vars <- names(dimnames(tab))
+
 
   if(diagonal)
       diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
@@ -128,29 +114,8 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"),
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
-  # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-  if(length(dim(model$data)) == 2)
-      tab <- as.table(model$data[!is.na(rownames(model$data)),
-                                 !is.na(colnames(model$data))])
-  else if(length(dim(model$data)) == 3)
-      tab <- as.table(model$data[!is.na(rownames(model$data)),
-                                 !is.na(colnames(model$data)),
-                                 !is.na(dimnames(model$data)[[3]])])
-  else
-      stop("Only two and three dimensional tables are supported")
-
-  if(!is.null(rowsup) && !is.matrix(rowsup))
-      stop("'rowsup' must be a matrix")
-
-  if(!is.null(colsup) && !is.matrix(colsup))
-      stop("'colsup' must be a matrix")
-
-  if(!is.null(rowsup) && ncol(rowsup) != ncol(tab))
-      stop("'rowsup' must have one column for each column in model data")
-
-  if(!is.null(colsup) && nrow(colsup) != nrow(tab))
-      stop("'colsup' must have one row for each row in model data")
-
+  tab <- prepareTable(model$data, TRUE, rowsup, colsup)
+  vars <- names(dimnames(tab))
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weighting <- match.arg(weighting)
@@ -167,11 +132,6 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"),
       cp <- rep(1, ncol(tab))
   }
 
-  # When gnm evaluates the formulas, tab will have been converted to a data.frame,
-  # with a fallback if both names are empty
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2")
 
   # Prepare matrices before filling them
   row <- matrix(NA, nrow(tab), 0)
@@ -292,29 +252,8 @@ assoc.rc.symm <- function(model, weighting=c("marginal", "uniform", "none"),
   if(!inherits(model, "gnm"))
       stop("model must be a gnm object")
 
-  # gnm doesn't include coefficients for NA row/columns, so get rid of them too
-  if(length(dim(model$data)) == 2)
-      tab <- as.table(model$data[!is.na(rownames(model$data)),
-                                 !is.na(colnames(model$data))])
-  else if(length(dim(model$data)) == 3)
-      tab <- as.table(model$data[!is.na(rownames(model$data)),
-                                 !is.na(colnames(model$data)),
-                                 !is.na(dimnames(model$data)[[3]])])
-  else
-      stop("Only two and three dimensional tables are supported")
-
-  if(!is.null(rowsup) && !is.matrix(rowsup))
-      stop("'rowsup' must be a matrix")
-
-  if(!is.null(colsup) && !is.matrix(colsup))
-      stop("'colsup' must be a matrix")
-
-  if(!is.null(rowsup) && ncol(rowsup) != ncol(tab))
-      stop("'rowsup' must have one column for each column in model data")
-
-  if(!is.null(colsup) && nrow(colsup) != nrow(tab))
-      stop("'colsup' must have one row for each row in model data")
-
+  tab <- prepareTable(model$data, TRUE, rowsup, colsup)
+  vars <- names(dimnames(tab))
 
   # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weighting <- match.arg(weighting)
@@ -325,9 +264,6 @@ assoc.rc.symm <- function(model, weighting=c("marginal", "uniform", "none"),
   else
       p <- rep(1, nrow(tab))
 
-  vars <- make.names(names(dimnames(tab)))
-  if(length(vars) == 0)
-      vars <- c("Var1", "Var2")
 
   sc <- matrix(NA, nrow(tab), 0)
 
