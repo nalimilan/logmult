@@ -178,8 +178,8 @@ summary.anoas <- function(object, ...) {
   diss <- sapply(object, function(model) {
       if(!is.null(model)) sum(na.omit(abs(c(residuals(model, "response")))))/sum(na.omit(abs(c(fitted(model)))))/2
       else NA })
-  bic <- sapply(object, function(model) if(!is.null(model)) extractAIC(model, k=log(sum(na.omit(c(model$data)))))[2] else NA)
-  aic <- sapply(object, function(model) if(!is.null(model)) extractAIC(model)[2] else NA)
+  bic <- sapply(object, function(model) if(!is.null(model)) model$deviance - log(sum(na.omit(c(model$data)))) * model$df.residual else NA)
+  aic <- sapply(object, function(model) if(!is.null(model)) model$deviance - 2 * model$df.residual else NA)
 
   result <- data.frame(df, dev, dev/dev[1] * 100, diss * 100, bic, aic, c(NA, diff(dev)), c(NA, diff(df)))
 

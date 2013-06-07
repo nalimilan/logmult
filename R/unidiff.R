@@ -171,8 +171,8 @@ summary.unidiff <- function(object, ...) {
               dissim=sum(na.omit(c(abs(residuals(object, "response")))))/sum(na.omit(c(abs(fitted(object)))))/2,
               layer=layer, interaction=interaction,
               deviance=object$deviance, df.residual=object$df.residual,
-              bic=extractAIC(object, k=log(sum(na.omit(c(object$data)))))[2],
-              aic=extractAIC(object)[2])
+              bic=object$deviance - log(sum(na.omit(c(object$data)))) * object$df.residual,
+              aic=object$deviance - 2 * object$df.residual)
 
   class(res) <- "summary.unidiff"
 

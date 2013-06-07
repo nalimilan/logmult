@@ -58,9 +58,12 @@
   \item{chisq}{the Pearson Chi-squared statistic for the model fit.}
   \item{dissim}{the dissimilarity index for the model fit.}
   \item{df.residual}{the \code{df.residual} component from object.}
-  \item{bic}{the value of the BIC for the model fit (see \code{\link{extractAIC})}.}
-  \item{aic}{the value of the AIC for the model fit (see \code{\link{AIC}},
-      \code{\link{extractAIC}}).}
+  \item{bic}{the value of the BIC for the model fit (contrary to the value reported by
+      \code{\link{AIC}} and \code{\link{extractAIC}}, the reference is 0 for the
+      saturated model).}
+  \item{aic}{the value of the AIC for the model fit (contrary to the value reported by
+      \code{\link{AIC}} and \code{\link{extractAIC}}, the reference is 0 for the
+      saturated model).}
 }
 \author{
   Milan Bouchet-Valat

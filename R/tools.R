@@ -16,6 +16,6 @@ printModelStats <- function(x, digits=max(3, getOption("digits") - 4)) {
       "\nDissimilarity index:   ",
       format(sum(na.omit(c(abs(residuals(x, "response")))))/sum(na.omit(c(abs(fitted(x)))))/2*100, digits), "%",
       "\nResidual df:           ", x$df.residual,
-      "\nBIC:                   ", extractAIC(x, k=log(sum(na.omit(c(x$data)))))[2],
-      "\nAIC:                   ", extractAIC(x)[2], "\n", sep="")
+      "\nBIC:                   ", x$deviance - log(sum(na.omit(c(x$data)))) * x$df.residual,
+      "\nAIC:                   ", x$deviance - 2 * x$df.residual, "\n", sep="")
 }
