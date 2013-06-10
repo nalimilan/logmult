@@ -56,49 +56,47 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
 
   if(diagonal && !is.na(nd.symm))
-      diagstr <- sprintf("+ Diag(%s, %s) ", vars[1], vars[2])
+      diagstr <- sprintf(" + Diag(%s, %s)", vars[1], vars[2])
   else
       diagstr <- ""
 
+  basef <- sprintf("Freq ~ %s + %s%s", vars[1], vars[2], diagstr)
+
   if(is.na(nd.symm))
-      basef <- sprintf("Freq ~ %s + %s %s+ Symm(%s, %s)",
-                       vars[1], vars[2], diagstr, vars[1], vars[2])
+      basef2 <- sprintf("%s + Symm(%s, %s)",
+                        basef, vars[1], vars[2])
   else if(nd.symm > 0)
-      basef <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
-                       vars[1], vars[2], diagstr, vars[1], vars[2], nd.symm)
+      basef2 <- sprintf("%s + instances(MultHomog(%s, %s), %i)",
+                        basef, vars[1], vars[2], nd.symm)
   else
-      basef <- sprintf("Freq ~ %s + %s %s",
-                       vars[1], vars[2], diagstr)
+      basef2 <- basef
 
   if(!is.null(start) && is.na(start)) {
-      if(is.na(nd.symm) || nd.symm == 0) {
-          cat("Running symmetric model to find starting values...\n")
+      cat("Running base model to find starting values...\n")
 
-          # Setting tolerance to a value below 1e-6 can lead to convergence issues with large tables
-          args <- list(formula=as.formula(basef),
-                       data=tab, family=family, weights=weights,
-                       tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
+      # Setting tolerance to a value below 1e-6 can lead to convergence issues with large tables
+      args <- list(formula=as.formula(basef),
+                   data=tab, family=family, weights=weights,
+                   tolerance=1e-3, iterMax=iterMax, verbose=verbose, trace=trace)
 
-          base <- do.call("gnm", c(args, list(...)))
+      base <- do.call("gnm", c(args, list(...)))
 
-          # Using NA for all linear parameters usually give better results than linear parameter values
-          start <- c(rep(NA, length(parameters(base))), residEVD(base, 1, skew=TRUE))
+      args$method <- "coefNames"
+      args$formula <- as.formula(basef2)
+      npar <- length(do.call("gnm", args))
 
-          if(is.null(etastart))
-              etastart <- as.numeric(predict(base))
+      # Use base model without symmetric interaction as this seems to give better results
+      # when quasi-symmetry is specified.
+      # Using NA for all linear parameters usually works better than their values in the base model
+      start <- c(rep(NA, npar), residEVD(base, 1, skew=TRUE))
 
-          cat("Running real model...\n")
-      }
-      else {
-          # Do not set starting values when a RC symmetric association is used: the result does not converge,
-          # even when setting only the symmetric or skew-symmetric association
-          # (this is probably because both associations interact much)
-          start <- NULL
-      }
+      if(is.null(etastart))
+          etastart <- as.numeric(predict(base))
+
+      cat("Running real model...\n")
   }
 
-
-  f <- sprintf("%s + HMSkew(%s, %s)", basef, vars[1], vars[2])
+  f <- sprintf("%s + HMSkew(%s, %s)", basef2, vars[1], vars[2])
 
   args <- list(formula=as.formula(f), data=tab,
                family=family, weights=weights, start=start, etastart=etastart,

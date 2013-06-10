@@ -95,46 +95,46 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       f1.symm <- ""
   }
 
+  base <- NULL
+
+  nastart <- length(start) == 1 && is.na(start)
+
   if(is.na(nd.symm))
       eliminate <- eval(parse(text=sprintf("quote(Symm(%s, %s))", vars[1], vars[2])))
   else
       eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
-  base <- NULL
-
-  nastart <- length(start) == 1 && is.na(start)
-
   if(nastart) {
-      if(is.na(nd.symm) || nd.symm == 0) {
-          cat("Running base model to find starting values...\n")
+      cat("Running base model to find starting values...\n")
 
-          args <- list(formula=as.formula(paste(f1, diagstr, f1.symm)), data=tab,
-                       family=family, weights=weights, eliminate=eliminate,
-                       tolerance=1e-6, iterMax=iterMax)
+      args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
+                   family=family, weights=weights,
+                   eliminate=eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3]))),
+                   tolerance=1e-6, iterMax=iterMax)
 
-          args <- c(args, list(...))
+      args <- c(args, list(...))
 
-          base <- do.call("gnm", args)
+      base <- do.call("gnm", args)
 
-          # Using NA for all linear parameters usually gives better results than linear parameter values
-          if(layer.effect.skew == "homogeneous.scores")
-              start <- c(rep(NA, length(parameters(base))), rep(NA, dim(tab)[3]),
-                         residEVDL(base, 1, layer.effect.skew, skew=TRUE))
-          else
-              start <- c(rep(NA, length(parameters(base))),
-                         residEVDL(base, 1, layer.effect.skew, skew=TRUE))
+      args$method <- "coefNames"
+      args$formula <- as.formula(paste(f1, diagstr, f1.symm))
+      args$eliminate <- eliminate
+      npar <- length(do.call("gnm", args))
 
-          if(is.null(etastart))
-              etastart <- as.numeric(predict(base))
+      # Use base model without symmetric interaction as this seems to give better results
+      # when quasi-symmetry is specified.
+      # Using NA for all linear parameters usually works better than their values in the base model
+      if(layer.effect.skew == "homogeneous.scores")
+          start <- c(rep(NA, npar), rep(NA, dim(tab)[3]),
+                     residEVDL(base, 1, layer.effect.skew, skew=TRUE))
+      else
+          start <- c(rep(NA, npar),
+                     residEVDL(base, 1, layer.effect.skew, skew=TRUE))
 
-          cat("Running real model...\n")
-      }
-      else {
-          # Do not set starting values when a RC symmetric association is used: the result does not converge,
-          # even when setting only the symmetric or skew-symmetric association
-          # (this is probably because both associations interact much)
-          start <- NULL
-      }
+      if(is.null(etastart))
+          etastart <- as.numeric(predict(base))
+
+      cat("Running real model...\n")
   }
 
   if(layer.effect.skew == "heterogeneous")
