@@ -349,24 +349,22 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
   for(l in 1:dim(sc)[3]) {
       # Since both dimensions share the same singular value, we cannot distinguish them
-      # and their order is random. Use the convention that we want a positive skew association for cell (1, 2)
-      # (implicit in the original article)
+      # and their order is random. The sign of the association reconstructed from scores
+      # must be the same as the original one: we use one cell, since all signs are the same.
+      # This operation affects the results, while the next one is merely a display convention.
       if(sc[1,2,l] * sc[2,1,l] - sc[1,1,l] * sc[2,2,l] < 0)
           sc[,,l] <- sc[,2:1,l]
 
-      # Since rotation is also random, align first category to position 0 on the vertical axis,
-      # and on the positive side of the horizontal axis (like original article does with *last* category)
-      if(abs(sc[1,2,l]) > .Machine$double.eps)
-          angle <- acos(sc[1,1,l]/sqrt(sum(sc[1,,l]^2)))
-      else if (sc[1,1,l] < 0)
-          angle <- pi
-      else
-          angle <- 0
+      # Use the convention that we want the null score to be for the first category
+      # on the second dimension, and a positive score on the first dimension
+      # (like original article does with *last* category).
+      # The SVD always sets to 0 the score of the first category on one dimension.
+      # These two operations do not change the actual association.
+      if(which.min(abs(sc[1,,l])) == 1)
+          sc[,,l] <- sc[,,l] %*% matrix(c(0, 1, -1, 0), 2, 2)
 
-      if(sc[1,2,l] < -.Machine$double.eps)
-          angle <- -angle
-
-      sc[,,l] <- sc[,,l] %*% matrix(c(cos(angle), sin(angle), -sin(angle), cos(angle)), 2, 2)
+      if(sc[1,1,l] < 0)
+          sc[,,l] <- -sc[,,l]
   }
 
   # The reference category is not really at 0, and this makes the display ugly

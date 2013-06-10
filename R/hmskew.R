@@ -225,9 +225,10 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"),
   # Use the convention that we want the null score to be for the first category
   # on the second dimension, and a positive score on the first dimension
   # (like original article does with *last* category).
+  # The SVD always sets to 0 the score of the first category on one dimension.
   # These two operations do not change the actual association.
   if(which.min(abs(sc[1,])) == 1)
-      sc <- sc[, 2:1]
+      sc <- sc %*% matrix(c(0, 1, -1, 0), 2, 2)
 
   if(sc[1, 1] < 0)
       sc <- -sc
