@@ -19,3 +19,32 @@ printModelStats <- function(x, digits=max(3, getOption("digits") - 4)) {
       "\nBIC:                   ", x$deviance - log(sum(na.omit(c(x$data)))) * x$df.residual,
       "\nAIC:                   ", x$deviance - 2 * x$df.residual, "\n", sep="")
 }
+
+get.probs <- function(x) {
+  if(inherits(x, "assoc.symm")) {
+      # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
+      if(x$weighting == "marginal")
+          rp <- cp <- prop.table(rowSums(x$row.weights) + rowSums(x$col.weights))
+      else if(x$weighting == "uniform")
+          rp <- cp <- rep(1/nr, nr)
+      else
+          rp <- cp <- rep(1, nr)
+  }
+  else {
+      # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
+      if(x$weighting == "marginal") {
+          rp <- prop.table(rowSums(x$row.weights))
+          cp <- prop.table(rowSums(x$col.weights))
+      }
+      else if(x$weighting == "uniform") {
+          rp <- rep(1/nr, nr)
+          cp <- rep(1/nc, nc)
+      }
+      else {
+          rp <- rep(1, nr)
+          cp <- rep(1, nc)
+      }
+  }
+
+  list(rp=rp, cp=cp)
+}

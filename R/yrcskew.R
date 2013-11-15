@@ -256,8 +256,11 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
           rownames(dg) <- "All levels"
   }
 
+  row.weights <- as.matrix(apply(tab, 1, sum, na.rm=TRUE))
+  col.weights <- as.matrix(apply(tab, 2, sum, na.rm=TRUE))
+
   obj <- list(phi = phisk, row = sc, col = sc,  diagonal = dg,
-              weighting = weighting, row.weights = p, col.weights = p)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
 
   class(obj) <- c("assoc.yrcskew", "assoc.symm", "assoc")
   obj
@@ -406,8 +409,11 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
 #           rownames(dg) <- "All levels"
 #   }
 # 
+#   row.weights <- apply(tab, 1, sum, na.rm=TRUE)
+#   col.weights <- apply(tab, 2, sum, na.rm=TRUE)
+#
 #   obj <- list(phi = phi, row = sc, col = sc, phisk = phi, rowsk = scsk, colsk = scsk,
-#               diagonal = dg, weighting = weighting, row.weights = p, col.weights = p)
+#               diagonal = dg, weighting = weighting, row.weights = row.weights, col.weights = col.weights)
 # 
 #   class(obj) <- c("assoc.yrcskew.homog", "assoc.symm", "assoc")
 #   obj

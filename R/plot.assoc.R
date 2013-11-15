@@ -205,15 +205,15 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(any(dim > ncol(x$row)))
       stop("dim must be a valid dimension of the model")
 
-  if(is.matrix(x$phi) &&
+  if(is.matrix(x$phi) && !is.null(layer) &&
      ((is.numeric(layer) && layer > nrow(x$phi)) ||
       (!is.numeric(layer) && !layer %in% rownames(x$phi))))
       stop("layer must be a valid layer of the model")
 
-  if(!is.numeric(layer))
+  if(!is.null(layer) && !is.numeric(layer))
       layer <- match(layer, rownames(x$phi))
 
-  if(is.matrix(x$phi))
+  if(!is.null(layer) && is.matrix(x$phi))
       layer.name <- rownames(x$phi[layer,, drop=FALSE])
   else
       layer.name <- ""
@@ -224,6 +224,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   nlc <- dim(x$col)[3]
   nr <- nrow(x$row)
   nc <- nrow(x$col)
+
+  probs <- get.probs(x)
+  rp <- probs$rp
+  cp <- probs$cp
 
   rev.axes <- rep(rev.axes, length.out=2)
 
@@ -252,18 +256,36 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
        what <- "rows"
   }
 
-  # Plotting only uses one layer, so get rid of others to make code cleaner below
-  x$phi <- x$phi[layer,]
+  rot <- NULL
+  if(is.null(layer)) {
+      # For homogeneous association with layer, compute a weighted average of phi over layers
+      # And prepare the drawing of lines representing the axes with the highest variance
 
-  if(dim(x$row)[3] > 1)
-      x$row <- x$row[,,layer]
-  else
+      if(nl == 1 || nlr > 1 || nlc > 1)
+          stop("'layer=NULL' is only supported with homogeneous layer effect")
+
+      res <- averaged.assoc(x)
+
+      rot <- res$rot
+      x$phi <- res$phi
+
       x$row <- x$row[,,1]
-
-  if(dim(x$col)[3] > 1)
-      x$col <- x$col[,,layer]
-  else
       x$col <- x$col[,,1]
+  }
+  else {
+      # Plotting only uses one layer, so get rid of others to make code cleaner below
+      x$phi <- x$phi[layer,]
+
+      if(nlr > 1)
+          x$row <- x$row[,,layer]
+      else
+          x$row <- x$row[,,1]
+
+      if(nlc > 1)
+          x$col <- x$col[,,layer]
+      else
+          x$col <- x$col[,,1]
+  }
 
   if(isTRUE(nrow(x$diagonal) > 1))
       x$diagonal <- x$diagonal[layer,]
@@ -314,19 +336,19 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   if(what == "rows") {
        sc <- x$row[which[[1]],, drop=FALSE]
-       p <- x$row.weights[which[[1]]]
+       p <- rp[which[[1]]]
        if(length(col) == 2)
            col <- col[1]
   }
   else if(what == "columns") {
        sc <- x$col[which[[2]],, drop=FALSE]
-       p <- x$col.weights[which[[2]]]
+       p <- x$cp[which[[2]]]
        if(length(col) == 2)
            col <- col[2]
   }
   else {
        sc <- rbind(x$row[which[[1]],, drop=FALSE], x$col[which[[2]],, drop=FALSE])
-       p <- c(x$row.weights[which[[1]]], x$col.weights[which[[2]]])
+       p <- c(rp[which[[1]]], cp[which[[2]]])
 
        if(length(col) == 2)
            col <- c(rep(col[1], nwr), rep(col[2], nwc))
@@ -415,6 +437,11 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
       abline(h=0, lty="dotted")
       abline(v=0, lty="dotted")
+
+      if(!is.null(rot)) {
+          abline(0, rot[1,2]/rot[2,2], lty="dotted", col="dark grey", lwd=2)
+          abline(0, -rot[2,2]/rot[1,2], lty="dotted", col="dark grey", lwd=2)
+      }
   }
   else {
       opar <- par(mar=c(1, 1, 1, 1))
@@ -436,6 +463,9 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
 
   if(!is.na(conf.ellipses)) {
+      if(is.null(layer))
+          stop("Plotting confidence ellipses is not supported when 'layer=NULL'")
+
       covmat <- x$adj.covmats[,, layer]
 
       i <- 0
@@ -551,6 +581,71 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   box()
   pointLabel(sc[, dim[1]], sc[, dim[2]], rownames(sc), font=font)
+}
+
+averaged.assoc <- function(x) {
+      nd <- ncol(x$phi)
+      nr <- nrow(x$row)
+      nc <- nrow(x$col)
+
+      if(inherits(x, "assoc.symm")) {
+          p <- get.probs(x)$rp
+
+          phi <- colSums(sweep(x$phi, 1, prop.table(colSums(x$row.weights)), "*"))
+          adjsc <- sweep(x$row[,,1], 2, sqrt(phi), "*")
+
+          # Technique proposed in Goodman (1991), Appendix 4, but with eigenvalues decomposition
+          lambda <- matrix(0, nr, nc)
+          for(i in 1:nd)
+              lambda <- lambda + (adjsc[,i] %o% adjsc[,i])
+          lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
+          eigen <- eigen(lambda0, symmetric=TRUE)
+          sc <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
+          phi2 <- eigen$values[1:nd]
+
+          adjsc2 <- sweep(sc, 2, sqrt(phi), "*")
+
+          rot <- logmult:::procrustes(adjsc, adjsc2)$rotation
+
+          row.weights <- col.weights <- p
+      }
+      else {
+          probs <- get.probs(x)
+          rp <- probs$rp
+          cp <- probs$cp
+
+          phi <- colSums(sweep(x$phi, 1, prop.table(colSums(x$row.weights)), "*"))
+          adjrow <- sweep(x$row[,,1], 2, sqrt(phi), "*")
+          adjcol <- sweep(x$col[,,1], 2, sqrt(phi), "*")
+
+          # Technique proposed in Goodman (1991), Appendix 4
+          lambda <- matrix(0, nr, nc)
+          for(i in 1:nd)
+              lambda <- lambda + adjrow[,i] %o% adjcol[,i]
+          lambda0 <- lambda * sqrt(rp %o% cp) # Eq. A.4.3
+          sv <- svd(lambda0)
+
+          ass2 <- x
+          ass2$row[] <- diag(1/sqrt(rp)) %*% sv$u[,1:nd] # Eq. A.4.7
+          ass2$col[] <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
+          ass2$phi <- t(sv$d[1:nd])
+
+          # Using columns gives a slightly different result due to rounding errors, but not that much...
+          adjrow2 <- sweep(ass2$row, 2, sqrt(ass2$phi), "*")
+#           rot <- logmult:::procrustes(adjrow, adjrow2)$rotation
+          ass1 <- x
+          ass1$phi <- t(phi)
+          ass1$row.weights <- ass2$row.weights <- colSums(x$row.weights)
+          ass1$col.weights <- ass2$col.weights <- colSums(x$col.weights)
+
+          res <- find.stable.scores(ass2, ass1, detailed=TRUE)
+          ass
+
+          row.weights <- rp
+          col.weights <- cp
+      }
+
+      list(rot=rot, phi=phi, row=, col, row.weights=row.weights, col.weights=col.weights)
 }
 
 # Function taken from the directlabels package, but it is in the public domain

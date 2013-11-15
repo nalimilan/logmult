@@ -255,8 +255,17 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"),
           rownames(dg) <- "All levels"
   }
 
+  if(length(dim(tab)) == 3) {
+      row.weights <- apply(tab, c(1, 3), sum, na.rm=TRUE)
+      col.weights <- apply(tab, c(2, 3), sum, na.rm=TRUE)
+  }
+  else {
+      row.weights <- as.matrix(apply(tab, 1, sum, na.rm=TRUE))
+      col.weights <- as.matrix(apply(tab, 2, sum, na.rm=TRUE))
+  }
+
   obj <- list(phi = phi, row = sc, col = sc, diagonal = dg,
-              weighting = weighting, row.weights = p, col.weights = p)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
 
   ## Supplementary rows/columns
   if(!is.null(rowsup) || !is.null(colsup)) {

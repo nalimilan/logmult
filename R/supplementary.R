@@ -14,8 +14,6 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
   phi <- ass$phi
   row <- ass$row
   col <- ass$col
-  rp <- ass$row.weights
-  cp <- ass$col.weights
   weighting <- ass$weighting
 
   args <- list()
@@ -95,8 +93,6 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
       else
           rpsup <- prop.table(apply(rowsup, 1, sum, na.rm=TRUE) + apply(colsup, 2, sum, na.rm=TRUE))
 
-      rp <- cp <- c(rp, rpsup)
-
       rsup <- sup[seq(nrow(rowsup)), , drop=FALSE]
 
       rsup <- sweep(rsup, 2, colSums(sweep(rsup, 1, rpsup/sum(rpsup), "*")), "-")
@@ -120,8 +116,6 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
           else
               rpsup <- prop.table(apply(rowsup, 1, sum, na.rm=TRUE))
 
-          rp <- c(rp, rpsup)
-
           rsup <- sup[seq(nrow(rowsup)), , drop=FALSE]
 
           rsup <- sweep(rsup, 2, colSums(sweep(rsup, 1, rpsup/sum(rpsup), "*")), "-")
@@ -143,8 +137,6 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
           else
               cpsup <- prop.table(apply(colsup, 2, sum, na.rm=TRUE))
 
-          cp <- c(cp, cpsup)
-
           csup <- sup[seq(NROW(rowsup) + 1, nrow(sup)), , drop=FALSE]
 
           csup <- sweep(csup, 2, colSums(sweep(csup, 1, cpsup/sum(cpsup), "*")), "-")
@@ -159,5 +151,16 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
       }
   }
 
-  list(row=row, col=col, row.weights=rp, col.weights=cp)
+  if(length(dim(tab)) == 3) {
+      row.weights.sup <- apply(rowsup, c(1, 3), sum, na.rm=TRUE)
+      col.weights.sup <- apply(colsup, c(2, 3), sum, na.rm=TRUE)
+  }
+  else {
+      row.weights.sup <- as.matrix(apply(rowsup, 1, sum, na.rm=TRUE))
+      col.weights.sup <- as.matrix(apply(colsup, 2, sum, na.rm=TRUE))
+  }
+
+  list(row=row, col=col,
+       row.weights=rbind(ass$row.weights, row.weights.sup),
+       col.weights=rbind(ass$col.weights, col.weights.sup))
 }

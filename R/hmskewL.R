@@ -393,8 +393,11 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
           rownames(dg) <- "All levels"
   }
 
+  row.weights <- apply(tab, c(1, 3), sum, na.rm=TRUE)
+  col.weights <- apply(tab, c(2, 3), sum, na.rm=TRUE)
+
   obj <- list(phi = layer, row = sc, col = sc, diagonal = dg,
-              weighting = weighting, row.weights = p, col.weights = p)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
 
   class(obj) <- c("assoc.hmskewL", "assoc.symm", "assoc")
   obj

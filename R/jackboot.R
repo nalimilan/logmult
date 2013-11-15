@@ -433,7 +433,7 @@ procrustes <- function (X, Y) {
 # Compute distance between adjusted scores for this replicate to that of the original model
 # We choose the permutation and sign of dimensions that minimizes the sum of squares,
 # weighted by the inverse of row frequencies
-find.stable.scores <- function(ass, ass.orig) {
+find.stable.scores <- function(ass, ass.orig, detailed=FALSE) {
   weights <- 1
 
   nd <- ncol(ass$phi)
@@ -503,7 +503,10 @@ find.stable.scores <- function(ass, ass.orig) {
       stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
   }
 
-  c(phi, sc[,,1:nlr], adj)
+  if(detailed)
+      list(phi=phi, row=sc[1:nr,,, drop=FALSE], col=sc[-(1:nr),,, drop=FALSE], rotation=procr$rotation)
+  else
+      c(phi, sc[,,1:nlr], adj)
 }
 
 # Simplified version of permutations() from the gtools 2.7.0 package,

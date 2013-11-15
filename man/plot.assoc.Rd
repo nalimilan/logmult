@@ -77,7 +77,8 @@
   \item{dim}{numerical vector of length 2 indicating the dimensions to plot on horizontal
              and vertical axes respectively; default is first dimension horizontal and second
              dimension vertical.}
-  \item{layer}{integer indicating which layer should be represented.}
+  \item{layer}{integer indicating which layer should be represented, or \code{NULL} to use a weighted
+               average of intrinsic association coefficients over all layers (for homogeneous scores only).}
   \item{what}{for \code{rc} and \code{assoc} objects, whether points corresponding to rows, columns
               or both should be plotted; for \code{hmskew} and \code{yrcskew} objects, what association
               should be plotted.}
@@ -148,6 +149,8 @@
   whether points globally follow the shape of the ellipses. See \code{\link{se.assoc}} for details about checking the
   validity of jackknife or bootstrap results.
 
+  When \code{layer} is set to \code{NULL} for models with layer effect and homogeneous scores, oblique axes representing
+  the dimensions with the highest variance for the weighted average association over all layers are drawn.
 
   The \code{plot.assoc} function is called internally by all others, and may be leveraged for advanced use cases,
   like plotting custom models that do not correspond stricly to the supported types.
