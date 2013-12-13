@@ -95,8 +95,12 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
 
       rsup <- sup[seq(nrow(rowsup)), , drop=FALSE]
 
+      # Linear constrain of zero sum on scores
       rsup <- sweep(rsup, 2, colSums(sweep(rsup, 1, rpsup/sum(rpsup), "*")), "-")
-      rsup <- sweep(rsup, 2, sqrt(phi[1,]), "/")
+
+      # Supplementary scores do not need a zero sum of squares constrain,
+      # but they have to be scaled the same way as standardized scores
+      rsup <- sweep(rsup, 2, sqrt(phi), "/")
 
       row2 <- rbind(cbind(row[,,1]), rsup)
       dim(row2)[3] <- 1
@@ -118,8 +122,12 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
 
           rsup <- sup[seq(nrow(rowsup)), , drop=FALSE]
 
+          # Linear constrain of zero sum on scores
           rsup <- sweep(rsup, 2, colSums(sweep(rsup, 1, rpsup/sum(rpsup), "*")), "-")
-          rsup <- sweep(rsup, 2, sqrt(phi[1,]), "/")
+
+          # Supplementary scores do not need a zero sum of squares constrain,
+          # but they have to be scaled the same way as standardized scores
+          rsup <- sweep(rsup, 2, sqrt(phi), "/")
 
           row2 <- rbind(cbind(row[,,1]), rsup)
           dim(row2)[3] <- 1
@@ -139,8 +147,12 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
 
           csup <- sup[seq(NROW(rowsup) + 1, nrow(sup)), , drop=FALSE]
 
+          # Linear constrain of zero sum on scores
           csup <- sweep(csup, 2, colSums(sweep(csup, 1, cpsup/sum(cpsup), "*")), "-")
-          csup <- sweep(csup, 2, sqrt(phi[1,]), "/")
+
+          # Supplementary scores do not need a zero sum of squares constrain,
+          # but they have to be scaled the same way as standardized scores
+          csup <- sweep(csup, 2, sqrt(phi), "/")
 
           col2 <- rbind(cbind(col[,,1]), csup)
           dim(col2)[3] <- 1
