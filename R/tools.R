@@ -20,31 +20,52 @@ printModelStats <- function(x, digits=max(3, getOption("digits") - 4)) {
       "\nAIC:                   ", x$deviance - 2 * x$df.residual, "\n", sep="")
 }
 
-get.probs <- function(x) {
-  if(inherits(x, "assoc.symm")) {
-      # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-      if(x$weighting == "marginal")
-          rp <- cp <- prop.table(rowSums(x$row.weights) + rowSums(x$col.weights))
-      else if(x$weighting == "uniform")
-          rp <- cp <- rep(1/nr, nr)
-      else
-          rp <- cp <- rep(1, nr)
-  }
-  else {
-      # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
-      if(x$weighting == "marginal") {
-          rp <- prop.table(rowSums(x$row.weights))
-          cp <- prop.table(rowSums(x$col.weights))
-      }
-      else if(x$weighting == "uniform") {
-          rp <- rep(1/nr, nr)
-          cp <- rep(1/nc, nc)
+get.probs.asymm <- function(weighting, weights, indices) {
+  # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
+  if(weighting == "marginal")
+      prop.table(rowSums(weights[indices,, drop=FALSE]))
+  else if(weighting == "uniform")
+      rep(1/nrow(weights), nrow(weights))
+  else
+      rep(1, nrow(weights))
+}
+
+get.probs.symm <- function(weighting, row.weights, col.weights, indices) {
+  # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
+  if(weighting == "marginal")
+      prop.table(rowSums(row.weights[indices,, drop=FALSE]) + rowSums(col.weights[indices,, drop=FALSE]))
+  else if(weighting == "uniform")
+      rep(1/nrow(row.weights), nrow(row.weights))
+  else
+      rep(1, nrow(row.weights))
+}
+
+get.probs <- function(ass) {
+  if(inherits(ass, "assoc.symm")) {
+      if(length(ass$row.sup) > 0 & length(ass$col.sup) > 0) {
+          p <- c(get.probs.symm(ass$weighting, ass$row.weights, ass$col.weights, setdiff(seq(nrow(ass$row)), ass$row.sup)),
+                 get.probs.symm(ass$weighting, ass$row.weights, ass$col.weights, ass$row.sup))
+          list(rp=p, cp=p)
       }
       else {
-          rp <- rep(1, nr)
-          cp <- rep(1, nc)
+          p <- get.probs.symm(ass$weighting, ass$row.weights, ass$col.weights, seq(nrow(ass$row)))
+          list(rp=p, cp=p)
       }
-  }
 
-  list(rp=rp, cp=cp)
+  }
+  else {
+      if(length(ass$row.sup) > 0)
+          rp <- c(get.probs.asymm(ass$weighting, ass$row.weights, setdiff(seq(nrow(ass$row)), ass$row.sup)),
+                  get.probs.asymm(ass$weighting, ass$row.weights, ass$row.sup))
+      else
+          rp <- get.probs.asymm(ass$weighting, ass$col.weights)
+
+      if(length(ass$col.sup) > 0)
+          cp <- c(get.probs.asymm(ass$weighting, ass$col.weights[setdiff(seq(ncol(ass$col)), ass$col.sup),]),
+                  get.probs.asymm(ass$weighting, ass$col.weights[ass$col.sup,]))
+      else
+          cp <- get.probs.asymm(ass$weighting, ass$col.weights)
+
+      list(rp=rp, cp=cp)
+  }
 }

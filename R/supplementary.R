@@ -16,6 +16,11 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
   col <- ass$col
   weighting <- ass$weighting
 
+  row.sup <- NULL
+  col.sup <- NULL
+  row.weights.sup <- NULL
+  col.weights.sup <- NULL
+
   args <- list()
   args$formula <- model$formula
   args$family <- model$family
@@ -107,7 +112,17 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
       names(dimnames(row2)) <- names(dimnames(row))
       rownames(row2) <- c(rownames(row), rownames(rowsup))
       colnames(row2) <- colnames(row)
+      row.sup <- col.sup <- seq(nrow(row) + 1, nrow(row2))
       row <- col <- row2
+
+      if(length(dim(tab)) == 3) {
+          row.weights.sup <- apply(rowsup, c(1, 3), sum, na.rm=TRUE)
+          col.weights.sup <- apply(colsup, c(2, 3), sum, na.rm=TRUE)
+      }
+      else {
+          row.weights.sup <- as.matrix(apply(rowsup, 1, sum, na.rm=TRUE))
+          col.weights.sup <- as.matrix(apply(colsup, 2, sum, na.rm=TRUE))
+      }
   }
   else {
       dim(sup) <- c(sum(nrow(rowsup), ncol(colsup)), ncol(phi))
@@ -134,7 +149,13 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
           names(dimnames(row2)) <- names(dimnames(row))
           rownames(row2) <- c(rownames(row), rownames(rowsup))
           colnames(row2) <- colnames(row)
+          row.sup <- seq(nrow(row) + 1, nrow(row2))
           row <- row2
+
+          if(length(dim(tab)) == 3)
+              row.weights.sup <- apply(rowsup, c(1, 3), sum, na.rm=TRUE)
+          else
+              row.weights.sup <- as.matrix(apply(rowsup, 1, sum, na.rm=TRUE))
       }
 
       if(length(colsup) > 0) {
@@ -159,20 +180,19 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
           names(dimnames(col2)) <- names(dimnames(col))
           rownames(col2) <- c(rownames(col), colnames(colsup))
           colnames(col2) <- colnames(col)
+          col.sup <- seq(nrow(col) + 1, nrow(col2))
           col <- col2
-      }
-  }
 
-  if(length(dim(tab)) == 3) {
-      row.weights.sup <- apply(rowsup, c(1, 3), sum, na.rm=TRUE)
-      col.weights.sup <- apply(colsup, c(2, 3), sum, na.rm=TRUE)
-  }
-  else {
-      row.weights.sup <- as.matrix(apply(rowsup, 1, sum, na.rm=TRUE))
-      col.weights.sup <- as.matrix(apply(colsup, 2, sum, na.rm=TRUE))
+          if(length(dim(tab)) == 3)
+              col.weights.sup <- apply(colsup, c(2, 3), sum, na.rm=TRUE)
+          else
+              col.weights.sup <- as.matrix(apply(colsup, 1, sum, na.rm=TRUE))
+      }
   }
 
   list(row=row, col=col,
        row.weights=rbind(ass$row.weights, row.weights.sup),
-       col.weights=rbind(ass$col.weights, col.weights.sup))
+       col.weights=rbind(ass$col.weights, col.weights.sup),
+       row.sup=row.sup,
+       col.sup=col.sup)
 }

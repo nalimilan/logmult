@@ -275,6 +275,8 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"),
       obj$col <- sup$col
       obj$row.weights <- sup$row.weights
       obj$col.weights <- sup$col.weights
+      obj$row.sup <- sup$row.sup
+      obj$col.sup <- sup$col.sup
   }
 
   class(obj) <- c("assoc.hmskew", "assoc.symm", "assoc")
