@@ -328,8 +328,8 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
       col <- sweep(col[,,1, drop=FALSE], 2, phi.col, "/")
       layer <- sweep(layer, 2, phi.row * phi.col, "*")
 
-      # Order dimensions according to phi on first layer category
-      ord <- order(abs(layer[1,]), decreasing=TRUE)
+      # Conventionally order dimensions according to phi on first layer category
+      ord <- order(abs(colSums(sweep(layer, 1, apply(tab, 3, sum, na.rm=TRUE), "*"))), decreasing=TRUE)
       layer <- layer[,ord, drop=FALSE]
       row <- row[,ord,, drop=FALSE]
       col <- col[,ord,, drop=FALSE]
@@ -349,10 +349,10 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
       }
   }
 
-  # By convention, keep layer coefficients positive for the first layer category
+  # By convention, keep the weighted average of layer coefficients positive
   if(homogeneous) {
       for(i in 1:nd) {
-          if(layer[1,i] < 0) {
+          if(sum(layer[,i] * apply(tab, 3, sum, na.rm=TRUE)) < 0) {
               layer[,i] <- -layer[,i]
               row[,i,] <- -row[,i,]
           }
@@ -520,8 +520,8 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
       sc <- sweep(sc[,,1, drop=FALSE], 2, phi, "/")
       layer <- sweep(layer, 2, phi, "*")
 
-      # Order dimensions according to phi on first layer category
-      ord <- order(layer[1,], decreasing=TRUE)
+      # Conventionally order dimensions according to weighted average of phi
+      ord <- order(abs(colSums(sweep(layer, 1, apply(tab, 3, sum, na.rm=TRUE), "*"))), decreasing=TRUE)
       layer <- layer[,ord, drop=FALSE]
       sc <- sc[,ord,, drop=FALSE]
   }

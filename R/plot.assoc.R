@@ -205,15 +205,15 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(any(dim > ncol(x$row)))
       stop("dim must be a valid dimension of the model")
 
-  if(is.matrix(x$phi) && !is.null(layer) &&
+  if(is.matrix(x$phi) && !layer %in% c("average", "average.rotate") &&
      ((is.numeric(layer) && layer > nrow(x$phi)) ||
       (!is.numeric(layer) && !layer %in% rownames(x$phi))))
       stop("layer must be a valid layer of the model")
 
-  if(!is.null(layer) && !is.numeric(layer))
+  if(!layer %in% c("average", "average.rotate") && !is.numeric(layer))
       layer <- match(layer, rownames(x$phi))
 
-  if(!is.null(layer) && is.matrix(x$phi))
+  if(!layer %in% c("average", "average.rotate") && is.matrix(x$phi))
       layer.name <- rownames(x$phi[layer,, drop=FALSE])
   else
       layer.name <- ""
@@ -257,20 +257,19 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
 
   rot <- NULL
-  if(is.null(layer)) {
+  if(layer %in% c("average", "average.rotate")) {
       # For homogeneous association with layer, compute a weighted average of phi over layers
-      # And prepare the drawing of lines representing the axes with the highest variance
+      # And if layer="average.rotate", prepare the drawing of lines representing the axes with the highest variance
 
       if(nl == 1 || nlr > 1 || nlc > 1)
-          stop("'layer=NULL' is only supported with homogeneous layer effect")
+          stop("'layer=\"average\"' and 'layer=\"average.rotate\"' is only supported with homogeneous layer effect")
 
-      res <- averaged.assoc(x)
+      res <- averaged.assoc(x, type=layer)
 
       rot <- res$rot
       x$phi <- res$phi
-
-      x$row <- x$row[,,1]
-      x$col <- x$col[,,1]
+      x$row <- res$row
+      x$col <- res$col
   }
   else {
       # Plotting only uses one layer, so get rid of others to make code cleaner below
@@ -342,7 +341,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
   else if(what == "columns") {
        sc <- x$col[which[[2]],, drop=FALSE]
-       p <- x$cp[which[[2]]]
+       p <- cp[which[[2]]]
        if(length(col) == 2)
            col <- col[2]
   }
@@ -439,8 +438,23 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       abline(v=0, lty="dotted")
 
       if(!is.null(rot)) {
-          abline(0, rot[1,2]/rot[2,2], lty="dotted", col="dark grey", lwd=2)
-          abline(0, -rot[2,2]/rot[1,2], lty="dotted", col="dark grey", lwd=2)
+          uvrot <- diag(1, nd, nd) %*% rot
+
+          for(i in 1:nd) {
+              coord <- uvrot[i,dim[2]]/uvrot[i, dim[1]]
+              pos <- if(abs(coord) > .5) 2 else 1
+              abline(0, coord, lty="dotted", col="dark grey", lwd=2)
+
+              if(coord > 0)
+                  lim <- min(abs(par("usr")[2]), abs(par("usr")[4]))
+              else
+                  lim <- min(abs(par("usr")[2]), abs(par("usr")[3]))
+
+              if(abs(coord) > 1)
+                  text(-.8 * 1/coord * lim, -.8 * lim, label=paste("Dim", i), col="dark grey", pos=pos)
+              else
+                  text(.8 * lim, .8 * coord * lim, label=paste("Dim", i), col="dark grey", pos=pos)
+          }
       }
   }
   else {
@@ -463,8 +477,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
 
   if(!is.na(conf.ellipses)) {
-      if(is.null(layer))
-          stop("Plotting confidence ellipses is not supported when 'layer=NULL'")
+      if(layer == "average.rotate")
+          stop("Plotting confidence ellipses is not supported when 'layer=\"average.rotate\"'")
 
       covmat <- x$adj.covmats[,, layer]
 
@@ -580,10 +594,13 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
          bg=bg, pch=pch, col=border)
 
   box()
+
   pointLabel(sc[, dim[1]], sc[, dim[2]], rownames(sc), font=font)
 }
 
-averaged.assoc <- function(x) {
+averaged.assoc <- function(x, type=c("average", "average.rotate")) {
+      type <- match.arg(type)
+
       nd <- ncol(x$phi)
       nr <- nrow(x$row)
       nc <- nrow(x$col)
@@ -592,6 +609,10 @@ averaged.assoc <- function(x) {
           p <- get.probs(x)$rp
 
           phi <- colSums(sweep(x$phi, 1, prop.table(colSums(x$row.weights)), "*"))
+
+          if(type == "average")
+              return(list(phi=phi, row=x$row[,,1], col=x$col[,,1]))
+
           adjsc <- sweep(x$row[,,1], 2, sqrt(phi), "*")
 
           # Technique proposed in Goodman (1991), Appendix 4, but with eigenvalues decomposition
@@ -600,14 +621,14 @@ averaged.assoc <- function(x) {
               lambda <- lambda + (adjsc[,i] %o% adjsc[,i])
           lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
           eigen <- eigen(lambda0, symmetric=TRUE)
-          sc <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
-          phi2 <- eigen$values[1:nd]
+          sc2 <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
+          phi2 <- t(eigen$values[1:nd])
 
-          adjsc2 <- sweep(sc, 2, sqrt(phi), "*")
+          adjsc2 <- sweep(sc2, 2, sqrt(phi), "*")
 
-          rot <- logmult:::procrustes(adjsc, adjsc2)$rotation
+          rot <- logmult:::procrustes(adjsc, adjsc2)$rot
 
-          row.weights <- col.weights <- p
+          row2 <- col2 <- sc
       }
       else {
           probs <- get.probs(x)
@@ -615,6 +636,10 @@ averaged.assoc <- function(x) {
           cp <- probs$cp
 
           phi <- colSums(sweep(x$phi, 1, prop.table(colSums(x$row.weights)), "*"))
+
+          if(type == "average")
+              return(list(phi=phi, row=x$row[,,1], col=x$col[,,1]))
+
           adjrow <- sweep(x$row[,,1], 2, sqrt(phi), "*")
           adjcol <- sweep(x$col[,,1], 2, sqrt(phi), "*")
 
@@ -624,28 +649,24 @@ averaged.assoc <- function(x) {
               lambda <- lambda + adjrow[,i] %o% adjcol[,i]
           lambda0 <- lambda * sqrt(rp %o% cp) # Eq. A.4.3
           sv <- svd(lambda0)
+          row2 <- diag(1/sqrt(rp)) %*% sv$u[,1:nd] # Eq. A.4.7
+          col2 <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
+          phi2 <- t(sv$d[1:nd])
 
-          ass2 <- x
-          ass2$row[] <- diag(1/sqrt(rp)) %*% sv$u[,1:nd] # Eq. A.4.7
-          ass2$col[] <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
-          ass2$phi <- t(sv$d[1:nd])
-
-          # Using columns gives a slightly different result due to rounding errors, but not that much...
-          adjrow2 <- sweep(ass2$row, 2, sqrt(ass2$phi), "*")
-#           rot <- logmult:::procrustes(adjrow, adjrow2)$rotation
-          ass1 <- x
-          ass1$phi <- t(phi)
-          ass1$row.weights <- ass2$row.weights <- colSums(x$row.weights)
-          ass1$col.weights <- ass2$col.weights <- colSums(x$col.weights)
-
-          res <- find.stable.scores(ass2, ass1, detailed=TRUE)
-          ass
-
-          row.weights <- rp
-          col.weights <- cp
+          adjrow2 <- sweep(row2, 2, sqrt(phi2), "*")
+          adjcol2 <- sweep(col2, 2, sqrt(phi2), "*")
+          rot <- logmult:::procrustes(rbind(sweep(adjrow, 1, rp, "*"), sweep(adjcol, 1, cp, "*")),
+                                      rbind(sweep(adjrow2, 1, rp, "*"), sweep(adjcol2, 1, cp, "*")))$rot
+          # FIXME: scale n'est pas 1 si on ne met pas scale=FALSE, c'est difficilement explicable
+#           rot <- vegan::procrustes(rbind(sweep(adjrow, 1, rp, "*"), sweep(adjcol, 1, cp, "*")),
+#                                    rbind(sweep(adjrow2, 1, rp, "*"), sweep(adjcol2, 1, cp, "*")), scale=FALSE)$rot
+#           rot <- qr.solve(rbind(adjrow, adjcol), rbind(adjrow2, adjcol2))
       }
 
-      list(rot=rot, phi=phi, row=, col, row.weights=row.weights, col.weights=col.weights)
+      rownames(row2) <- rownames(x$row)
+      rownames(col2) <- rownames(x$col)
+
+      list(rotation=rot, phi=phi2, row=row2, col=col2)
 }
 
 # Function taken from the directlabels package, but it is in the public domain
