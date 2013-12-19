@@ -559,7 +559,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   groups <- groups[ord]
 
   if(mass)
-      # sqrt() because symbols' areas are (currently?) equal to
+      # sqrt() because symbols' areas are approximately equal to
       # that of square whose side length is proportional to cex:
       # we want the areas to be proportional, not the side lengths
       size <- sqrt(p/mean(p))*cex
