@@ -55,23 +55,24 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
       hmterm <- sprintf("+ HMSkew(%s, %s)", vars[1], vars[2])
 
       args2 <- args
-      args2$constrain <- NULL
-      args2$constrainTo <- NULL
       args2$formula <- as.formula(sub(paste("\\Q", hmterm, "\\E", sep=""),
                                       "", deparse(args$formula)))
 
       base <- do.call("gnm", args2)
       args$start <- c(rep(NA, length(parameters(base))), residEVD(base, 1, skew=TRUE))
 
-      hmnames <- names(gnm:::gnmTools(gnm:::gnmTerms(as.formula(paste("Freq ~ -1", hmterm)),
-                                                     data=args$data),
-                                      as.data.frame(args$data), FALSE)$start)
+      # -1 is here to ensure all symmetric association coefficients are in the list
+      args2$formula <- as.formula(paste("Freq ~ -1", hmterm))
+      args2$method <- "coefNames"
+      hmnames <- do.call("gnm", args2)
 
       cnames <- c(names(parameters(base)), hmnames)
   }
   else {
-      cnames <- names(gnm:::gnmTools(gnm:::gnmTerms(args$formula, data=args$data),
-                                     as.data.frame(args$data), FALSE)$start)
+      args2 <- args
+      args2$method <- "coefNames"
+
+      cnames <- do.call("gnm", args2)
   }
 
   args$constrain <- which(cnames %in% names(parameters(model)) & grepl(str, cnames))
