@@ -25,6 +25,7 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
   args$formula <- model$formula
   args$family <- model$family
   args$tolerance <- model$tolerance
+  args$iterMax <- model$iterMax
   args$verbose <- FALSE
 
 
