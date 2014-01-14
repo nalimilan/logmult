@@ -31,28 +31,23 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       f <- sprintf("%s + Mult(Exp(%s), %s:%s)", f, vars[3], vars[1], vars[2])
 
       if(identical(constrain, "auto"))
-          constrain <- sprintf("(Mult\\(Exp\\(.\\), \\Q%s:%s\\E\\)\\Q.%s%s\\E)|(Mult\\(Exp\\(\\Q%s\\E.*\\.(\\Q%s%s\\E:)|(:\\Q%s%s\\E$))",
-                               vars[1], vars[2], vars[3], dimnames(tab)[[3]][1],
-                               vars[3], vars[1], rownames(tab)[1], vars[2], colnames(tab)[1])
+          constrain <- sprintf("^Mult\\(Exp\\(.\\), \\Q%s:%s\\E\\)\\Q.%s%s\\E$",
+                               vars[1], vars[2], vars[3], dimnames(tab)[[3]][1])
   }
-  if(diagonal == "excluded") {
+  else if(diagonal == "excluded") {
       f <- sprintf("%s + %s:Diag(%s, %s) + Mult(Exp(%s), %s:%s)",
                    f, vars[3], vars[1], vars[2], vars[3], vars[1], vars[2])
 
       if(identical(constrain, "auto"))
-          # Last pattern matches diagonal coefficients
-          constrain <- sprintf("(Mult\\(Exp\\(.\\), \\Q%s:%s\\E\\)\\Q.%s%s\\E)|(Mult\\(Exp\\(\\Q%s\\E.*\\.(\\Q%s\\E)$)",
-                               vars[1], vars[2], vars[3], dimnames(tab)[[3]][1],
-                               vars[3], paste(paste(vars[1], rownames(tab), ":", vars[2],
-                                                    rownames(tab), sep=""), collapse="\\E|\\Q"))
+          constrain <- sprintf("^Mult\\(Exp\\(.\\), \\Q%s:%s\\E\\)\\Q.%s%s\\E$",
+                               vars[1], vars[2], vars[3], dimnames(tab)[[3]][1])
   }
   else if(diagonal == "only") {
       f <- sprintf("%s + Mult(Exp(%s), Diag(%s, %s))", f, vars[3], vars[1], vars[2])
 
       if(identical(constrain, "auto"))
-          constrain <- sprintf("(Mult\\(Exp\\(.\\), Diag\\(\\Q%s, %s\\E\\)\\)\\Q.%s%s\\E)|(Mult\\(Exp\\(\\Q%s\\E.*\\.(\\Q%s%s\\E:)|(:\\Q%s%s\\E$))",
-                               vars[1], vars[2], vars[3], dimnames(tab)[[3]][1],
-                               vars[3], vars[1], rownames(tab)[1], vars[2], colnames(tab)[1])
+          constrain <- sprintf("^Mult\\(Exp\\(.\\), Diag\\(\\Q%s, %s\\E\\)\\)\\Q.%s%s\\E$",
+                               vars[1], vars[2], vars[3], dimnames(tab)[[3]][1])
   }
 
   eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
