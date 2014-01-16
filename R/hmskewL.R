@@ -328,32 +328,11 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
       sc[,1:2,l] <- diag(1/sqrt(p)) %*% sv$u[,1:2] # Eq. A.4.7
       phi <- sv$d[1]
 
-      # Integrate phi to layer coefficients
-      if(homogeneous)
-          layer <- layer * phi
-      else
-          layer[l,] <- layer[l,] * phi
-  }
-
-  # By convention, keep layer coefficients positive for the first layer category
-  if(homogeneous) {
-      if(layer[1,1] < 0) {
-          layer <- -layer
-          sc <- -sc
-      }
-  }
-  # For heterogeneous scores, always keep phi positive
-  else {
-      sc <- sweep(sc, 3:2, sign(layer), "*")
-  }
-
-  for(l in 1:dim(sc)[3]) {
       # Since both dimensions share the same singular value, we cannot distinguish them
       # and their order is random. The sign of the association reconstructed from scores
       # must be the same as the original one: we use one cell, since all signs are the same.
       # This operation affects the results, while the next one is merely a display convention.
-      if(sc[1,2,l] * sc[2,1,l] - sc[1,1,l] * sc[2,2,l] < 0)
-          sc[,,l] <- sc[,2:1,l]
+      sc[,1,l] <- sc[,1,l] * sign((sc[1,2,l] * sc[2,1,l] - sc[1,1,l] * sc[2,2,l])/lambda[1,2])
 
       # Use the convention that we want the null score to be for the first category
       # on the second dimension, and a positive score on the first dimension
@@ -365,6 +344,24 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
       if(sc[1,1,l] < 0)
           sc[,,l] <- -sc[,,l]
+
+      # Integrate phi to layer coefficients
+      if(homogeneous)
+          layer <- layer * phi
+      else
+          layer[l,] <- layer[l,] * phi
+  }
+
+  # By convention, keep layer coefficients positive for the first layer category
+  if(homogeneous) {
+      if(layer[1,1] < 0) {
+          layer <- -layer
+          sc[, 2,] <- -sc[, 2,]
+      }
+  }
+  # For heterogeneous scores, always keep phi positive
+  else {
+      sc <- sweep(sc, 3:2, sign(layer), "*")
   }
 
   # The reference category is not really at 0, and this makes the display ugly
