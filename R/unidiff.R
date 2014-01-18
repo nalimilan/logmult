@@ -1,11 +1,14 @@
 ## UNIDIFF model (Erikson & Goldthorpe, 1992), or uniform layer effect model (Xie, 1992)
 
 unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
-                    constrain="auto", family=poisson,
+                    constrain="auto",
+                    phi=c("one.first", "marginal", "uniform", "none"),
+                    family=poisson,
                     tolerance=1e-8, iterMax=5000,
                     trace=FALSE, verbose=TRUE,
                     checkEstimability=TRUE, ...) {
   diagonal <- match.arg(diagonal)
+  phi <- match.arg(phi)
 
   tab <- as.table(tab)
 
@@ -68,25 +71,47 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                                       "first", check=checkEstimability)
 
 
+  nr <- nrow(tab)
+  nc <- ncol(tab)
+
   if(diagonal == "included") {
-      mat <- tab[,,1]
-      nr <- nrow(mat)
-      nc <- ncol(mat)
+      if(phi == "marginal") {
+          p <- prop.table(tab)
+          rp <- margin.table(p, 1)
+          cp <- margin.table(p, 2)
+      }
+      else if(phi == "none") {
+          rp <- rep(1, nr)
+          cp <- rep(1, nc)
+      }
+      else {
+          rp <- rep(1/nr, nr)
+          cp <- rep(1/nc, nc)
+      }
+
+      rp1 <- prop.table(rp)
+      cp1 <- prop.table(cp)
+
+      mat <- matrix(0, nr, nc)
       con <- matrix(0, length(coef(model)), length(mat))
       ind <- pickCoef(model, sprintf("Mult\\(Exp\\(\\Q%s\\E\\)", vars[3]))
       for(i in 1:nr) {
           for(j in 1:nc) {
               mat[] <- 0
-              mat[i,] <- -1/nc
-              mat[,j] <- -1/nr
-              mat[i,j] <- 1 - 1/nc - 1/nr
-              mat <- mat + 1/(nr * nc)
+              mat[i,] <- -cp1
+              mat[,j] <- -rp1
+              mat[i,j] <- 1 - rp1[i] - cp1[j]
+              mat <- mat + rp1 %o% cp1
               con[ind, (j - 1) * nr + i] <- mat
           }
       }
 
       colnames(con) <- names(ind)
       model$unidiff$interaction <- gnm:::se(model, con, checkEstimability=checkEstimability)
+
+      if(phi != "one.first") {
+          model$unidiff$phi <- sqrt(sum(model$unidiff$interaction$Estimate^2 * rp %o% cp))
+      }
   }
   else if(diagonal == "only"){
       # Quasi-variances cannot be computed for these coefficients, so hide the warning
@@ -94,8 +119,8 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       suppressMessages(model$unidiff$interaction <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\Q%s\\E\\)", vars[3])),
                                                                  ref="first", check=checkEstimability)$qvframe[-1,])
 
-     # Diag() sorts levels alphabetically, which is not practical
-     model$unidiff$interaction[c(1 + order(rownames(tab))),] <- model$unidiff$interaction
+      # Diag() sorts levels alphabetically, which is not practical
+      model$unidiff$interaction[c(1 + order(rownames(tab))),] <- model$unidiff$interaction
   }
   else {
      # Interaction coefficients cannot be identified for now
@@ -124,6 +149,12 @@ print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
   cat("\nLayer coefficients:\n")
   print(setNames(exp(x$unidiff$layer$qvframe$estimate), row.names(x$unidiff$layer$qvframe)),
         digits=digits, print.gap=2, ...)
+
+  if(length(x$unidiff$phi) > 0) {
+      cat("\nLayer phi association:\n")
+      print(setNames(exp(x$unidiff$layer$qvframe$estimate) * x$unidiff$phi, row.names(x$unidiff$layer$qvframe)),
+            digits=digits, print.gap=2, ...)
+  }
 
   if(x$unidiff$diagonal == "included") {
       cat("\nFull two-way interaction coefficients:\n")
@@ -226,6 +257,12 @@ plot.unidiff <- function(x, exponentiate=TRUE, se.type=c("quasi.se", "se"), conf
       coefs <- exp(coefs)
       tops <- exp(tops)
       tails <- exp(tails)
+
+      if(length(x$unidiff$phi) > 0) {
+          coefs <- coefs * x$unidiff$phi
+          tops <- tops * x$unidiff$phi
+          tails <- tails * x$unidiff$phi
+      }
   }
 
   range <- max(tops) - min(tails)

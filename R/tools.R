@@ -69,3 +69,45 @@ get.probs <- function(ass) {
       list(rp=rp, cp=cp)
   }
 }
+
+goodman.phi <- function(tab, weighting=c("marginal", "uniform", "none"), row.weights=NULL, col.weights=NULL) {
+  weighting <- match.arg(weighting)
+  stopifnot(is.matrix(tab))
+
+  if(any(is.na(tab)))
+      stop("NA cells are currently not supported.")
+
+  if(any(tab == 0))
+      stop("Index cannot be computed in the presence of cells with 0 counts; replace them with 1/2 if appropriate.")
+
+  p <- prop.table(tab)
+
+  if(weighting == "marginal") {
+      rp <- margin.table(p, 1)
+      cp <- margin.table(p, 2)
+  }
+  else if(weighting == "uniform") {
+      rp <- rep(1/nrow(tab), nrow(tab))
+      cp <- rep(1/ncol(tab), ncol(tab))
+  }
+  else {
+      rp <- rep(1, nrow(tab))
+      cp <- rep(1, ncol(tab))
+  }
+
+  if(!is.null(row.weights))
+      rp <- row.weights
+
+  if(!is.null(col.weights))
+      cp <- col.weights
+
+  rp1 <- prop.table(rp)
+  cp1 <- prop.table(cp)
+  logp <- log(p)
+
+  lambda <- sweep(logp, 1, rowSums(sweep(logp, 2, cp1, "*")), "-")
+  lambda <- sweep(lambda, 2, colSums(sweep(logp, 1, rp1, "*")), "-")
+  lambda <- lambda + sum(logp * rp1 %o% cp1)
+
+  sqrt(sum(lambda^2 * rp %o% cp))
+}

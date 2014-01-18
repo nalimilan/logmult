@@ -10,7 +10,9 @@
 }
 \usage{
 unidiff(tab, diagonal = c("included", "excluded", "only"),
-        constrain = "auto", family = poisson,
+        constrain = "auto",
+        phi=c("one.first", "marginal", "uniform", "none"),
+        family = poisson,
         tolerance = 1e-8, iterMax = 5000,
         trace = FALSE, verbose = TRUE,
         checkEstimability = TRUE, ...)
@@ -27,6 +29,11 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       a numeric vector of indices, a logical vector, a character vector of names, or "[?]" to
       select from a Tk dialog. The default constrains to 0 the first layer parameter and
       interaction coefficients for the first row and column of the table.}
+  \item{phi}{what normalization of the layer coefficients should be used. \dQuote{one.first}
+      specifies that the first layer coefficient should be equal to 1. Other choices enable
+      the computation of Goodman's phi association coefficient (see \code{\link{goodman.phi}}),
+      by which the layer coefficients will be multiplied when printing and plotting; two-way
+      interaction coefficients will be identified using the corresponding weights.}
   \item{family}{a specification of the error distribution and link function to be used in the model.
       This can be a character string naming a family function; a family function, or the result of
       a call to a family function. See \code{\link{family}} details of family functions.}

@@ -52,4 +52,6 @@ S3method(print, anoas)
 S3method(summary, anoas)
 S3method(print, summary.anoas)
 
+export(goodman.phi)
+
 import(gnm)
