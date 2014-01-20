@@ -628,7 +628,7 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
 
           rot <- logmult:::procrustes(adjsc, adjsc2)$rot
 
-          row2 <- col2 <- sc
+          row2 <- col2 <- adjsc2
       }
       else {
           probs <- get.probs(x)
@@ -657,10 +657,6 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
           adjcol2 <- sweep(col2, 2, sqrt(phi2), "*")
           rot <- logmult:::procrustes(rbind(sweep(adjrow, 1, rp, "*"), sweep(adjcol, 1, cp, "*")),
                                       rbind(sweep(adjrow2, 1, rp, "*"), sweep(adjcol2, 1, cp, "*")))$rot
-          # FIXME: scale n'est pas 1 si on ne met pas scale=FALSE, c'est difficilement explicable
-#           rot <- vegan::procrustes(rbind(sweep(adjrow, 1, rp, "*"), sweep(adjcol, 1, cp, "*")),
-#                                    rbind(sweep(adjrow2, 1, rp, "*"), sweep(adjcol2, 1, cp, "*")), scale=FALSE)$rot
-#           rot <- qr.solve(rbind(adjrow, adjcol), rbind(adjrow2, adjcol2))
       }
 
       rownames(row2) <- rownames(x$row)
