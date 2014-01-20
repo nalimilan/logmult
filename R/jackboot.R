@@ -442,6 +442,7 @@ find.stable.scores <- function(ass, ass.orig, detailed=FALSE) {
   nl <- nrow(ass$phi)
   nlr <- dim(ass$row)[3]
   nlc <- dim(ass$col)[3]
+  probs <- get.probs(ass)
 
   sc <- adj.orig <- array(NA, dim=c(nr + nc, nd, nl))
   phi <- ass$phi
@@ -476,8 +477,7 @@ find.stable.scores <- function(ass, ass.orig, detailed=FALSE) {
       # phi for rows and column are identical since rotation is the same for both,
       # so take an average in case there are rounding errors
       phi[l,] <- margin.table(sweep(adj[,,l , drop=FALSE]^2, 1,
-                                    c(ass.orig$row.weights,
-                                      ass.orig$col.weights), "*"), 2)/2 * sign(ass$phi[l,])
+                                    c(probs$rp, probs$cp), "*"), 2)/2 * sign(ass$phi[l,])
 
       sc[1:nr,,l] <- sweep(adj[1:nr,,l, drop=FALSE], 2, sqrt(abs(phi[l,])), "/")
       sc[-(1:nr),,l] <- sweep(adj[-(1:nr),,l, drop=FALSE], 2, sqrt(abs(phi[l,])) * sign(ass$phi[l,]), "/")

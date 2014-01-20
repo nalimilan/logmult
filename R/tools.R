@@ -58,7 +58,7 @@ get.probs <- function(ass) {
           rp <- c(get.probs.asymm(ass$weighting, ass$row.weights, setdiff(seq(nrow(ass$row)), ass$row.sup)),
                   get.probs.asymm(ass$weighting, ass$row.weights, ass$row.sup))
       else
-          rp <- get.probs.asymm(ass$weighting, ass$col.weights)
+          rp <- get.probs.asymm(ass$weighting, ass$row.weights)
 
       if(length(ass$col.sup) > 0)
           cp <- c(get.probs.asymm(ass$weighting, ass$col.weights[setdiff(seq(ncol(ass$col)), ass$col.sup),]),
