@@ -232,7 +232,7 @@ print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...
 
 plot.unidiff <- function(x, exponentiate=TRUE, se.type=c("quasi.se", "se"), conf.int=.95,
                          numeric.auto=TRUE, type="o",
-                         xlab=names(dimnames(x$data))[3], ylab="Layer coefficient", ...) {
+                         xlab=names(dimnames(x$data))[3], ylab="Layer coefficient", add=FALSE, ...) {
   if(!inherits(x, "unidiff"))
       stop("x must be a unidiff object")
 
@@ -275,9 +275,15 @@ plot.unidiff <- function(x, exponentiate=TRUE, se.type=c("quasi.se", "se"), conf
   else
       at <- factor(rownames(qv), levels=rownames(qv))
 
-  plot.default(at, coefs, type=type, xaxt="n",
-       ylim=ylim, xlab=xlab, ylab=ylab, ...)
-  axis(1, at, labels=at)
+  if(!isTRUE(add)) {
+      plot.default(at, coefs, type=type, xaxt="n",
+                   ylim=ylim, xlab=xlab, ylab=ylab, ...)
+      axis(1, at, labels=at)
+  }
+  else {
+      points.default(at, coefs, type=type, ...)
+  }
+
   segments(as.numeric(at), tails, as.numeric(at), tops)
 
   invisible(x)

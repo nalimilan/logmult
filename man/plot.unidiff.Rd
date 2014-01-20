@@ -10,7 +10,8 @@
 \usage{
 \method{plot}{unidiff}(x, exponentiate = TRUE, se.type = c("quasi.se", "se"),
      conf.int = 0.95, numeric.auto = TRUE, type = "o",
-     xlab = names(dimnames(x$data))[3], ylab = "Layer coefficient", ...)
+     xlab = names(dimnames(x$data))[3], ylab = "Layer coefficient",
+     add = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,6 +26,8 @@
   \item{type}{what type of plot should be drawn: see \code{\link{plot}}.}
   \item{xlab}{a title for the x axis: see see \code{\link{title}}.}
   \item{ylab}{a title for the y axis: see see \code{\link{title}}.}
+  \item{add}{whether to create a new plot using \code{\link{plot}}, or draw over the existing
+      plot by calling \code{\link{points}} and \code{\link{segments}} directly.}
   \item{...}{Further arguments passed to \code{\link{plot}}.}
 }
 \details{
