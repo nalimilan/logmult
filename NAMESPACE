@@ -54,4 +54,4 @@ S3method(print, summary.anoas)
 
 export(goodman.phi)
 
-import(gnm)
+import(stats, graphics, gnm)

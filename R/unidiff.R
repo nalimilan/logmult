@@ -107,7 +107,7 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       }
 
       colnames(con) <- names(ind)
-      model$unidiff$interaction <- gnm:::se(model, con, checkEstimability=checkEstimability)
+      model$unidiff$interaction <- gnm::se(model, con, checkEstimability=checkEstimability)
 
       if(phi != "one.first") {
           model$unidiff$phi <- sqrt(sum(model$unidiff$interaction$Estimate^2 * rp %o% cp))

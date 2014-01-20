@@ -6,7 +6,6 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 
   if(is.null(ncpus))
       ncpus <- if(require(parallel)) min(parallel::detectCores(), 5)
-               else if(require(snow)) min(snow::detectCores(), 5)
                else 1
 
   if(ncpus > 1 && require(parallel)) {

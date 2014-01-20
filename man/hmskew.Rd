@@ -126,7 +126,8 @@ Milan Bouchet-Valat
   round(ass$row[,,1] * sqrt(ass$phi[1,1]), d=2)[5:1,]
 
   # Right part of the table
-  round(ass$phi[1] * (ass$row[,2,1] \%o\% ass$row[,1,1] - ass$row[,1,1] \%o\% ass$row[,2,1]), d=3)[5:1, 5:1]
+  round(ass$phi[1] * (ass$row[,2,1] \%o\% ass$row[,1,1] -
+                      ass$row[,1,1] \%o\% ass$row[,2,1]), d=3)[5:1, 5:1]
 
   # Plot
   plot(model, coords="cartesian")
