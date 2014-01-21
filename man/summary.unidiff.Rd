@@ -35,13 +35,18 @@
 \value{
   An object of class \code{summary.unidiff}, with the following components:
   \item{call}{the \code{call} component from object.}
-  \item{diagonal}{the \code{diagonal} component from the object's \code{unidiff} component.}
   \item{deviance.resid}{the deviance residuals, see \code{\link{residuals.glm}.}}
   \item{layer}{a \code{data.frame} holding the layer coefficients estimates, standard
       errors, quasi-standard errors (see \code{\link[qvcalc]{qvcalc}}) and p-values.}
+  \item{phi.layer}{a \code{data.frame} holding the layer coefficients estimates,
+      standard errors, and quasi-standard errors (see \code{\link[qvcalc]{qvcalc}})
+      multiplied by Goodman's phi association coefficient (see \code{\link{goodman.phi}})
+      for the first layer; p-values are the same as those for the \dQuote{layer} component.}
   \item{interaction}{a \code{data.frame} holding the two-way interaction coefficients
       estimates, standard errors and p-values.}
   \item{deviance}{the \code{deviance} component from object.}
+  \item{diagonal}{the \code{diagonal} component from the object's \code{unidiff} component.}
+  \item{weighting}{the \code{weighting} component from the object's \code{unidiff} component.}
   \item{chisq}{the Pearson Chi-squared statistic for the model fit.}
   \item{dissim}{the dissimilarity index for the model fit.}
   \item{df.residual}{the \code{df.residual} component from object.}

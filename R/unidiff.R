@@ -2,13 +2,13 @@
 
 unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                     constrain="auto",
-                    phi=c("one.first", "marginal", "uniform", "none"),
+                    weighting=c("marginal", "uniform", "none"),
                     family=poisson,
                     tolerance=1e-8, iterMax=5000,
                     trace=FALSE, verbose=TRUE,
                     checkEstimability=TRUE, ...) {
   diagonal <- match.arg(diagonal)
-  phi <- match.arg(phi)
+  weighting <- match.arg(weighting)
 
   tab <- as.table(tab)
 
@@ -75,12 +75,12 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
   nc <- ncol(tab)
 
   if(diagonal == "included") {
-      if(phi == "marginal") {
+      if(weighting == "marginal") {
           p <- prop.table(tab)
           rp <- margin.table(p, 1)
           cp <- margin.table(p, 2)
       }
-      else if(phi == "none") {
+      else if(weighting == "none") {
           rp <- rep(1, nr)
           cp <- rep(1, nc)
       }
@@ -109,11 +109,12 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       colnames(con) <- names(ind)
       model$unidiff$interaction <- gnm::se(model, con, checkEstimability=checkEstimability)
 
-      if(phi != "one.first") {
-          model$unidiff$phi <- sqrt(sum(model$unidiff$interaction$Estimate^2 * rp %o% cp))
-      }
+      model$unidiff$phi <- sqrt(sum(model$unidiff$interaction$Estimate^2 * rp %o% cp))
   }
   else if(diagonal == "only"){
+      if(weighting != "uniform")
+          warning("uniform weigthing is always used when diagonal=\"only\"")
+
       # Quasi-variances cannot be computed for these coefficients, so hide the warning
       # Also skip the reference level
       suppressMessages(model$unidiff$interaction <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\Q%s\\E\\)", vars[3])),
@@ -135,6 +136,7 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                                                   rownames(model$unidiff$interaction))
 
   model$unidiff$diagonal <- diagonal
+  model$unidiff$weighting <- weighting
 
   class(model) <- c("unidiff", class(model))
 
@@ -151,7 +153,7 @@ print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
         digits=digits, print.gap=2, ...)
 
   if(length(x$unidiff$phi) > 0) {
-      cat("\nLayer phi association:\n")
+      cat("\nLayer phi association coefficients:\n")
       print(setNames(exp(x$unidiff$layer$qvframe$estimate) * x$unidiff$phi, row.names(x$unidiff$layer$qvframe)),
             digits=digits, print.gap=2, ...)
   }
@@ -173,6 +175,8 @@ print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
 
   print.default(format(interaction, digits=digits, ...), quote=FALSE, print.gap=2)
 
+  cat("\nNormalization weights:", x$unidiff$weighting)
+
   printModelStats(x)
 
   invisible(x)
@@ -180,22 +184,32 @@ print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
 
 summary.unidiff <- function(object, ...) {
   layer <- object$unidiff$layer$qvframe[,-4]
+  phi <- object$unidiff$phi
   interaction <- object$unidiff$interaction
 
   layer <- cbind(exp(layer[,1]), layer, 2 * pnorm(-abs(layer[,1]/layer[,2])))
   colnames(layer) <- c("Exp(Estimate)", "Estimate", "Std. Error", "Quasi SE", "Pr(>|z|)")
   rownames(layer) <- paste(names(dimnames(object$data))[3], rownames(layer), sep="")
 
+  if(length(phi) > 0) {
+      phi.layer <- layer
+      phi.layer[,1] <- layer[,1] * phi
+      phi.layer[,2] <- layer[,2] + log(phi)
+      phi.layer[,3:4] <- layer[,3:4] * phi
+  }
+
   if(object$unidiff$diagonal != "excluded") {
       interaction <- cbind(interaction, 2 * pnorm(-abs(interaction[,1]/interaction[,2])))
       colnames(interaction) <- c("Estimate", "Std. Error", "Pr(>|z|)")
   }
 
-  res <- list(call=object$call, diagonal=object$unidiff$diagonal,
+  res <- list(call=object$call,
               deviance.resid=residuals(object, type="deviance"),
               chisq=sum(na.omit(c(residuals(object, "pearson")^2))),
               dissim=sum(na.omit(c(abs(residuals(object, "response")))))/sum(na.omit(c(abs(fitted(object)))))/2,
-              layer=layer, interaction=interaction,
+              layer=layer, phi.layer=phi.layer, interaction=interaction,
+              diagonal=object$unidiff$diagonal,
+              weighting=object$unidiff$weighting,
               deviance=object$deviance, df.residual=object$df.residual,
               bic=object$deviance - log(sum(na.omit(c(object$data)))) * object$df.residual,
               aic=object$deviance - 2 * object$df.residual)
@@ -211,6 +225,11 @@ print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...
   cat("\nLayer coefficients:\n")
   printCoefmat(x$layer, digits, signif.legend=FALSE, print.gap=2, ...)
 
+  if(length(x$phi) > 0) {
+      cat("\nLayer phi association coefficients:\n")
+      printCoefmat(x$phi.layer, digits, signif.legend=FALSE, print.gap=2, ...)
+  }
+
   if(x$diagonal != "only")
       cat("\nFull two-way interaction coefficients:\n")
   else
@@ -222,20 +241,23 @@ print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...
       cat("Not supported.\n")
 
 
-  cat("\nDeviance:            ", format(x$deviance, digits),
-      "\nPearson chi-squared: ", format(x$chisq, digits),
-      "\nDissimilarity index: ", format(x$dissim * 100, digits), "%",
-      "\nResidual df:         ", x$df.residual,
-      "\nBIC:                 ", x$aic,
-      "\nAIC:                 ", x$bic, "\n", sep="")
+  cat("\nNormalization weights: ", x$weighting,
+      "\nDeviance:              ", format(x$deviance, digits),
+      "\nPearson chi-squared:   ", format(x$chisq, digits),
+      "\nDissimilarity index:   ", format(x$dissim * 100, digits), "%",
+      "\nResidual df:           ", x$df.residual,
+      "\nBIC:                   ", x$aic,
+      "\nAIC:                   ", x$bic, "\n", sep="")
 }
 
-plot.unidiff <- function(x, exponentiate=TRUE, se.type=c("quasi.se", "se"), conf.int=.95,
+plot.unidiff <- function(x, reference=c("one", "phi"), exponentiate=TRUE,
+                         se.type=c("quasi.se", "se"), conf.int=.95,
                          numeric.auto=TRUE, type="o",
                          xlab=names(dimnames(x$data))[3], ylab="Layer coefficient", add=FALSE, ...) {
   if(!inherits(x, "unidiff"))
       stop("x must be a unidiff object")
 
+  reference <- match.arg(reference)
   se.type <- match.arg(se.type)
 
   qv <- x$unidiff$layer$qvframe
@@ -258,7 +280,7 @@ plot.unidiff <- function(x, exponentiate=TRUE, se.type=c("quasi.se", "se"), conf
       tops <- exp(tops)
       tails <- exp(tails)
 
-      if(length(x$unidiff$phi) > 0) {
+      if(reference == "phi") {
           coefs <- coefs * x$unidiff$phi
           tops <- tops * x$unidiff$phi
           tails <- tails * x$unidiff$phi

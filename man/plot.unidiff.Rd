@@ -8,14 +8,16 @@
   based on quasi-standard errors or \dQuote{traditional} standard errors.
 }
 \usage{
-\method{plot}{unidiff}(x, exponentiate = TRUE, se.type = c("quasi.se", "se"),
+\method{plot}{unidiff}(x,  reference=c("one", "phi"),
+     exponentiate = TRUE, se.type = c("quasi.se", "se"),
      conf.int = 0.95, numeric.auto = TRUE, type = "o",
      xlab = names(dimnames(x$data))[3], ylab = "Layer coefficient",
      add = FALSE, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{an object resulting from a call to \code{\link{unidiff}}}
+  \item{reference}{\dQuote{one} to set the first layer to 1, \dQuote{phi} to set it
+      to the value of Goodman's phi association coefficient (see \code{\link{goodman.phi}}).}
   \item{exponentiate}{whether the exponential of the layer coefficients should be plotted
       rather than their value in log scale (see \dQuote{Details} below).}
   \item{se.type}{whether to use quasi-standard errors or \dQuote{traditional} standard errors

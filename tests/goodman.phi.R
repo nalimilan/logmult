@@ -26,7 +26,7 @@ b[1,] <- b[1,] * 2
 
 tab <- array(c(a, b), c(3, 3, 2))
 
-um <- unidiff(tab, phi="marginal")
+um <- unidiff(tab, weighting="marginal")
 stopifnot(all.equal(um$unidiff$phi,
                     goodman.phi(a, "marginal",
                                 prop.table(margin.table(tab, 1)),
@@ -36,10 +36,10 @@ stopifnot(all.equal(um$unidiff$phi,
                                 prop.table(margin.table(tab, 1)),
                                 prop.table(margin.table(tab, 2)))))
 
-uu <- unidiff(tab, phi="uniform")
+uu <- unidiff(tab, weighting="uniform")
 stopifnot(all.equal(uu$unidiff$phi, goodman.phi(a, "uniform")))
 stopifnot(all.equal(uu$unidiff$phi, goodman.phi(b, "uniform")))
 
-un <- unidiff(tab, phi="none")
+un <- unidiff(tab, weighting="none")
 stopifnot(all.equal(un$unidiff$phi, goodman.phi(a, "none")))
 stopifnot(all.equal(un$unidiff$phi, goodman.phi(b, "none")))

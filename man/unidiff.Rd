@@ -11,7 +11,7 @@
 \usage{
 unidiff(tab, diagonal = c("included", "excluded", "only"),
         constrain = "auto",
-        phi=c("one.first", "marginal", "uniform", "none"),
+        weighting=c("marginal", "uniform", "none"),
         family = poisson,
         tolerance = 1e-8, iterMax = 5000,
         trace = FALSE, verbose = TRUE,
@@ -29,11 +29,10 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       a numeric vector of indices, a logical vector, a character vector of names, or "[?]" to
       select from a Tk dialog. The default constrains to 0 the first layer parameter and
       interaction coefficients for the first row and column of the table.}
-  \item{phi}{what normalization of the layer coefficients should be used. \dQuote{one.first}
-      specifies that the first layer coefficient should be equal to 1. Other choices enable
-      the computation of Goodman's phi association coefficient (see \code{\link{goodman.phi}}),
-      by which the layer coefficients will be multiplied when printing and plotting; two-way
-      interaction coefficients will be identified using the corresponding weights.}
+  \item{weighting}{what weights should be used when normalizing coefficients. This does not affect
+      layer coefficients, which are set to 1 for the first layer: this affects two-way interaction
+      coefficients and layer association levels, which are layer coefficients times Goodman's phi
+      association coefficient (see \code{\link{goodman.phi}}) for the first layer.}
   \item{family}{a specification of the error distribution and link function to be used in the model.
       This can be a character string naming a family function; a family function, or the result of
       a call to a family function. See \code{\link{family}} details of family functions.}
@@ -73,11 +72,14 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
 \value{
   A \code{unidiff} object, with all the components of a \code{\link{gnm}} object, plus an
       \code{unidiff} component holding the most relevant information:
-  \item{diagonal}{the value of the \code{diagonal} argument above.}
   \item{layer}{a \code{\link{qvcalc}} object holding the (log) layer coefficients, their standard
       errors and quasi-standard errors.}
+  \item{phi}{the value of Goodman's phi association coefficient (see \code{\link{goodman.phi}}) for
+      the first layer.}
   \item{interaction}{a data frame object holding the two-way interaction coefficients, and their
       standard errors.}
+  \item{diagonal}{the value of the \code{diagonal} argument above.}
+  \item{weighting}{the value of the \code{weighting} argument above.}
 }
 \references{
   Erikson, R., and Goldthorpe, J.H. (1992). The Constant Flux: A Study of Class Mobility in Industrial Societies.
@@ -115,7 +117,7 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
 
   \dontshow{
       # The last layer coefficient can sometimes be rounded to -2.249 without this, which breaks the test
-      model <- unidiff(yaish, tolerance=1e-8)
+      model <- unidiff(yaish, weighting="uniform", tolerance=1e-8)
 
       stopifnot(all.equal(round(model$deviance, 3), 200.326))
       stopifnot(all.equal(model$df.residual, 116))
