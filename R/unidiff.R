@@ -250,15 +250,24 @@ print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...
       "\nAIC:                   ", x$bic, "\n", sep="")
 }
 
-plot.unidiff <- function(x, reference=c("one", "phi"), exponentiate=TRUE,
+plot.unidiff <- function(x, what=c("layer.coef", "phi", "maor"),
                          se.type=c("quasi.se", "se"), conf.int=.95,
                          numeric.auto=TRUE, type="o",
-                         xlab=names(dimnames(x$data))[3], ylab="Layer coefficient", add=FALSE, ...) {
+                         xlab=names(dimnames(x$data))[3], ylab=NULL, add=FALSE, ...) {
   if(!inherits(x, "unidiff"))
       stop("x must be a unidiff object")
 
-  reference <- match.arg(reference)
+  what <- match.arg(what)
   se.type <- match.arg(se.type)
+
+  if(is.null(ylab)) {
+      if(what == "layer.coef")
+          ylab <- "Log odds ratio coefficient"
+      else if(what == "phi")
+          ylab <- "Intrinsic association coefficient"
+      else
+          ylab <- "Mean absolute odds ratio"
+  }
 
   qv <- x$unidiff$layer$qvframe
 
@@ -275,16 +284,20 @@ plot.unidiff <- function(x, reference=c("one", "phi"), exponentiate=TRUE,
       tails <- qv$estimate - w * qv$SE
    }
 
-  if(exponentiate) {
+  coefs <- exp(coefs)
+  tops <- exp(tops)
+  tails <- exp(tails)
+
+  if(what != "layer.coef") {
+      coefs <- coefs * x$unidiff$phi
+      tops <- tops * x$unidiff$phi
+      tails <- tails * x$unidiff$phi
+  }
+
+  if(what == "maor") {
       coefs <- exp(coefs)
       tops <- exp(tops)
       tails <- exp(tails)
-
-      if(reference == "phi") {
-          coefs <- coefs * x$unidiff$phi
-          tops <- tops * x$unidiff$phi
-          tails <- tails * x$unidiff$phi
-      }
   }
 
   range <- max(tops) - min(tails)
