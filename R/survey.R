@@ -1,11 +1,12 @@
 svyrc <- function(formula, design, nd=1, symmetric=FALSE, diagonal=FALSE,
                   weighting=c("marginal", "uniform", "none"), rowsup=NULL, colsup=NULL,
+                  Ntotal=nrow(design),
                   se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
                   family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
                   tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
   model <- svyassocmod("rc", formula=formula, design=design, se=se,
                        nd=nd, symmetric=symmetric, diagonal=diagonal,
-                       weighting=weighting, rowsup=rowsup, colsup=colsup, ncpus=ncpus,
+                       weighting=weighting, rowsup=rowsup, colsup=colsup, Ntotal=Ntotal, ncpus=ncpus,
                        family=family, weights=weights, start=start, etastart=etastart,
                        tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
@@ -18,12 +19,13 @@ svyrc <- function(formula, design, nd=1, symmetric=FALSE, diagonal=FALSE,
 
 svyhmskew <- function(formula, design, nd.symm=NA, diagonal=FALSE,
                       weighting=c("marginal", "uniform", "none"),  rowsup=NULL, colsup=NULL,
+                      Ntotal=nrow(design),
                       se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
                       family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
                       tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
   model <- svyassocmod("hmskew", formula=formula, design=design, se=se,
                        nd.symm=nd.symm, diagonal=diagonal,
-                       weighting=weighting, rowsup=rowsup, colsup=colsup, ncpus=ncpus,
+                       weighting=weighting, rowsup=rowsup, colsup=colsup, Ntotal=Ntotal, ncpus=ncpus,
                        family=family, weights=weights, start=start, etastart=etastart,
                        tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
@@ -35,13 +37,14 @@ svyhmskew <- function(formula, design, nd.symm=NA, diagonal=FALSE,
 }
 
 svyyrcskew <- function(formula, design, nd.symm=NA, nd.skew=1, diagonal=FALSE,
-                       weighting=c("marginal", "uniform", "none"),  rowsup=NULL, colsup=NULL,
+                       weighting=c("marginal", "uniform", "none"), rowsup=NULL, colsup=NULL,
+                       Ntotal=nrow(design),
                        se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
                        family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
                        tolerance=1e-8, iterMax=15000, trace=FALSE, verbose=TRUE, ...) {
   model <- svyassocmod("yrcskew", formula=formula, design=design, se=se,
                        nd.symm=nd.symm, nd.skew=nd.skew, diagonal=diagonal,
-                       weighting=weighting, rowsup=rowsup, colsup=colsup, ncpus=ncpus,
+                       weighting=weighting, rowsup=rowsup, colsup=colsup, Ntotal=Ntotal, ncpus=ncpus,
                        family=family, weights=weights, start=start, etastart=etastart,
                        tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
@@ -57,12 +60,13 @@ svyrcL <- function(formula, design, nd=1,
                    layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
                    symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                    weighting=c("marginal", "uniform", "none"),
+                   Ntotal=nrow(design),
                    se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
                    family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
                    tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
   model <- svyassocmod("rcL", formula=formula, design=design, se=se,
                        nd=nd, layer.effect=layer.effect, symmetric=symmetric, diagonal=diagonal,
-                       weighting=weighting, ncpus=ncpus,
+                       weighting=weighting, Ntotal=Ntotal, ncpus=ncpus,
                        family=family, weights=weights, start=start, etastart=etastart,
                        tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
@@ -76,12 +80,13 @@ svyrcL <- function(formula, design, nd=1,
 svyrcL.trans <- function(formula, design, nd=1,
                          symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                          weighting=c("marginal", "uniform", "none"),
+                         Ntotal=nrow(design),
                          se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
                          family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
                          tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
   model <- svyassocmod("rcL.trans", formula=formula, design=design, se=se,
                        nd=nd, layer.effect=layer.effect, diagonal=diagonal,
-                       weighting=weighting, ncpus=ncpus,
+                       weighting=weighting, Ntotal=Ntotal, ncpus=ncpus,
                        family=family, weights=weights, start=start, etastart=etastart,
                        tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
@@ -97,12 +102,13 @@ svyhmskewL <- function(formula, design, nd.symm=NA,
                        layer.effect.symm=c("heterogeneous", "uniform", "homogeneous.scores", "none"),
                        diagonal=c("none", "heterogeneous", "homogeneous"),
                        weighting=c("marginal", "uniform", "none"),
+                       Ntotal=nrow(design),
                        se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
                        family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
                        tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
   model <- svyassocmod("hmskewL", formula=formula, design=design, se=se,
                        nd=nd, layer.effect=layer.effect, symmetric=symmetric, diagonal=diagonal,
-                       weighting=weighting, ncpus=ncpus,
+                       weighting=weighting, Ntotal=Ntotal, ncpus=ncpus,
                        family=family, weights=weights, start=start, etastart=etastart,
                        tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
@@ -114,6 +120,7 @@ svyhmskewL <- function(formula, design, nd.symm=NA,
 }
 
 svyassocmod <- function(model.function, formula, design,
+                        Ntotal=nrow(design),
                         se=c("none", "replicate"), ncpus=getOption("boot.ncpus"), ...) {
   se <- match.arg(se)
 
@@ -123,7 +130,7 @@ svyassocmod <- function(model.function, formula, design,
   if(se == "replicate" && !inherits(design, "svyrep.design"))
       stop("only objects of class \"svyrep.design\" are supported with se=\"replicate\"; see ?as.svrepdesign")
 
-  tab <- svytable(formula, design, Ntotal=nrow(design))
+  tab <- survey:::svytable(formula, design, Ntotal=Ntotal)
 
   model <- do.call(model.function, list(tab=tab, se="none", ...))
 
@@ -133,7 +140,7 @@ svyassocmod <- function(model.function, formula, design,
   if(se == "replicate") {
       jb <- jackboot(se, ncpus, NA, tab, model,
                      assoc1=getS3method("assoc", class(model)), assoc2=NULL,
-                     model.function=model.function, formula=formula, design=design, ...)
+                     model.function=model.function, formula=formula, design=design, Ntotal=Ntotal, ...)
       model$assoc$covmat <- jb$covmat
       model$assoc$adj.covmats <- jb$adj.covmats
       model$assoc$boot.results <- jb$boot.results
@@ -153,7 +160,7 @@ svyassocmod <- function(model.function, formula, design,
   model
 }
 
-svyrep <- function(formula, design, theta, ..., cl=NULL, scale.weights=FALSE)
+svyrep <- function(formula, design, theta, ..., Ntotal=NULL, cl=NULL, scale.weights=FALSE)
 {
     # Adapted from withReplicates()
     wts <- design$repweights
@@ -178,7 +185,7 @@ svyrep <- function(formula, design, theta, ..., cl=NULL, scale.weights=FALSE)
              else pwts
 
     # Run this first to find out caller errors before running parLapply
-    thetahat <- as.numeric(theta(svytable(formula, design, Ntotal=nrow(design)), ...))
+    thetahat <- as.numeric(theta(survey::svytable(formula, design, Ntotal=Ntotal), ...))
 
     design2 <- design
 
@@ -187,7 +194,7 @@ svyrep <- function(formula, design, theta, ..., cl=NULL, scale.weights=FALSE)
     tabl <- lapply(1:ncol(wts), function(i) {
         # Trick svytable() into using current replicate weights instead of sampling weights
         design2$pweights <- rpwts * wts[, i]
-        svytable(formula, design2, Ntotal=nrow(design))
+        survey::svytable(formula, design2, Ntotal=Ntotal)
     })
 
     if(!is.null(cl) && require(parallel))

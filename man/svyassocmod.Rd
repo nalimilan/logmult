@@ -16,6 +16,7 @@ svyrc(formula, design, nd = 1,
       symmetric = FALSE, diagonal = FALSE,
       weighting = c("marginal", "uniform", "none"),
       rowsup = NULL, colsup = NULL,
+      Ntotal = nrow(design),
       se = c("none", "replicate"),
       ncpus = getOption("boot.ncpus"),
       family = quasipoisson, weights = NULL,
@@ -25,6 +26,7 @@ svyrc(formula, design, nd = 1,
 svyhmskew(formula, design, nd.symm = NA, diagonal = FALSE,
           weighting = c("marginal", "uniform", "none"),
           rowsup = NULL, colsup = NULL,
+          Ntotal = nrow(design),
           se = c("none", "replicate"),
           ncpus = getOption("boot.ncpus"),
           family = quasipoisson, weights = NULL,
@@ -34,6 +36,7 @@ svyhmskew(formula, design, nd.symm = NA, diagonal = FALSE,
 svyyrcskew(formula, design, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
            weighting = c("marginal", "uniform", "none"),
            rowsup = NULL, colsup = NULL,
+           Ntotal = nrow(design),
            se = c("none", "replicate"),
            ncpus = getOption("boot.ncpus"),
            family = quasipoisson, weights = NULL,
@@ -46,6 +49,7 @@ svyrcL(formula, design, nd = 1,
        symmetric = FALSE,
        diagonal = c("none", "heterogeneous", "homogeneous"),
        weighting = c("marginal", "uniform", "none"),
+       Ntotal = nrow(design),
        se = c("none", "replicate"),
        ncpus = getOption("boot.ncpus"),
        family = quasipoisson, weights = NULL,
@@ -56,6 +60,7 @@ svyrcL.trans(formula, design, nd = 1,
              symmetric = FALSE,
              diagonal = c("none", "heterogeneous", "homogeneous"),
              weighting = c("marginal", "uniform", "none"),
+             Ntotal = nrow(design),
              se = c("none", "replicate"),
              ncpus = getOption("boot.ncpus"),
              family = quasipoisson, weights = NULL,
@@ -69,6 +74,7 @@ svyhmskewL(formula, design, nd.symm = NA,
                                  "homogeneous.scores", "none"),
            diagonal = c("none", "heterogeneous", "homogeneous"),
            weighting = c("marginal", "uniform", "none"),
+           Ntotal = nrow(design),
            se = c("none", "replicate"),
            ncpus = getOption("boot.ncpus"),
            family = quasipoisson, weights = NULL,
@@ -82,6 +88,8 @@ svyhmskewL(formula, design, nd.symm = NA,
                   resulting table must match the models expectations.}
   \item{design}{ a survey object; if \code{se == "replicate"}, must be of class
                  \code{\link[survey]{svrepdesign}} (see \dQuote{Details} below).}
+  \item{Ntotal}{ sum of counts to normalize the table to (passed to \code{\link[survey]{svytable}}).
+      See \dQuote{Details} below..}
 
   Other arguments are passed to the corresponding functions: see \code{\link{rc}},
   \code{\link{hmskew}}, \code{\link{yrcskew}}, \code{\link{rcL}},
@@ -89,10 +97,10 @@ svyhmskewL(formula, design, nd.symm = NA,
 }
 \details{
      The model is fitted to a table with probabilities estimated by
-     \code{\link[survey]{svytable}} and with the sample size equal
-     to the observed sample size, treating the resulting table as if
-     it came from iid multinomial sampling, as described by Rao and Scott
-     This assumption affects the fit statistics but not parameter
+     \code{\link[survey]{svytable}} and (when \code{Ntotal = nrow(design)})
+     with the sample size equal to the observed sample size, treating the
+     resulting table as if it came from iid multinomial sampling, as described
+     by Rao and Scott. This assumption affects the fit statistics but not parameter
      point estimates.
 
      Standard errors that do not rely on this assumption can be computed

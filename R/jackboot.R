@@ -2,7 +2,7 @@
 jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                      weighting, rowsup=NULL, colsup=NULL, family, weights,
                      verbose, trace, start, etastart,
-                     formula=NULL, design=NULL, ...) {
+                     formula=NULL, design=NULL, Ntotal=NULL, ...) {
   cat("Computing", se, "standard errors...\n")
 
   if(is.null(ncpus))
@@ -148,7 +148,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       svyrep.results <- numeric(0)
   }
   else { # Survey replicate weights
-      svyrep.results <- svyrep(formula, design, svyrep.assoc, cl=cl,
+      svyrep.results <- svyrep(formula, design, svyrep.assoc, Ntotal=Ntotal, cl=cl,
                                model=model, assoc1=assoc1, assoc2=assoc2,
                                weighting=weighting, rowsup=rowsup, colsup=colsup,
                                family=family, weights=weights,
@@ -165,7 +165,7 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 
       get.covmat <- function(start, len) {
           int <- seq.int(start, length.out=len)
-          svrVar(svyrep.results, design$scale, design$rscales, mse = design$mse, coef = thetahat)[int, int]
+          survey::svrVar(svyrep.results, design$scale, design$rscales, mse = design$mse, coef = thetahat)[int, int]
       }
 
       boot.results <- numeric(0)
