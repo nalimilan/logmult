@@ -40,7 +40,7 @@
       errors, quasi-standard errors (see \code{\link[qvcalc]{qvcalc}}) and p-values.}
   \item{phi.layer}{a \code{data.frame} holding the layer coefficients estimates,
       standard errors, and quasi-standard errors (see \code{\link[qvcalc]{qvcalc}})
-      multiplied by Goodman's phi association coefficient (see \code{\link{goodman.phi}})
+      multiplied by the intrinsic association coefficient (see \code{\link{maor}})
       for the first layer; p-values are the same as those for the \dQuote{layer} component.}
   \item{interaction}{a \code{data.frame} holding the two-way interaction coefficients
       estimates, standard errors and p-values.}

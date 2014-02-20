@@ -31,8 +31,8 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       interaction coefficients for the first row and column of the table.}
   \item{weighting}{what weights should be used when normalizing coefficients. This does not affect
       layer coefficients, which are set to 1 for the first layer: this affects two-way interaction
-      coefficients and layer association levels, which are layer coefficients times Goodman's phi
-      association coefficient (see \code{\link{goodman.phi}}) for the first layer.}
+      coefficients and layer association levels, which are layer coefficients times the intrinsic
+      association coefficient (see \code{\link{maor}}) for the first layer.}
   \item{family}{a specification of the error distribution and link function to be used in the model.
       This can be a character string naming a family function; a family function, or the result of
       a call to a family function. See \code{\link{family}} details of family functions.}
@@ -74,7 +74,7 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       \code{unidiff} component holding the most relevant information:
   \item{layer}{a \code{\link{qvcalc}} object holding the (log) layer coefficients, their standard
       errors and quasi-standard errors.}
-  \item{phi}{the value of Goodman's phi association coefficient (see \code{\link{goodman.phi}}) for
+  \item{phi}{the value of the intrinsic association coefficient (see \code{\link{maor}}) for
       the first layer.}
   \item{interaction}{a data frame object holding the two-way interaction coefficients, and their
       standard errors.}

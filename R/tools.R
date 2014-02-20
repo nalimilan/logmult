@@ -70,15 +70,18 @@ get.probs <- function(ass) {
   }
 }
 
-goodman.phi <- function(tab, weighting=c("marginal", "uniform", "none"), row.weights=NULL, col.weights=NULL) {
+maor <- function(tab, log=FALSE, weighting=c("marginal", "uniform", "none"), norm=2,
+                 row.weights=NULL, col.weights=NULL) {
   weighting <- match.arg(weighting)
   stopifnot(is.matrix(tab))
 
   if(any(is.na(tab)))
       stop("NA cells are currently not supported.")
 
-  if(any(tab == 0))
-      stop("Index cannot be computed in the presence of cells with 0 counts; replace them with 1/2 if appropriate.")
+  if(any(tab == 0)) {
+      tab <- tab + 0.5
+      warning("Cells with zero counts found: adding 0.5 to each cell of the table.")
+  }
 
   p <- prop.table(tab)
 
@@ -109,5 +112,10 @@ goodman.phi <- function(tab, weighting=c("marginal", "uniform", "none"), row.wei
   lambda <- sweep(lambda, 2, colSums(sweep(logp, 1, rp1, "*")), "-")
   lambda <- lambda + sum(logp * rp1 %o% cp1)
 
-  sqrt(sum(lambda^2 * rp %o% cp))
+  phi <- sum(abs(lambda)^norm * rp %o% cp)^(1/norm)
+
+  if(log)
+      phi
+  else
+      exp(phi)
 }
