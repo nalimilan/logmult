@@ -1,7 +1,8 @@
 # Run jackknife or bootstrap replicates of the model
 jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                      weighting, rowsup=NULL, colsup=NULL, family, weights,
-                     verbose, trace, start, etastart, ...) {
+                     verbose, trace, start, etastart,
+                     formula=NULL, design=NULL, ...) {
   cat("Computing", se, "standard errors...\n")
 
   if(is.null(ncpus))
@@ -118,8 +119,9 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       }
 
       boot.results <- numeric(0)
+      svyrep.results <- numeric(0)
   }
-  else {
+  else if(se == "bootstrap") {
       boot.results <- boot::boot(1:sum(tab, na.rm=TRUE), boot.assoc, R=nreplicates,
                                  parallel="snow", cl=cl, ncpus=ncpus,
                                  args=list(model=model, tab=tab, assoc1=assoc1, assoc2=assoc2,
@@ -142,6 +144,31 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
           cov(boot.results$t[, int], use="na.or.complete")
       }
 
+      jack.results <- numeric(0)
+      svyrep.results <- numeric(0)
+  }
+  else { # Survey replicate weights
+      svyrep.results <- svyrep(formula, design, svyrep.assoc, cl=cl,
+                               model=model, assoc1=assoc1, assoc2=assoc2,
+                               weighting=weighting, rowsup=rowsup, colsup=colsup,
+                               family=family, weights=weights,
+                               verbose=verbose, trace=trace,
+                               start=start, etastart=etastart, ...)
+
+      rowsna <- rowSums(is.na(svyrep.results))
+      nacount <- sum(rowsna > 0)
+
+      if(!any(rowsna == 0)) {
+          warning("All model replicates failed. Cannot compute standard errors.")
+          return(list())
+      }
+
+      get.covmat <- function(start, len) {
+          int <- seq.int(start, length.out=len)
+          svrVar(svyrep.results, design$scale, design$rscales, mse = design$mse, coef = thetahat)[int, int]
+      }
+
+      boot.results <- numeric(0)
       jack.results <- numeric(0)
   }
 
@@ -257,6 +284,13 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       jack.results1 <- numeric(0)
   }
 
+  if(length(svyrep.results) > 0) {
+      svyrep.results1 <- svyrep.results[,int]
+  }
+  else {
+      svyrep.results1 <- numeric(0)
+  }
+
   if(!is.null(assoc2)) {
       if(length(boot.results) > 0) {
           boot.results2 <- boot.results
@@ -277,18 +311,29 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       else {
           jack.results2 <- numeric(0)
       }
+
+      if(length(svyrep.results) > 0) {
+          svyrep.results2 <- svyrep.results[,-int]
+      }
+      else {
+          svyrep.results2 <- numeric(0)
+      }
   }
   else {
       covmat2 <- numeric(0)
       boot.results2 <- numeric(0)
       jack.results2 <- numeric(0)
+      svyrep.results2 <- numeric(0)
   }
 
   if(is.null(assoc2))
-      list(covmat=covmat1, adj.covmats=adj.covmats1, boot.results=boot.results1, jack.results=jack.results1)
+      list(covmat=covmat1, adj.covmats=adj.covmats1,
+           boot.results=boot.results1, jack.results=jack.results1, svyrep.results=svyrep.results1)
   else
-      list(covmat1=covmat1, adj.covmats1=adj.covmats1, boot.results1=boot.results1, jack.results1=jack.results1,
-           covmat2=covmat2, adj.covmats2=adj.covmats2, boot.results2=boot.results2, jack.results2=jack.results2)
+      list(covmat1=covmat1, adj.covmats1=adj.covmats1,
+           boot.results1=boot.results1, jack.results1=jack.results1, svyrep.results1=svyrep.results1,
+           covmat2=covmat2, adj.covmats2=adj.covmats2,
+           boot.results2=boot.results2, jack.results2=jack.results2, svyrep.results2=svyrep.results2)
 }
 
 # Additional arguments are needed so that update() finds them even when using parLapply
@@ -344,10 +389,46 @@ boot.assoc <- function(data, indices, args) {
   do.call(replicate.assoc, args)
 }
 
+# Additional arguments are needed so that update() finds them even when using parLapply
+svyrep.assoc <- function(tab, model, rowsup, colsup, ...) {
+  if(!is.null(rowsup) || !is.null(colsup))
+      # Remove supplementary rows and columns and recreate them separately
+      tab <- as.table(tab[seq(nrow(model$data)), seq(ncol(model$data))])
+  else
+      tab <- as.table(tab)
+
+  if(!is.null(rowsup))
+      rowsup <- tab[-seq(nrow(model$data)), seq(ncol(model$data))]
+
+  if(!is.null(colsup))
+      colsup <- tab[seq(nrow(model$data)), -seq(ncol(model$data))]
+
+  replicate.assoc(model, tab, rowsup, colsup, ...)
+}
+
 # Replicate model with new data, and combine assoc components into a vector
 replicate.assoc <- function(model.orig, tab, assoc1, assoc2,
                             weighting, rowsup, colsup,
                             verbose, trace, start, etastart, ...) {
+
+  if(!all(dim(tab) == dim(model.orig$data))) {
+      cat("Dimensions of the table for replicate do not match that of the original table: ignoring the results of this replicate. Data was:\n")
+
+      print(tab)
+
+      # This NA value is skipped when computing variance-covariance matrix
+      return(NA)
+  }
+  else if(any(sapply(seq_along(dim(tab)), function(i)
+                     any((apply(tab, i, sum, na.rm=TRUE) == 0) != (apply(model.orig$data, i, sum, na.rm=TRUE) == 0))))) {
+      cat("Some rows, columns or layers of the table for replicate have zero counts that do not appear in the original table: ignoring the results of this replicate. Data was:\n")
+
+      print(tab)
+
+      # This NA value is skipped when computing variance-covariance matrix
+      return(NA)
+  }
+
   # Models can generate an error if they fail repeatedly
   # Remove warnings because we handle them below
   model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
@@ -360,28 +441,31 @@ replicate.assoc <- function(model.orig, tab, assoc1, assoc2,
   if(is.null(model) || !model$converged) {
       if(is.null(model)) {
           cat("Model replicate failed.\nData was:\n")
-          model <- model.orig
       }
       else {
           cat("Model replicate did not converge.\nData was:\n")
       }
 
+      print(tab)
   }
 
   if(!is.null(start) && (is.null(model) || !model$converged)) {
+      cat("Trying again with starting values from base model...\n")
 
-      print(tab)
-      cat(sprintf("Trying again with starting values from base model...\n"))
-
-      model <- tryCatch(suppressWarnings(update(model, tab=tab,
+      model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
+                                                rowsup=rowsup, colsup=colsup,
                                                 start=start, etastart=etastart,
                                                 verbose=verbose, trace=verbose, se="none")),
                         error=function(e) NULL)
+      if(is.null(model) || !model$converged)
+          cat("Model failed again. ")
   }
 
-  if((is.null(model) || !model$converged)) {
-      cat(sprintf("Model failed again. Trying one last time with default starting values...\n"))
-      model <- tryCatch(suppressWarnings(update(model, tab=tab, start=NA, etastart=NULL,
+  if(is.null(model) || !model$converged) {
+      cat("Trying one last time with default starting values...\n")
+      model <- tryCatch(suppressWarnings(update(model.orig, tab=tab,
+                                                rowsup=rowsup, colsup=colsup,
+                                               start=NA, etastart=NULL,
                                                 verbose=verbose, trace=verbose, se="none")),
                         error=function(e) NULL)
   }

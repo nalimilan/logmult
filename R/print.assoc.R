@@ -201,3 +201,43 @@ print.hmskewL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   cat("\nNormalization weights:", ass$weighting)
   printModelStats(x, digits=digits)
 }
+
+print.rcL.trans <- function(x, digits = max(3, getOption("digits") - 4), ...) {
+  cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
+
+  ass <- x$assoc
+
+  cat("Transition coefficients:\n")
+  print(format(ass$transition, digits=3), quote=FALSE)
+
+  cat("\nIntrinsic association coefficients:\n")
+  print(format(ass$phi, digits=3), quote=FALSE)
+
+
+  cat("\nNormalized row scores for first layer:\n")
+  print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
+
+  cat("\nNormalized row scores for last layer:\n")
+  print(format(ass$row[,,dim(ass$row)[3]], digits=digits, ...), quote=FALSE)
+
+  cat("\nVariation of normalized row scores\nbetween first and layer layer:\n")
+  print(format(ass$row[,,dim(ass$row)[3]] - ass$row[,,1], digits=digits, ...), quote=FALSE)
+
+
+  cat("\nNormalized column scores for first layers:\n")
+  print(format(ass$col[,,1], digits=digits, ...), quote=FALSE)
+
+  cat("\nNormalized column scores for last layer:\n")
+  print(format(ass$col[,,dim(ass$col)[3]], digits=digits, ...), quote=FALSE)
+
+  cat("\nVariation of normalized column scores\nbetween first and layer layer:\n")
+  print(format(ass$row[,,dim(ass$col)[3]] - ass$col[,,1], digits=digits, ...), quote=FALSE)
+
+  if(length(ass$diag) > 0) {
+    cat("\nDiagonal coefficients:\n")
+    print(format(ass$diag[1:nrow(ass$diag),], digits=digits, ...), quote=FALSE)
+  }
+
+  cat("\nNormalization weights:", ass$weighting)
+  printModelStats(x, digits=digits)
+}

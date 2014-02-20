@@ -1,4 +1,5 @@
 export(unidiff, rc, hmskew, yrcskew, rcL, rcL.trans, hmskewL)
+export(svyrc, svyhmskew, svyyrcskew, svyrcL, svyrcL.trans, svyhmskewL)
 
 export(HMSkew, YRCSkew, RCTrans, RCTransSymm)
 
