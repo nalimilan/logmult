@@ -582,8 +582,8 @@ find.stable.scores <- function(ass, ass.orig, detailed=FALSE) {
               lambda.sav <- lambda.sav + ass$phi[l, i] * ass$row[, i, 1] %o% ass$col[, i, 1]
       }
 
-      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
-      stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
+      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attributes=FALSE, tolerance=1e-8)))
+      stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attributes=FALSE, tolerance=1e-8)))
   }
 
   if(detailed)
@@ -706,8 +706,8 @@ find.stable.scores.hmskew <- function(ass, ass.orig) {
           }
       }
 
-      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
-      stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attr=FALSE, tolerance=1e-8)))
+      stopifnot(isTRUE(all.equal(lambda, lambda.sav, check.attributes=FALSE, tolerance=1e-8)))
+      stopifnot(isTRUE(all.equal(lambda.adj, lambda.sav, check.attributes=FALSE, tolerance=1e-8)))
   }
 
   # Repeat row scores to match a general association structure
