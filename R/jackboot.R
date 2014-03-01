@@ -2,7 +2,7 @@
 jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                      weighting, rowsup=NULL, colsup=NULL, family, weights,
                      verbose, trace, start, etastart,
-                     formula=NULL, design=NULL, Ntotal=NULL, ...) {
+                     formula=NULL, design=NULL, Ntotal=NULL, exclude=c(NA, NaN), ...) {
   cat("Computing", se, "standard errors...\n")
 
   if(is.null(ncpus))
@@ -148,7 +148,15 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       svyrep.results <- numeric(0)
   }
   else { # Survey replicate weights
-      svyrep.results <- svyrep(formula, design, svyrep.assoc, Ntotal=Ntotal, cl=cl,
+      # Not very efficient, but allows checking for errors before starting the cluster
+      thetahat <- as.numeric(svyrep.assoc(survey::svytable(formula, design, Ntotal=Ntotal, exclude=exclude),
+                                          model=model, assoc1=assoc1, assoc2=assoc2,
+                                          weighting=weighting, rowsup=rowsup, colsup=colsup,
+                                          family=family, weights=weights,
+                                          verbose=verbose, trace=trace,
+                                          start=start, etastart=etastart, ...))
+
+      svyrep.results <- svyrep(formula, design, svyrep.assoc, Ntotal=Ntotal, exclude=exclude, cl=cl,
                                model=model, assoc1=assoc1, assoc2=assoc2,
                                weighting=weighting, rowsup=rowsup, colsup=colsup,
                                family=family, weights=weights,
