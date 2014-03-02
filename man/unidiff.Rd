@@ -11,7 +11,7 @@
 \usage{
 unidiff(tab, diagonal = c("included", "excluded", "only"),
         constrain = "auto",
-        weighting=c("marginal", "uniform", "none"),
+        weighting = c("marginal", "uniform", "none"), norm = 2,
         family = poisson,
         tolerance = 1e-8, iterMax = 5000,
         trace = FALSE, verbose = TRUE,
@@ -33,6 +33,7 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       layer coefficients, which are set to 1 for the first layer: this affects two-way interaction
       coefficients and layer association levels, which are layer coefficients times the intrinsic
       association coefficient (see \code{\link{maor}}) for the first layer.}
+  \item{norm}{the norm to use to compute the mean absolute odds ratio (see \code{\link{maor}}).}
   \item{family}{a specification of the error distribution and link function to be used in the model.
       This can be a character string naming a family function; a family function, or the result of
       a call to a family function. See \code{\link{family}} details of family functions.}

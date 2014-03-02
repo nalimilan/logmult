@@ -2,7 +2,7 @@
 
 unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                     constrain="auto",
-                    weighting=c("marginal", "uniform", "none"),
+                    weighting=c("marginal", "uniform", "none"), norm=2,
                     family=poisson,
                     tolerance=1e-8, iterMax=5000,
                     trace=FALSE, verbose=TRUE,
@@ -109,7 +109,7 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       colnames(con) <- names(ind)
       model$unidiff$interaction <- gnm::se(model, con, checkEstimability=checkEstimability)
 
-      model$unidiff$phi <- sqrt(sum(model$unidiff$interaction$Estimate^2 * rp %o% cp))
+      model$unidiff$phi <- sum(abs(model$unidiff$interaction$Estimate)^norm * rp %o% cp)^(1/norm)
   }
   else if(diagonal == "only"){
       if(weighting != "uniform")
