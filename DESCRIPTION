@@ -7,7 +7,7 @@ Authors@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
                   role=c("aut", "cre"))
 Imports: stats, graphics, qvcalc
 Depends: gnm (>= 1.0-5)
-Suggests: survey, boot, ellipse, parallel, snow
+Suggests: survey, boot, ellipse, parallel
 Description: Functions to fit log-multiplicative models using gnm, with
   support for convenient printing, plots, and jackknife/bootstrap
   standard errors. For complex survey data, models can be fitted from

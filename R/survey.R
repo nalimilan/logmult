@@ -197,8 +197,6 @@ svyrep <- function(formula, design, theta, ...,
 
     if(!is.null(cl) && require(parallel))
         u <- parallel::parLapply(cl, 1:length(tabl), function(i, ...) theta(tab=tabl[[i]], ...), ...)
-    else if(!is.null(cl) && require(snow))
-        u <- snow::clusterApply(cl, 1:length(tabl), function(i, ...) theta(tab=tabl[[i]], ...), ...)
     else
         u <- lapply(1:length(tabl), function(i) theta(tab=tabl[[i]], ...))
 

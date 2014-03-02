@@ -37,7 +37,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   \item{nreplicates}{ the number of bootstrap replicates, if enabled.}
   \item{ncpus}{ the number of processes to use for jackknife or bootstrap parallel computing. Defaults to
     the number of cores (see \code{\link[parallel]{detectCores}}), with a maximum of 5, but falls back to 1
-    (no parallelization) if packages \code{parallel} or \code{snow} are not available.}
+    (no parallelization) if package \code{parallel} is not available.}
   \item{family}{ a specification of the error distribution and link function
      to be used in the model. This can be a character string naming
      a family function; a family function, or the result of a call

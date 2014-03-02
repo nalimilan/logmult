@@ -27,8 +27,6 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)), cl=NULL)
 
     if(!is.null(cl) && require(parallel))
         u <- parallel::parLapply(cl, 1:n, function(i, x, theta, ...) theta(x[-i], ...), x, theta, ...)
-    else if(!is.null(cl) && require(snow))
-        u <- snow::clusterApply(cl, 1:n, function(i, x, theta, ...) theta(x[-i], ...), x, theta, ...)
     else
         u <- lapply(1:n, function(i) as.numeric(theta(x[-i], ...)))
 

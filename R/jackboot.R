@@ -21,18 +21,6 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
       # Printing output from all nodes at the same time would be a mess, only print "."
       trace <- FALSE
   }
-  else if(ncpus > 1 && require(snow)) {
-      cl <- snow::makeSOCKcluster(rep("localhost", ncpus), outfile="")
-      on.exit(snow::stopCluster(cl))
-
-      libpaths <- .libPaths()
-      snow::clusterExport(cl, "libpaths", env=environment())
-      snow::clusterEvalQ(cl, library(logmult, lib.loc=libpaths,
-                                     warn.conflicts=FALSE, quietly=TRUE, verbose=FALSE))
-
-      # Printing output from all nodes at the same time would be a mess, only print "."
-      trace <- FALSE
-  }
   else {
       cl <- NULL
       ncpus <- 1
