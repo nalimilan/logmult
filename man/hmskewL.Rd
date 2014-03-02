@@ -20,7 +20,7 @@ hmskewL(tab, nd.symm = NA,
         se = c("none", "jackknife", "bootstrap"),
         nreplicates = 100, ncpus = getOption("boot.ncpus"),
         family = poisson, weights = NULL,
-        start = NA, etastart = NULL, tolerance = 1e-8,
+        start = NULL, etastart = NULL, tolerance = 1e-8,
         iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 }
 \arguments{
@@ -48,7 +48,7 @@ hmskewL(tab, nd.symm = NA,
      a family function; a family function, or the result of a call
      to a family function. See \code{\link{family}} details of family functions.}
   \item{weights}{ an optional vector of weights to be used in the fitting process.}
-  \item{start}{either \code{NA} (the default) to use optimal starting values, \code{NULL} to use
+  \item{start}{either \code{NA} to use optimal starting values, \code{NULL} to use
      random starting values, or a vector of starting values for the parameters in the model.}
   \item{etastart}{ starting values for the linear predictor; set to \code{NULL} to use either default
      starting values (if \code{start = NA}), or random starting values (in all other cases).}

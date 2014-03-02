@@ -3,7 +3,7 @@
 rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
                weighting=c("marginal", "uniform", "none"), rowsup=NULL, colsup=NULL,
                se=c("none", "jackknife", "bootstrap"), nreplicates=100, ncpus=getOption("boot.ncpus"),
-               family=poisson, weights=NULL, start=NA, etastart=NULL, tolerance=1e-8, iterMax=5000,
+               family=poisson, weights=NULL, start=NULL, etastart=NULL, tolerance=1e-8, iterMax=5000,
                trace=FALSE, verbose=TRUE, ...) {
   weighting <- match.arg(weighting)
   se <- match.arg(se)

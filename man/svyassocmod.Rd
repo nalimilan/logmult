@@ -20,7 +20,7 @@ svyrc(formula, design, nd = 1,
       se = c("none", "replicate"),
       ncpus = getOption("boot.ncpus"),
       family = quasipoisson, weights = NULL,
-      start = NA, etastart = NULL, tolerance = 1e-8,
+      start = NULL, etastart = NULL, tolerance = 1e-8,
       iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 
 svyhmskew(formula, design, nd.symm = NA, diagonal = FALSE,
@@ -30,7 +30,7 @@ svyhmskew(formula, design, nd.symm = NA, diagonal = FALSE,
           se = c("none", "replicate"),
           ncpus = getOption("boot.ncpus"),
           family = quasipoisson, weights = NULL,
-          start = NA, etastart = NULL, tolerance = 1e-8,
+          start = NULL, etastart = NULL, tolerance = 1e-8,
           iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 
 svyyrcskew(formula, design, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
@@ -53,7 +53,7 @@ svyrcL(formula, design, nd = 1,
        se = c("none", "replicate"),
        ncpus = getOption("boot.ncpus"),
        family = quasipoisson, weights = NULL,
-       start = NA, etastart = NULL, tolerance = 1e-8,
+       start = NULL, etastart = NULL, tolerance = 1e-8,
        iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 
 svyrcL.trans(formula, design, nd = 1,
@@ -64,7 +64,7 @@ svyrcL.trans(formula, design, nd = 1,
              se = c("none", "replicate"),
              ncpus = getOption("boot.ncpus"),
              family = quasipoisson, weights = NULL,
-             start = NA, etastart = NULL, tolerance = 1e-8,
+             start = NULL, etastart = NULL, tolerance = 1e-8,
              iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 
 svyhmskewL(formula, design, nd.symm = NA,
@@ -78,7 +78,7 @@ svyhmskewL(formula, design, nd.symm = NA,
            se = c("none", "replicate"),
            ncpus = getOption("boot.ncpus"),
            family = quasipoisson, weights = NULL,
-           start = NA, etastart = NULL, tolerance = 1e-8,
+           start = NULL, etastart = NULL, tolerance = 1e-8,
            iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 }
 \arguments{
