@@ -1,7 +1,7 @@
 ## Wong (2010), Table 4.7 (p. 103), model 9
 
 timings <- as.numeric(Sys.getenv("_R_CHECK_TIMINGS_"))
-if(is.na(timings) || timings > 60) {
+if(!is.na(timings) && timings > 60) {
 
 library(logmult)
 data(gss7590)

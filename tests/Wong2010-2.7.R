@@ -2,7 +2,7 @@
 # See also ?rc
 
 timings <- as.numeric(Sys.getenv("_R_CHECK_TIMINGS_"))
-if(is.na(timings) || timings > 60) {
+if(!is.na(timings) && timings > 60) {
 
 library(logmult)
 data(gss8590)
