@@ -11,13 +11,13 @@ data(color)
 # and "average marginals" means "marginal" with rcL
 # See ?rc for "marginals"
 caithness.unweighted <- rc(color[,,1], nd=2, weighting="none",
-                           se="jackknife")
+                           se="jackknife", start=NA)
 caithness.marginal <- rc(color[,,1], nd=2, weighting="marginal",
-                         se="jackknife")
+                         se="jackknife", start=NA)
 aberdeen.unweighted <- rc(color[,,2], nd=2, weighting="none",
-                          se="jackknife")
+                          se="jackknife", start=NA)
 aberdeen.marginal <- rc(color[,,2], nd=2, weighting="marginal",
-                        se="jackknife")
+                        se="jackknife", start=NA)
 
 caithness.unweighted
 caithness.marginal
@@ -71,9 +71,9 @@ data(color)
 # and "average marginals" means "marginal" with rcL
 # See ?rc for "marginals"
 unweighted <- rcL(color, nd=2, weighting="none",
-                  layer.effect="heterogeneous", se="jackknife")
+                  layer.effect="heterogeneous", se="jackknife", start=NA)
 marginal <- rcL(color, nd=2, weighting="marginal",
-                layer.effect="heterogeneous", se="jackknife")
+                layer.effect="heterogeneous", se="jackknife", start=NA)
 unweighted
 marginal
 

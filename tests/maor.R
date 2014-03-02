@@ -3,9 +3,9 @@
 library(logmult)
 data(color)
 
-rcm <- rc(color[,,1], 2, weighting="marginal")
-rcu <- rc(color[,,1], 2, weighting="uniform")
-rcn <- rc(color[,,1], 2, weighting="none")
+rcm <- rc(color[,,1], 2, weighting="marginal", start=NA)
+rcu <- rc(color[,,1], 2, weighting="uniform", start=NA)
+rcn <- rc(color[,,1], 2, weighting="none", start=NA)
 
 phim <- maor(fitted(rcm), TRUE, "marginal", norm=2)
 phiu <- maor(fitted(rcu), TRUE, "uniform", norm=2)

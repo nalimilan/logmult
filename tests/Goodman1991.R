@@ -4,7 +4,7 @@
 library(logmult)
 data(criminal)
 
-model <- rc(criminal)
+model <- rc(criminal, start=NA)
 
 model$assoc # These are the phi (.07), mu and nu
 model$assoc$row[,1,1] * model$assoc$phi[1,1] # These are the mu'

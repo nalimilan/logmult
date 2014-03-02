@@ -10,14 +10,14 @@ occupationalStatus[5,]<-colSums(occupationalStatus[5:6,])
 occupationalStatus[,5]<-rowSums(occupationalStatus[,5:6])
 occupationalStatus <- occupationalStatus[-6,-6]
 
-model <- rc(occupationalStatus, diagonal=TRUE, symmetric=TRUE, weighting="none")
+model <- rc(occupationalStatus, diagonal=TRUE, symmetric=TRUE, weighting="none", start=NA)
 
 stopifnot(round(model$assoc$phi[1,1], d=3) == 6.10)
 stopifnot(isTRUE(all.equal(round(c(model$assoc$row), d=3),
                            c(0.532, 0.438, 0.206, -0.031,
                             -0.216, -0.426, -0.503))))
 
-model <- rc(occupationalStatus, diagonal=TRUE, symmetric=TRUE, weighting="uniform")
+model <- rc(occupationalStatus, diagonal=TRUE, symmetric=TRUE, weighting="uniform", start=NA)
 
 stopifnot(round(model$assoc$phi[1,1], d=3) == 0.871)
 stopifnot(isTRUE(all.equal(round(c(model$assoc$row), d=3),

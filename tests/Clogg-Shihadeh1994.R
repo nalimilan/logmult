@@ -3,7 +3,7 @@
 
 library(logmult)
 data(gss88)
-model <- rc(gss88)
+model <- rc(gss88, start=NA)
 
 # Unweighted scores
 summary(model, weighting="none")

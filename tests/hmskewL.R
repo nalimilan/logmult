@@ -5,7 +5,7 @@ data(ocg1973)
 
 tab <- array(ocg1973, dim=c(nrow(ocg1973), ncol(ocg1973), 2))
 
-model <- hmskewL(tab[5:1, 5:1,], weighting="uniform")
+model <- hmskewL(tab[5:1, 5:1,], weighting="uniform", start=NA)
 ass <- model$assoc
 
 # First score for Farmers is slightly different from the original article
@@ -53,7 +53,7 @@ tab2 <- structure(c(261L, 43L, 21L, 5L, 7L, 26L, 5L, 16L, 17L, 7L, 1L,
                                              T = c("1969", "2011")),
                   .Names = c("M", "W", "T")))
 
-model2 <- hmskewL(tab2)
+model2 <- hmskewL(tab2, start=NA)
 
 stopifnot(isTRUE(all.equal(round(c(model2$assoc$phi), 2), c(0.18, 0.04, 0.18, 0.04))))
 stopifnot(isTRUE(all.equal(round(c(model2$assoc$row), 2),

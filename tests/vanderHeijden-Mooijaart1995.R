@@ -5,7 +5,7 @@ library(logmult)
 data(ocg1973)
 
 # 5:1 is here to take "Farmers" as reference category (angle 0)
-model <- hmskew(ocg1973[5:1, 5:1], weighting="uniform")
+model <- hmskew(ocg1973[5:1, 5:1], weighting="uniform", start=NA)
 model
 ass <- model$assoc.hmskew
 
