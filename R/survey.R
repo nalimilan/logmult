@@ -85,7 +85,7 @@ svyrcL.trans <- function(formula, design, nd=1,
                          family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
                          tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
   model <- svyassocmod("rcL.trans", formula=formula, design=design, se=se,
-                       nd=nd, layer.effect=layer.effect, diagonal=diagonal,
+                       nd=nd, diagonal=diagonal,
                        weighting=weighting, Ntotal=Ntotal, exclude=exclude,
                        ncpus=ncpus, family=family, weights=weights, start=start, etastart=etastart,
                        tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
@@ -107,7 +107,8 @@ svyhmskewL <- function(formula, design, nd.symm=NA,
                        family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
                        tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
   model <- svyassocmod("hmskewL", formula=formula, design=design, se=se,
-                       nd=nd, layer.effect=layer.effect, symmetric=symmetric, diagonal=diagonal,
+                       nd.symm=nd.symm, layer.effect.symm=layer.effect.symm,
+                       layer.effect.skew=layer.effect.skew, diagonal=diagonal,
                        weighting=weighting, Ntotal=Ntotal, exclude=exclude,
                        ncpus=ncpus, family=family, weights=weights, start=start, etastart=etastart,
                        tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)

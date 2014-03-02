@@ -112,13 +112,12 @@ svyhmskewL(formula, design, nd.symm = NA,
      \code{design} argument.
 }
 \value{
-  An \code{\link{assocmod}} object whose exact class depends on the function
-  called.
+  An \code{assocmod} object whose exact class depends on the function called.
 }
 \note{
   Note that printed fit statistics and degrees of freedom rely on the
   iid assumption. This is also the case of the variance-covariance matrix
-  returned by the \code{\link[gnm]{vcov}} function.
+  returned by the \code{\link[gnm]{vcov.gnm}} function.
 }
 \references{
   Rao, J.N.K., Scott, A.J. (1984). On Chi-squared Tests For Multiway
