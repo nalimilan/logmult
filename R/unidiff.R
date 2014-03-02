@@ -252,7 +252,7 @@ print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...
 
 plot.unidiff <- function(x, what=c("layer.coef", "phi", "maor"),
                          se.type=c("quasi.se", "se"), conf.int=.95,
-                         numeric.auto=TRUE, type="o",
+                         numeric.auto=TRUE, type="p",
                          xlab=names(dimnames(x$data))[3], ylab=NULL, add=FALSE, ...) {
   if(!inherits(x, "unidiff"))
       stop("x must be a unidiff object")

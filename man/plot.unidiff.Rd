@@ -10,7 +10,7 @@
 \usage{
 \method{plot}{unidiff}(x, what = c("layer.coef", "phi", "maor"),
      se.type = c("quasi.se", "se"),
-     conf.int = 0.95, numeric.auto = TRUE, type = "o",
+     conf.int = 0.95, numeric.auto = TRUE, type = "p",
      xlab = names(dimnames(x$data))[3], ylab = NULL,
      add = FALSE, ...)
 }
@@ -25,7 +25,8 @@
   \item{conf.int}{the confidence level to retain for confidence bars.}
   \item{numeric.auto}{whether layer names should be converted to numeric values when possible
       (see \dQuote{Details} below).}
-  \item{type}{what type of plot should be drawn: see \code{\link{plot}}.}
+  \item{type}{what type of plot should be drawn: see \code{\link{plot}}. Set to \dQuote{o} or
+      \dQuote{b} join points with lines.}
   \item{xlab}{a title for the x axis: see see \code{\link{title}}.}
   \item{ylab}{a title for the y axis: see see \code{\link{title}}; if \code{NULL}, an
       appropriate default is used.}
