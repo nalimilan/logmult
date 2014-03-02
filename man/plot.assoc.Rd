@@ -41,7 +41,7 @@
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
-\method{plot}{rcL}(x, dim = c(1, 2), layer = 1,
+\method{plot}{rcL}(x, dim = c(1, 2), layer = "average",
      what = c("both", "rows", "columns"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
@@ -49,14 +49,15 @@
      cex = par("cex"), col = c("blue", "red"), groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
-\method{plot}{rcL.symm}(x, dim = c(1, 2), layer = 1, which = NULL,
+\method{plot}{rcL.symm}(x, dim = c(1, 2), layer = "average",
+     which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
-\method{plot}{hmskewL}(x, dim = c(1, 2), layer = 1,
+\method{plot}{hmskewL}(x, dim = c(1, 2), layer = "average",
      what = c("skew-symmetric", "symmetric"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
      arrow=45, conf.ellipses = NA, replicates = FALSE,

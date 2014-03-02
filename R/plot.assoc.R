@@ -108,7 +108,7 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), 
              pch=pch, font=font, ...)
 }
 
-plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"), which=NULL,
+plot.rcL <- function(x, dim=c(1, 2), layer="average", what=c("both", "rows", "columns"), which=NULL,
                     mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
                     conf.ellipses=NA, replicates=FALSE,
                     coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
@@ -130,7 +130,7 @@ plot.rcL <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"),
              pch=pch, font=font, ...)
 }
 
-plot.rcL.symm <- function(x, dim=c(1, 2), layer=1, which=NULL,
+plot.rcL.symm <- function(x, dim=c(1, 2), layer="average", which=NULL,
                           mass=TRUE, luminosity=length(x$assoc$diagonal > 0),
                           conf.ellipses=NA, replicates=FALSE,
                           coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
@@ -152,7 +152,7 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer=1, which=NULL,
 }
 
 
-plot.hmskewL <- function(x, dim=c(1, 2), layer=1, what=c("skew-symmetric", "symmetric"), which=NULL,
+plot.hmskewL <- function(x, dim=c(1, 2), layer="average", what=c("skew-symmetric", "symmetric"), which=NULL,
                          mass=TRUE, luminosity=length(x$assoc.hmskew$diagonal > 0), arrow=45,
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("polar", "cartesian"), rev.axes=c(FALSE, FALSE),
