@@ -12,35 +12,74 @@
      standard errors based on replicate weights.
 }
 \usage{
-svyrc(formula, design,
-      Ntotal = nrow(design),
-      exclude = c(NA, NaN),
-      se = c("none", "replicate"), ...)
+svyrc(formula, design, nd = 1,
+      symmetric = FALSE, diagonal = FALSE,
+      weighting = c("marginal", "uniform", "none"),
+      rowsup = NULL, colsup = NULL,
+      Ntotal = nrow(design), exclude = c(NA, NaN),
+      se = c("none", "replicate"),
+      ncpus = getOption("boot.ncpus"),
+      family = quasipoisson, weights = NULL,
+      start = NULL, etastart = NULL, tolerance = 1e-8,
+      iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 
-svyhmskew(formula, design,
-          Ntotal = nrow(design),
-          exclude = c(NA, NaN),
-          se = c("none", "replicate"), ...)
+svyhmskew(formula, design, nd.symm = NA, diagonal = FALSE,
+          weighting = c("marginal", "uniform", "none"),
+          rowsup = NULL, colsup = NULL,
+          Ntotal = nrow(design), exclude = c(NA, NaN),
+          se = c("none", "replicate"),
+          ncpus = getOption("boot.ncpus"),
+          family = quasipoisson, weights = NULL,
+          start = NULL, etastart = NULL, tolerance = 1e-8,
+          iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 
-svyyrcskew(formula, design,
-           Ntotal = nrow(design),
-           exclude = c(NA, NaN),
-           se = c("none", "replicate"), ...)
+svyyrcskew(formula, design, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
+           weighting = c("marginal", "uniform", "none"),
+           rowsup = NULL, colsup = NULL,
+           Ntotal = nrow(design), exclude = c(NA, NaN),
+           se = c("none", "replicate"),
+           ncpus = getOption("boot.ncpus"),
+           family = quasipoisson, weights = NULL,
+           start = NA, etastart = NULL, tolerance = 1e-8,
+           iterMax = 15000, trace = FALSE, verbose = TRUE, ...)
 
-svyrcL(formula, design,
-       Ntotal = nrow(design),
-       exclude = c(NA, NaN),
-       se = c("none", "replicate"), ...)
+svyrcL(formula, design, nd = 1,
+       layer.effect = c("homogeneous.scores",
+                        "heterogeneous", "none"),
+       symmetric = FALSE,
+       diagonal = c("none", "heterogeneous", "homogeneous"),
+       weighting = c("marginal", "uniform", "none"),
+       Ntotal = nrow(design), exclude = c(NA, NaN),
+       se = c("none", "replicate"),
+       ncpus = getOption("boot.ncpus"),
+       family = quasipoisson, weights = NULL,
+       start = NULL, etastart = NULL, tolerance = 1e-8,
+       iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 
-svyrcL.trans(formula, design,
-             Ntotal = nrow(design),
-             exclude = c(NA, NaN),
-             se = c("none", "replicate"), ...)
+svyrcL.trans(formula, design, nd = 1,
+             symmetric = FALSE,
+             diagonal = c("none", "heterogeneous", "homogeneous"),
+             weighting = c("marginal", "uniform", "none"),
+             Ntotal = nrow(design), exclude = c(NA, NaN),
+             se = c("none", "replicate"),
+             ncpus = getOption("boot.ncpus"),
+             family = quasipoisson, weights = NULL,
+             start = NULL, etastart = NULL, tolerance = 1e-8,
+             iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 
-svyhmskewL(formula, design,
-           Ntotal = nrow(design),
-           exclude = c(NA, NaN),
-           se = c("none", "replicate"), ...)
+svyhmskewL(formula, design, nd.symm = NA,
+           layer.effect.skew = c("homogeneous.scores", "heterogeneous",
+                                 "none"),
+           layer.effect.symm = c("heterogeneous", "uniform",
+                                 "homogeneous.scores", "none"),
+           diagonal = c("none", "heterogeneous", "homogeneous"),
+           weighting = c("marginal", "uniform", "none"),
+           Ntotal = nrow(design), exclude = c(NA, NaN),
+           se = c("none", "replicate"),
+           ncpus = getOption("boot.ncpus"),
+           family = quasipoisson, weights = NULL,
+           start = NULL, etastart = NULL, tolerance = 1e-8,
+           iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
 }
 \arguments{
   \item{formula}{ a formula specifying margins for the table (using \sQuote{+} only)
@@ -50,13 +89,12 @@ svyhmskewL(formula, design,
   \item{design}{ a survey object; if \code{se == "replicate"}, must be of class
                  \code{\link[survey]{svrepdesign}} (see \dQuote{Details} below).}
   \item{Ntotal}{ sum of counts to normalize the table to (passed to \code{\link[survey]{svytable}}).
-      See \dQuote{Details} below.}
+      See \dQuote{Details} below..}
   \item{exclude}{ a vector of values to be exclude when building the table, passed to \code{\link{xtabs}}.}
-  \item{se}{set to \dQuote{replicate} to compute standard errors based on replicate weights
-      (see \dQuote{Details} below and \code{\link{se.assoc}}).}
-  \item{...}{Other arguments passed to the corresponding functions: see \code{\link{rc}},
-      \code{\link{hmskew}}, \code{\link{yrcskew}}, \code{\link{rcL}},
-      \code{\link{rcL.trans}} or \code{\link{hmskewL}}.}
+
+  Other arguments are passed to the corresponding functions: see \code{\link{rc}},
+  \code{\link{hmskew}}, \code{\link{yrcskew}}, \code{\link{rcL}},
+  \code{\link{rcL.trans}} or \code{\link{hmskewL}}.
 }
 \details{
      The model is fitted to a table with probabilities estimated by

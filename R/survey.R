@@ -1,8 +1,14 @@
-svyrc <- function(formula, design,
+svyrc <- function(formula, design, nd=1, symmetric=FALSE, diagonal=FALSE,
+                  weighting=c("marginal", "uniform", "none"), rowsup=NULL, colsup=NULL,
                   Ntotal=nrow(design), exclude=c(NA, NaN),
-                  se=c("none", "replicate"), ...) {
-  model <- svyassocmod("rc", formula=formula, design=design,
-                       Ntotal=Ntotal, exclude=exclude, se=se, ...)
+                  se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
+                  family=quasipoisson, weights=NULL, start=NULL, etastart=NULL,
+                  tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
+  model <- svyassocmod("rc", formula=formula, design=design, se=se,
+                       nd=nd, symmetric=symmetric, diagonal=diagonal,
+                       weighting=weighting, rowsup=rowsup, colsup=colsup, Ntotal=Ntotal, exclude=exclude,
+                       ncpus=ncpus, family=family, weights=weights, start=start, etastart=etastart,
+                       tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
   # We want the actual call the user made: without this, we have the line above,
   # which fails when running replicates because arguments are not in scope
@@ -11,11 +17,17 @@ svyrc <- function(formula, design,
   model
 }
 
-svyhmskew <- function(formula, design,
+svyhmskew <- function(formula, design, nd.symm=NA, diagonal=FALSE,
+                      weighting=c("marginal", "uniform", "none"),  rowsup=NULL, colsup=NULL,
                       Ntotal=nrow(design), exclude=c(NA, NaN),
-                      se=c("none", "replicate"), ...) {
-  model <- svyassocmod("hmskew", formula=formula, design=design,
-                       Ntotal=Ntotal, exclude=exclude, se=se, ...)
+                      se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
+                      family=quasipoisson, weights=NULL, start=NULL, etastart=NULL,
+                      tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
+  model <- svyassocmod("hmskew", formula=formula, design=design, se=se,
+                       nd.symm=nd.symm, diagonal=diagonal,
+                       weighting=weighting, rowsup=rowsup, colsup=colsup, Ntotal=Ntotal, exclude=exclude,
+                       ncpus=ncpus, family=family, weights=weights, start=start, etastart=etastart,
+                       tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
   # We want the actual call the user made: without this, we have the line above,
   # which fails when running replicates because arguments are not in scope
@@ -24,11 +36,17 @@ svyhmskew <- function(formula, design,
   model
 }
 
-svyyrcskew <- function(formula, design,
+svyyrcskew <- function(formula, design, nd.symm=NA, nd.skew=1, diagonal=FALSE,
+                       weighting=c("marginal", "uniform", "none"), rowsup=NULL, colsup=NULL,
                        Ntotal=nrow(design), exclude=c(NA, NaN),
-                       se=c("none", "replicate"), ...) {
-  model <- svyassocmod("yrcskew", formula=formula, design=design,
-                       Ntotal=Ntotal, exclude=exclude, se=se, ...)
+                       se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
+                       family=quasipoisson, weights=NULL, start=NA, etastart=NULL,
+                       tolerance=1e-8, iterMax=15000, trace=FALSE, verbose=TRUE, ...) {
+  model <- svyassocmod("yrcskew", formula=formula, design=design, se=se,
+                       nd.symm=nd.symm, nd.skew=nd.skew, diagonal=diagonal,
+                       weighting=weighting, rowsup=rowsup, colsup=colsup, Ntotal=Ntotal, exclude=exclude,
+                       ncpus=ncpus, family=family, weights=weights, start=start, etastart=etastart,
+                       tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
   # We want the actual call the user made: without this, we have the line above,
   # which fails when running replicates because arguments are not in scope
@@ -38,11 +56,19 @@ svyyrcskew <- function(formula, design,
 }
 
 
-svyrcL <- function(formula, design,
+svyrcL <- function(formula, design, nd=1,
+                   layer.effect=c("homogeneous.scores", "heterogeneous", "none"),
+                   symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
+                   weighting=c("marginal", "uniform", "none"),
                    Ntotal=nrow(design), exclude=c(NA, NaN),
-                   se=c("none", "replicate"), ...) {
-  model <- svyassocmod("rcL", formula=formula, design=design,
-                       Ntotal=Ntotal, exclude=exclude, se=se, ...)
+                   se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
+                   family=quasipoisson, weights=NULL, start=NULL, etastart=NULL,
+                   tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
+  model <- svyassocmod("rcL", formula=formula, design=design, se=se,
+                       nd=nd, layer.effect=layer.effect, symmetric=symmetric, diagonal=diagonal,
+                       weighting=weighting, Ntotal=Ntotal, exclude=exclude,
+                       ncpus=ncpus, family=family, weights=weights, start=start, etastart=etastart,
+                       tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
   # We want the actual call the user made: without this, we have the line above,
   # which fails when running replicates because arguments are not in scope
@@ -51,11 +77,18 @@ svyrcL <- function(formula, design,
   model
 }
 
-svyrcL.trans <- function(formula, design,
+svyrcL.trans <- function(formula, design, nd=1,
+                         symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
+                         weighting=c("marginal", "uniform", "none"),
                          Ntotal=nrow(design), exclude=c(NA, NaN),
-                         se=c("none", "replicate"), ...) {
-  model <- svyassocmod("rcL.trans", formula=formula, design=design,
-                       Ntotal=Ntotal, exclude=exclude, se=se, ...)
+                         se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
+                         family=quasipoisson, weights=NULL, start=NULL, etastart=NULL,
+                         tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
+  model <- svyassocmod("rcL.trans", formula=formula, design=design, se=se,
+                       nd=nd, diagonal=diagonal,
+                       weighting=weighting, Ntotal=Ntotal, exclude=exclude,
+                       ncpus=ncpus, family=family, weights=weights, start=start, etastart=etastart,
+                       tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
   # We want the actual call the user made: without this, we have the line above,
   # which fails when running replicates because arguments are not in scope
@@ -64,11 +97,21 @@ svyrcL.trans <- function(formula, design,
   model
 }
 
-svyhmskewL <- function(formula, design,
+svyhmskewL <- function(formula, design, nd.symm=NA,
+                       layer.effect.skew=c("homogeneous.scores", "heterogeneous", "none"),
+                       layer.effect.symm=c("heterogeneous", "uniform", "homogeneous.scores", "none"),
+                       diagonal=c("none", "heterogeneous", "homogeneous"),
+                       weighting=c("marginal", "uniform", "none"),
                        Ntotal=nrow(design), exclude=c(NA, NaN),
-                       se=c("none", "replicate"), ...) {
-  model <- svyassocmod("hmskewL", formula=formula, design=design,
-                       Ntotal=Ntotal, exclude=exclude, se=se, ...)
+                       se=c("none", "replicate"), ncpus=getOption("boot.ncpus"),
+                       family=quasipoisson, weights=NULL, start=NULL, etastart=NULL,
+                       tolerance=1e-8, iterMax=5000, trace=FALSE, verbose=TRUE, ...) {
+  model <- svyassocmod("hmskewL", formula=formula, design=design, se=se,
+                       nd.symm=nd.symm, layer.effect.symm=layer.effect.symm,
+                       layer.effect.skew=layer.effect.skew, diagonal=diagonal,
+                       weighting=weighting, Ntotal=Ntotal, exclude=exclude,
+                       ncpus=ncpus, family=family, weights=weights, start=start, etastart=etastart,
+                       tolerance=tolerance, iterMax=iterMax, trace=trace, verbose=verbose, ...)
 
   # We want the actual call the user made: without this, we have the line above,
   # which fails when running replicates because arguments are not in scope
