@@ -82,7 +82,8 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 
   if(se == "jackknife") {
       jack <- jackknife((1:length(tab))[!is.na(tab)], jackknife.assoc,
-                        w=tab[!is.na(tab)], cl=cl,
+                        # Load-balance only when model is likely to take enough some time to fit
+                        w=tab[!is.na(tab)], cl=cl, load.balancing=length(coef(model)) > 200,
                         model=model, tab=tab, assoc1=assoc1, assoc2=assoc2,
                         weighting=weighting, rowsup=rowsup, colsup=colsup,
                         family=family, weights=weights,
@@ -144,7 +145,9 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
                                           verbose=verbose, trace=trace,
                                           start=start, etastart=etastart, ...))
 
-      svyrep.results <- svyrep(formula, design, svyrep.assoc, Ntotal=Ntotal, exclude=exclude, cl=cl,
+      svyrep.results <- svyrep(formula, design, svyrep.assoc, Ntotal=Ntotal, exclude=exclude,
+                               # Load-balance only when model is likely to take enough some time to fit
+                               cl=cl, load.balancing=length(coef(model)) > 200,
                                model=model, assoc1=assoc1, assoc2=assoc2,
                                weighting=weighting, rowsup=rowsup, colsup=colsup,
                                family=family, weights=weights,

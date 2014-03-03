@@ -120,7 +120,8 @@ svyassocmod <- function(model.function, formula, design,
 }
 
 svyrep <- function(formula, design, theta, ...,
-                   Ntotal=NULL, exclude=c(NA, NaN), cl=NULL, scale.weights=FALSE)
+                   Ntotal=NULL, exclude=c(NA, NaN), cl=NULL, scale.weights=FALSE,
+                   load.balancing=FALSE)
 {
     # Adapted from withReplicates()
     wts <- design$repweights
@@ -152,10 +153,15 @@ svyrep <- function(formula, design, theta, ...,
         survey::svytable(formula, design, Ntotal=Ntotal, exclude=exclude)
     })
 
-    if(!is.null(cl) && require(parallel))
-        u <- parallel::parLapply(cl, 1:length(tabl), function(i, ...) theta(tab=tabl[[i]], ...), ...)
-    else
+    if(!is.null(cl) && require(parallel)) {
+        if(load.balancing)
+            u <- parallel::parLapplyLB(cl, 1:length(tabl), function(i, ...) theta(tab=tabl[[i]], ...), ...)
+        else
+            u <- parallel::parLapply(cl, 1:length(tabl), function(i, ...) theta(tab=tabl[[i]], ...), ...)
+    }
+    else {
         u <- lapply(1:length(tabl), function(i) theta(tab=tabl[[i]], ...))
+    }
 
     do.call(rbind, u)
 }

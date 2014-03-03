@@ -13,7 +13,9 @@
 #
 # Objects needed by theta() on the cluster nodes need to be passed as arguments to
 # theta().
-jackknife <- function(x, theta, ..., w=rep(1, length(x)), cl=NULL)
+jackknife <- function(x, theta, ...,
+                      w=rep(1, length(x)),
+                      cl=NULL, load.balancing=FALSE)
 {
     call <- match.call()
     stopifnot(length(w) == length(x))
@@ -25,10 +27,15 @@ jackknife <- function(x, theta, ..., w=rep(1, length(x)), cl=NULL)
     # Run this first to find out caller errors before running parLapply
     thetahat <- as.numeric(theta(x, ...))
 
-    if(!is.null(cl) && require(parallel))
-        u <- parallel::parLapply(cl, 1:n, function(i, x, theta, ...) theta(x[-i], ...), x, theta, ...)
-    else
+    if(!is.null(cl) && require(parallel)) {
+        if(load.balancing)
+            u <- parallel::parLapplyLB(cl, 1:n, function(i, x, theta, ...) theta(x[-i], ...), x, theta, ...)
+        else
+            u <- parallel::parLapply(cl, 1:n, function(i, x, theta, ...) theta(x[-i], ...), x, theta, ...)
+    }
+    else {
         u <- lapply(1:n, function(i) as.numeric(theta(x[-i], ...)))
+    }
 
     u <- do.call(rbind, u)
 
