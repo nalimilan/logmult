@@ -88,13 +88,54 @@ svyhmskewL(formula, design, nd.symm = NA,
                   resulting table must match the models expectations.}
   \item{design}{ a survey object; if \code{se == "replicate"}, must be of class
                  \code{\link[survey]{svrepdesign}} (see \dQuote{Details} below).}
+  \item{nd}{ the number of dimensions to include in the model. Cannot exceed
+    \code{min(nrow(tab) - 1, ncol(tab) - 1)} if \code{symmetric} is \code{FALSE} (saturated model),
+    and twice this threshold otherwise (quasi-symmetry model).}
+  \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
+    \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (quasi-symmetry model).
+    If \code{NA} (the default), a full quasi-symmetric association is used instead of a RC(M) model; if \code{0},
+    quasi-independence is used.}
+  \item{nd.skew}{ the number of dimensions to include in the \emph{skew-symmetric} RC(M) association.}
+  \item{layer.effect}{ determines the form of the interaction between row-column association and layers.
+     See \dQuote{Details} below.}
+  \item{layer.effect.skew}{ determines the form of the interaction between skew-symmetric association and layers.
+    See \dQuote{Details} below.}
+  \item{layer.effect.symm}{ determines the form of the interaction between symmetric row-column association,
+     or quasi-symmetric association (if \code{nd.symm = NA}) and layers. See \dQuote{Details} below.}
+  \item{symmetric}{ should row and column scores be constrained to be equal? Valid only for square tables.}
+  \item{diagonal}{ what type of diagonal-specific parameters to include in the model, if any. Only makes sense
+     when \code{nd.symm} is not \code{NA} (else, diagonal parameters are already included).}
+  \item{weighting}{ what weights should be used when normalizing the scores.}
   \item{Ntotal}{ sum of counts to normalize the table to (passed to \code{\link[survey]{svytable}}).
       See \dQuote{Details} below..}
   \item{exclude}{ a vector of values to be exclude when building the table, passed to \code{\link{xtabs}}.}
-
-  Other arguments are passed to the corresponding functions: see \code{\link{rc}},
-  \code{\link{hmskew}}, \code{\link{yrcskew}}, \code{\link{rcL}},
-  \code{\link{rcL.trans}} or \code{\link{hmskewL}}.
+  \item{rowsup}{ if present, a matrix with the same columns as \code{tab} and rows corresponding to the columns
+                of \code{colsup}, giving supplementary (passive) rows.}
+  \item{colsup}{ if present, a matrix with the same rows as \code{tab} and columns corresponding to the rows of
+                \code{colsup}, giving supplementary (passive) columns.}
+  \item{se}{whether to compute replicate standard errors or not (only supported for \code{svrepdesign} objects).}
+  \item{ncpus}{ the number of processes to use for jackknife or bootstrap parallel computing. Defaults to
+    the number of cores (see \code{\link[parallel]{detectCores}}), with a maximum of 5, but falls back to 1
+    (no parallelization) if package \code{parallel} is not available.}
+  \item{family}{ a specification of the error distribution and link function
+     to be used in the model. This can be a character string naming
+     a family function; a family function, or the result of a call
+     to a family function. See \code{\link{family}} details of family functions.}
+  \item{weights}{ an optional vector of weights to be used in the fitting process.}
+  \item{start}{either \code{NA} to use optimal starting values, \code{NULL} to use
+     random starting values, or a vector of starting values for the parameters in the model.}
+  \item{etastart}{ starting values for the linear predictor; set to \code{NULL} to use either default
+     starting values (if \code{start = NA}), or random starting values (in all other cases).}
+  \item{tolerance}{ a positive numeric value specifying the tolerance level for
+     convergence; higher values will speed up the fitting process, but beware of numerical
+     instability of estimated scores!}
+  \item{iterMax}{ a positive integer specifying the maximum number of main iterations to perform;
+     consider raising this value if your model does not converge.}
+  \item{trace}{ a logical value indicating whether the deviance
+     should be printed after each iteration.}
+  \item{verbose}{ a logical value indicating whether progress indicators should be printed,
+     including a diagnostic error message if the algorithm restarts.}
+  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
 }
 \details{
      The model is fitted to a table with probabilities estimated by
