@@ -28,7 +28,7 @@ hmskewL(tab, nd.symm = NA,
     if present, dimensions above three will be collapsed. First two dimensions must be symmetric
     (i.e. of the same length).}
   \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
-    \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (the model is already saturated at that point).
+    \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (quasi-symmetry model).
     If \code{NA} (the default), a full quasi-symmetric association is used instead of a RC(M) model; if \code{0},
     quasi-independence is used.}
   \item{layer.effect.skew}{ determines the form of the interaction between skew-symmetric association and layers.

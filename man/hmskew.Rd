@@ -21,7 +21,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
   \item{tab}{ a square two-way table, or an object (such as a matrix) that can be coerced into a table;
     if present, dimensions above two will be collapsed.}
   \item{nd.symm}{ the number of dimensions to include in the \emph{symmetric} RC(M) association. Cannot exceed
-    \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (the model is already saturated at that point).
+    \code{2 * min(nrow(tab) - 1, ncol(tab) - 1)} (quasi-symmetry model).
     If \code{NA} (the default), a full quasi-symmetric association is used instead of a RC(M) model; if \code{0},
     quasi-independence is used.}
   \item{diagonal}{ should the model include parameters specific to each diagonal cell? This amounts to
