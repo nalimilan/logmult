@@ -153,7 +153,7 @@ print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
         digits=digits, print.gap=2, ...)
 
   if(length(x$unidiff$phi) > 0) {
-      cat("\nLayer phi association coefficients:\n")
+      cat("\nLayer intrinsic association coefficients:\n")
       print(setNames(exp(x$unidiff$layer$qvframe$estimate) * x$unidiff$phi, row.names(x$unidiff$layer$qvframe)),
             digits=digits, print.gap=2, ...)
   }
