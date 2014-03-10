@@ -1,0 +1,34 @@
+2014-03-10 - Version 0.6
+- COMPATIBILITY BREAK: store marginal weights for each layer instead
+  of only the global average. Saved models will have to be fit again
+  in order to be plotted.
+- Report BIC/AIC variant equal to 0 for the saturated model.
+- Allow fitting association models with complex survey designs
+  ('survey' package) via svy* functions.
+- Fix direction of skewness in hmskew and hmskewL models, which could
+  be wrong in some special cases.
+- Added support for Mean Absolute Odds Ratio (MAOR) in new maor()
+  function, and with association and UNIDIFF models.
+- Added support for supplementary/passive rows and columns for rc and
+  hmskew models.
+- For association model plots, make area of symbols proportional to the
+  weights rather than to their square.
+- Plot average association by default for RC-L models, and support
+  rotating the axes to those with highest variance.
+- New 'add' argument to plot.unidiff() to allow representing several
+  models in one figure; also change the default plot type to points.
+- Accept start=NA to use good default values.
+- Use eliminate more aggressively to greatly improve performance.
+- Make fitting UNIDIFF models more robust by not constraining coefficient
+  which do not stricly need to be constrained (reported by Gina Potarca).
+- Fix using multiple CPUs for jackknife/bootstrap.
+- Drop snow support (the parallel package must be used instead).
+- Use load balancing for large models with jackknife/bootstrap.
+- Do not fail with tables without dimension names.
+- Allow passing checkEstimability=FALSE to unidiff() for performance.
+- Accept nd.symm=0 in hmskew() and hmskewL().
+- Print layer coefficients from print.unidiff().
+- Documentation fixes.
+
+2012-09-29 - Version 0.5
+- Initial release.
