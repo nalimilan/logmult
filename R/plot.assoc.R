@@ -626,7 +626,7 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
 
           adjsc2 <- sweep(sc2, 2, sqrt(phi), "*")
 
-          rot <- logmult:::procrustes(adjsc, adjsc2)$rot
+          rot <- procrustes(adjsc, adjsc2)$rot
 
           row2 <- col2 <- adjsc2
       }
@@ -655,8 +655,8 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
 
           adjrow2 <- sweep(row2, 2, sqrt(phi2), "*")
           adjcol2 <- sweep(col2, 2, sqrt(phi2), "*")
-          rot <- logmult:::procrustes(rbind(sweep(adjrow, 1, rp, "*"), sweep(adjcol, 1, cp, "*")),
-                                      rbind(sweep(adjrow2, 1, rp, "*"), sweep(adjcol2, 1, cp, "*")))$rot
+          rot <- procrustes(rbind(sweep(adjrow, 1, rp, "*"), sweep(adjcol, 1, cp, "*")),
+                            rbind(sweep(adjrow2, 1, rp, "*"), sweep(adjcol2, 1, cp, "*")))$rot
       }
 
       rownames(row2) <- rownames(x$row)
