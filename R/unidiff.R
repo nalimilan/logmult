@@ -109,7 +109,16 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       colnames(con) <- names(ind)
       model$unidiff$interaction <- gnm::se(model, con, checkEstimability=checkEstimability)
 
-      model$unidiff$phi <- sum(abs(model$unidiff$interaction$Estimate)^norm * rp %o% cp)^(1/norm)
+      if(weighting == "marginal") {
+          model$unidiff$phi <- maor(fitted(model)[,,1], TRUE, norm=norm,
+                                    row.weights=rp, col.weights=cp)
+          model$unidiff$maor <- maor(fitted(model)[,,1], norm=norm,
+                                    row.weights=rp, col.weights=cp)
+      }
+      else {
+          model$unidiff$phi <- maor(fitted(model)[,,1], TRUE, norm=norm, weighting=weighting)
+          model$unidiff$maor <- maor(fitted(model)[,,1], norm=norm, weighting=weighting)
+      }
   }
   else if(diagonal == "only"){
       if(weighting != "uniform")
@@ -288,16 +297,15 @@ plot.unidiff <- function(x, what=c("layer.coef", "phi", "maor"),
   tops <- exp(tops)
   tails <- exp(tails)
 
-  if(what != "layer.coef") {
+  if(what == "phi") {
       coefs <- coefs * x$unidiff$phi
       tops <- tops * x$unidiff$phi
       tails <- tails * x$unidiff$phi
   }
-
-  if(what == "maor") {
-      coefs <- exp(coefs)
-      tops <- exp(tops)
-      tails <- exp(tails)
+  else if(what == "maor") {
+      coefs <- x$unidiff$maor^coefs
+      tops <- x$unidiff$maor^tops
+      tails <- x$unidiff$maor^tails
   }
 
   range <- max(tops) - min(tails)

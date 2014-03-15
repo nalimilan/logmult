@@ -30,7 +30,7 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       select from a Tk dialog. The default constrains to 0 the first layer parameter and
       interaction coefficients for the first row and column of the table.}
   \item{weighting}{what weights should be used when normalizing coefficients. This does not affect
-      layer coefficients, which are set to 1 for the first layer: this affects two-way interaction
+      layer coefficients, which are set to 1 for the first layer, but only two-way interaction
       coefficients and layer association levels, which are layer coefficients times the intrinsic
       association coefficient (see \code{\link{maor}}) for the first layer.}
   \item{norm}{the norm to use to compute the mean absolute odds ratio (see \code{\link{maor}}).}
@@ -76,6 +76,8 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   \item{layer}{a \code{\link{qvcalc}} object holding the (log) layer coefficients, their standard
       errors and quasi-standard errors.}
   \item{phi}{the value of the intrinsic association coefficient (see \code{\link{maor}}) for
+      the first layer.}
+  \item{phi}{the value of the Mean absolute odds ratio (see \code{\link{maor}}) for
       the first layer.}
   \item{interaction}{a data frame object holding the two-way interaction coefficients, and their
       standard errors.}
