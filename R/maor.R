@@ -3,7 +3,10 @@ maor <- function(tab, phi=FALSE,
                  weighting=c("marginal", "uniform", "none"), norm=2,
                  row.weights=NULL, col.weights=NULL) {
   weighting <- match.arg(weighting)
-  stopifnot(is.matrix(tab))
+
+  if(!length(dim(tab)) %in% 2:3) {
+      stop("Only two- and three-way tables are supported.")
+  }
 
   if(!norm %in% 1:2)
      stop("'norm' must be 1 or 2")
@@ -16,6 +19,25 @@ maor <- function(tab, phi=FALSE,
 
   if(any(is.na(tab)))
       stop("NA cells are currently not supported.")
+
+  if(length(dim(tab)) == 3) {
+      rp <- margin.table(tab, 1)
+      cp <- margin.table(tab, 2)
+
+      if(any(tab == 0)) {
+          tab <- tab + 0.5
+          warning("Cells with zero counts found: adding 0.5 to each cell of the table.")
+      }
+
+      if(weighting == "marginal")
+          return(apply(tab, 3, maor,
+                       phi=phi, norm=norm,
+                       row.weights=rp, col.weights=cp))
+      else
+          return(apply(tab, 3, maor,
+                       phi=phi, weighting=weighting, norm=norm,
+                       row.weights=row.weights, col.weights=col.weights))
+  }
 
   if(any(tab == 0)) {
       tab <- tab + 0.5
@@ -42,6 +64,8 @@ maor <- function(tab, phi=FALSE,
 
   if(!is.null(col.weights))
       cp <- prop.table(col.weights)
+
+
 
   rp1 <- prop.table(rp)
   cp1 <- prop.table(cp)

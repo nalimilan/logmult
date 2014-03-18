@@ -19,7 +19,9 @@ maor(tab, phi = FALSE,
      norm = 2, row.weights = NULL, col.weights = NULL)
 }
 \arguments{
-  \item{tab}{a two-way table without zero cells.}
+  \item{tab}{a two- or three-way table without zero cells; for three-way tables,
+      average marginal weighting is used when \dQuote{weighting=="marginal"}, and
+      the MAOR is computed for each layer (third dimension).}
   \item{phi}{if \dQuote{TRUE}, return the intrinsic association coefficient
       rather than the Mean absolute odds ratio.}
   \item{weighting}{what weights should be used when normalizing the scores.}

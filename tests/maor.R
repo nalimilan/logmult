@@ -65,6 +65,11 @@ stopifnot(all.equal(u2n$unidiff$phi,
 stopifnot(all.equal(u2n$unidiff$phi * exp(u2n$unidiff$layer$qvframe$estimate[2]),
                     maor(fitted(u2n)[,,2], TRUE, "none", norm=2)))
 
+stopifnot(all.equal(maor(yaish),
+                    apply(yaish, 3, maor,
+                          row.weights=prop.table(margin.table(yaish, 1)),
+                          col.weights=prop.table(margin.table(yaish, 2)))))
+
 
 ###
 ## Comparison with mean/sum of all spanning odds ratios
