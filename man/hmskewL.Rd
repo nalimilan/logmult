@@ -66,7 +66,7 @@ hmskewL(tab, nd.symm = NA,
 \details{
   This model follows an equation inspired from that presented by van der Heijden & Mooijaart (1995) for two-way tables
   (see \code{\link{hmskew}}):
-  \deqn{ log F_{ijk} = q_{ijk} + \phi_k (\nu_{ik} \mu_{jk} - \mu_{jk} \nu_{ik}) }
+  \deqn{ log F_{ijk} = q_{ijk} + \phi_k (\nu_{ik} \mu_{jk} - \mu_{ik} \nu_{jk}) }
   where \eqn{F_{ijk}} is the expected frequency for the cell at the intersection of row i, column j and layer k of
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric specification, with either full interaction parameters, or
   a RC(M) association. See reference for detailed information about the degrees of freedom and the identification

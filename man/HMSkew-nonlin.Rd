@@ -19,7 +19,7 @@ HMSkew(row, col, inst = NULL)
   variants of the model not supported by \code{hmskew}.
 
   This function combines its arguments in the following way:
-  \deqn{ HMSkew(i, j) = \nu_i \mu_j - \mu_j \nu_i }
+  \deqn{ HMSkew(i, j) = \nu_i \mu_j - \mu_i \nu_j }
   where \eqn{HMSkew(i, j)} is the skew association for the cell at the intersection of row i and column j of
   the table. See reference for mathematical details.
 }

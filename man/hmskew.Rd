@@ -64,7 +64,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
   diagonal-specific parameters (depending on the value of the \code{diagonal} argument).
 
   These models follow the equation:
-  \deqn{ log F_{ij} = q_{ij} + \phi (\nu_i \mu_j - \mu_j \nu_i) }
+  \deqn{ log F_{ij} = q_{ij} + \phi (\nu_i \mu_j - \mu_i \nu_j) }
   where \eqn{F_{ij}} is the expected frequency for the cell at the intersection of row i and column j of
   \code{tab}, and \eqn{q_{ij}} a quasi-symmetric specification, with either full interaction parameters, or
   a RC(M) association. See reference for detailed information about the degrees of freedom and the identification
