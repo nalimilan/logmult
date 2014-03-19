@@ -4,7 +4,7 @@
   Mean Absolute Odds Ratio or Intrinsic Association Coefficient
 }
 \description{
-  Compute the Mean absolute odds ratio of a table, i.e. the (possibly weighted)
+  Compute the mean absolute odds ratio of a table, i.e. the (possibly weighted)
   geometric mean of the odds ratios or of their inverse when they are above one,
   which is also closely related to the the intrinsic association coefficient.
   The latter coefficient was first devised by Goodman (1996) as the
@@ -35,16 +35,16 @@ maor(tab, phi = FALSE,
 }
 \details{
   See Goodman (1996), Equation 52 for the (marginal or other) weighted version of
-  the intrinsic association coefficient (phi); the unweighted version can be computed
-  with unit weights. The coefficient is called \eqn{\tilde \lambda^2} in the original
+  the intrinsic association coefficient (\eqn{\phi}); the unweighted version can be
+  computed with unit weights. The coefficient is called \eqn{\tilde \lambda^2} in the original
   article, but to avoid the confusion with Goodman and Kruskal's lambda coefficient,
-  it is here denoted as \eqn{\phi} as usual in row-column association models.
+  it is here denoted as \eqn{\phi^2} as usual in row-column association models.
 
-  The uniform-weighted version of the Mean absolute odds ratio (MAOR) is defined as:
-  \deqn{MAOR = \frac{2 \phi}{\sqrt{(I-1) (J-1)}}}
+  The uniform-weighted version of the mean absolute odds ratio (MAOR) is defined as:
+  \deqn{MAOR = \frac{2 \phi}{\sqrt{IJ (I-1) (J-1)}}}
   The (marginal or other) weighted version is defined as:
-  \deqn{MAOR = 2 \; \sqrt{\frac{1}{{\sum_{i = 1}^I \sum_{j = 1}^J P_{i+}
-      (1 -  P_{i+}) P_{+j} (1 - P_{+j})}} \phi^2}}
+  \deqn{MAOR =  \frac{2 \phi}{\sqrt{{\sum_{i = 1}^I \sum_{j = 1}^J P_{i+}
+      (1 -  P_{i+}) P_{+j} (1 - P_{+j})}}}}
 
   This index cannot be computed in the presence of zero cells since it is based
   on the logarithm of proportions. In these cases, 0.5 is added to all cells in
@@ -54,7 +54,7 @@ maor(tab, phi = FALSE,
 }
 \value{
   The numeric value of the mean absolute odds ratio, or of the intrinsic association
-  coefficient (if \code{log = TRUE}).
+  coefficient (if \code{phi = TRUE}).
 }
 \references{
   Agresti, A. 2002. Categorical Data Analysis. New York: Wiley.
