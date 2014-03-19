@@ -64,13 +64,13 @@ rcL(tab, nd = 1,
   Wong) RC(M)-L models, typically following the equation:
   \deqn{ log F_{ijk} = \lambda + \lambda^I_i + \lambda^J_j + \lambda^K_k
                        + \lambda^{IK}_{ik} + \lambda^{JK}_{jk}
-                       + \sum_{m=1}^M { \phi_{km} \mu_{ikm} \nu_{jkm} } }
+                       + \sum_{m=1}^M { \phi_{mk} \mu_{imk} \nu_{jmk} } }
   where \eqn{F_{ijk}} is the expected frequency for the cell at the intersection of row i, column j and layer k of
   \code{tab}, and M the number of dimensions. If \code{layer.effect} is set to \sQuote{heterogeneous}, different scores
   will be computed for each level, which is equivalent to fitting separate RC(M) models on the k two-way tables.
-  If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ikm} = \mu_{im}} and \eqn{\nu_{ikm} = \nu_{im}} for all
-  layers k: only the \eqn{\phi_{km}} are allowed to vary across layers. If it is set to \sQuote{none}, then in addition
-  to the previous conditions all \eqn{\phi_{km}} are forced to be equal for all layers k, which amounts to a stability
+  If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{imk} = \mu_{mk}} and \eqn{\nu_{imk} = \nu_{im}} for all
+  layers k: only the \eqn{\phi_{mk}} are allowed to vary across layers. If it is set to \sQuote{none}, then in addition
+  to the previous conditions all \eqn{\phi_{mk}} are forced to be equal for all layers k, which amounts to a stability
   of the association across layers. See references for detailed information about the variants of the model, the degrees
   of freedom and the identification constraints applied to the scores.
 

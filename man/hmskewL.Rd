@@ -76,7 +76,7 @@ hmskewL(tab, nd.symm = NA,
   which is equivalent to fitting separate models using \code{\link{hmskew}} on the k two-way tables.
   If it is set to \sQuote{homogeneous.scores}, then \eqn{\mu_{ik} = \mu_i} and \eqn{\nu_{ik} = \nu_i} for all
   layers k: only the \eqn{\phi_k} are allowed to vary across layers. If it is set to \sQuote{none}, then in addition
-  to the previous conditions all \eqn{\phi_{km}} are forced to be equal for all layers k, which amounts to a stability
+  to the previous conditions all \eqn{\phi_{mk}} are forced to be equal for all layers k, which amounts to a stability
   of the association across layers.
 
   When \code{nd.symm} is different from \code{NA}, the symmetric association works exactly like a call to \code{rcL},
