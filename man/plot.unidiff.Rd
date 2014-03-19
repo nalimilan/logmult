@@ -19,7 +19,7 @@
   \item{what}{\dQuote{layer.coefficient} to plot the layer coefficients in the log odds ratio
       scale, with a reference of 1 for the first layer; \dQuote{phi} to plot the intrinsic
       association coefficient (on the log odds ratio scale); \dQuote{maor} to plot the
-      mean absolute odds ratio (see \code{\link{maor}}), i.e. the exponential of \dQuote{phi}.}
+      mean absolute odds ratio (see \code{\link{maor}}).}
   \item{se.type}{whether to use quasi-standard errors or \dQuote{traditional} standard errors
       to compute confidence intervals.}
   \item{conf.int}{the confidence level to retain for confidence bars.}
