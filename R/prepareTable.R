@@ -17,7 +17,7 @@ prepareTable <- function(tab, twoWay=TRUE, rowsup=NULL, colsup=NULL) {
       dimnames(tab)[[3]] <- LETTERS[seq.int(dim(tab)[3])]
 
   if(length(names(dimnames(tab))) > 0)
-      names(dimnames(tab)) <- make.names(names(dimnames(tab)))
+      names(dimnames(tab)) <- make.names(names(dimnames(tab)), unique=TRUE)
   else
       names(dimnames(tab)) <- paste0("Var", seq.int(length(dim(tab))))
 
