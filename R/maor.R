@@ -1,3 +1,10 @@
+lambda <- function(tab, rp=rep(1/nrow(tab), nrow(tab)), cp=rep(1/ncol(tab), ncol(tab))) {
+  logp <- log(prop.table(tab))
+
+  lambda <- sweep(logp, 1, rowSums(sweep(logp, 2, cp, "*")), "-")
+  lambda <- sweep(lambda, 2, colSums(sweep(logp, 1, rp, "*")), "-")
+  lambda + sum(logp * rp %o% cp)
+}
 
 maor <- function(tab, phi=FALSE,
                  weighting=c("marginal", "uniform", "none"), norm=2,
@@ -44,9 +51,8 @@ maor <- function(tab, phi=FALSE,
       warning("Cells with zero counts found: adding 0.5 to each cell of the table.")
   }
 
-  p <- prop.table(tab)
-
   if(weighting == "marginal") {
+      p <- prop.table(tab)
       rp <- margin.table(p, 1)
       cp <- margin.table(p, 2)
   }
@@ -66,16 +72,10 @@ maor <- function(tab, phi=FALSE,
       cp <- prop.table(col.weights)
 
 
-
   rp1 <- prop.table(rp)
   cp1 <- prop.table(cp)
-  logp <- log(p)
 
-  lambda <- sweep(logp, 1, rowSums(sweep(logp, 2, cp1, "*")), "-")
-  lambda <- sweep(lambda, 2, colSums(sweep(logp, 1, rp1, "*")), "-")
-  lambda <- lambda + sum(logp * rp1 %o% cp1)
-
-  phi.norm <- sum(abs(lambda)^norm * rp %o% cp)
+  phi.norm <- sum(abs(lambda(tab, rp1, cp1))^norm * rp %o% cp)
 
   if(phi)
       phi.norm^(1/norm)
