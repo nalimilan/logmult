@@ -24,8 +24,10 @@ maor <- function(tab, phi=FALSE,
   if(!(is.null(row.weights) || !is.null(col.weights)) && !missing(weighting))
       warning("Argument 'weighting' is ignored when custom row/column weights are specified.")
 
-  if(any(is.na(tab)))
-      stop("NA cells are currently not supported.")
+  if(any(is.na(tab))) {
+      warning("NA cells are currently not supported, returning NA.")
+      return(NA)
+  }
 
   if(length(dim(tab)) == 3) {
       rp <- margin.table(tab, 1)
