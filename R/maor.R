@@ -54,6 +54,14 @@ maor <- function(tab, phi=FALSE,
   }
 
   if(any(tab == 0)) {
+      if(all(tab == 0)) {
+          warning("Table contains only empty cells, returning NA.")
+          return(NA)
+      }
+      else if(sum(tab == 0)/length(tab) > .25) {
+          warning("More than 25% of cells are empty, the value of the index may not be reliable.")
+      }
+
       tab <- tab + 0.5
       warning("Cells with zero counts found: adding 0.5 to each cell of the table.")
   }
