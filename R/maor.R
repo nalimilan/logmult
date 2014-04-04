@@ -9,6 +9,7 @@ lambda <- function(tab, rp=rep(1/nrow(tab), nrow(tab)), cp=rep(1/ncol(tab), ncol
 maor <- function(tab, phi=FALSE,
                  weighting=c("marginal", "uniform", "none"), norm=2,
                  row.weights=NULL, col.weights=NULL) {
+  weighting.missing <- missing(weighting)
   weighting <- match.arg(weighting)
 
   if(!length(dim(tab)) %in% 2:3) {
@@ -38,7 +39,11 @@ maor <- function(tab, phi=FALSE,
           warning("Cells with zero counts found: replacing them with 0.5.")
       }
 
-      if(weighting == "marginal")
+      if(weighting.missing)
+          return(apply(tab, 3, maor,
+                       phi=phi, norm=norm,
+                       row.weights=row.weights, col.weights=col.weights))
+      else if(weighting == "marginal")
           return(apply(tab, 3, maor,
                        phi=phi, norm=norm,
                        row.weights=rp, col.weights=cp))
