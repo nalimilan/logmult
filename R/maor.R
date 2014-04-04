@@ -34,8 +34,8 @@ maor <- function(tab, phi=FALSE,
       cp <- margin.table(tab, 2)
 
       if(any(tab == 0)) {
-          tab <- tab + 0.5
-          warning("Cells with zero counts found: adding 0.5 to each cell of the table.")
+          tab[tab == 0] <- 0.5
+          warning("Cells with zero counts found: replacing them with 0.5.")
       }
 
       if(weighting == "marginal")

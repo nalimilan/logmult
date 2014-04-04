@@ -41,14 +41,14 @@ maor(tab, phi = FALSE,
   it is here denoted as \eqn{\phi^2} as usual in row-column association models.
 
   The uniform-weighted version of the mean absolute odds ratio (MAOR) is defined as:
-  \deqn{MAOR = \frac{2 \phi}{\sqrt{IJ (I-1) (J-1)}}}
+  \deqn{MAOR = \exp \left( \frac{2 \phi}{\sqrt{IJ (I-1) (J-1)}} \right)}
   The (marginal or other) weighted version is defined as:
-  \deqn{MAOR =  \frac{2 \phi}{\sqrt{{\sum_{i = 1}^I \sum_{j = 1}^J P_{i+}
-      (1 -  P_{i+}) P_{+j} (1 - P_{+j})}}}}
+  \deqn{MAOR = \exp \left( \frac{2 \tilde \phi}{\sqrt{{\sum_{i = 1}^I \sum_{j = 1}^J P_{i+}
+      (1 -  P_{i+}) P_{+j} (1 - P_{+j})}}} \right)}
 
   This index cannot be computed in the presence of zero cells since it is based
-  on the logarithm of proportions. In these cases, 0.5 is added to all cells in
-  the table (Agresti 2002, p. 249; Berkson 1955), and a warning is printed.
+  on the logarithm of proportions. In these cases, 0.5 is added to these cells
+  (Agresti 2002, p. 249; Berkson 1955), and a warning is printed.
   Make sure this correction does not affect too much the results (especially
   with small samples) by manually adding different values before calling this function.
 }
