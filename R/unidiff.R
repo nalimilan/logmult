@@ -262,7 +262,8 @@ print.summary.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...
 plot.unidiff <- function(x, what=c("layer.coef", "phi", "maor"),
                          se.type=c("quasi.se", "se"), conf.int=.95,
                          numeric.auto=TRUE, type="p",
-                         xlab=names(dimnames(x$data))[3], ylab=NULL, add=FALSE, ...) {
+                         xlab=names(dimnames(x$data))[3], ylab=NULL,
+                         add=FALSE, ylim, ...) {
   if(!inherits(x, "unidiff"))
       stop("x must be a unidiff object")
 
@@ -309,7 +310,9 @@ plot.unidiff <- function(x, what=c("layer.coef", "phi", "maor"),
   }
 
   range <- max(tops) - min(tails)
-  ylim <- c(min(tails) - range/20, max(tops) + range/20)
+
+  if(missing(ylim))
+      ylim <- c(min(tails) - range/20, max(tops) + range/20)
 
   # plot() converts x coordinates to numeric if possible, but segments
   # needs a real coordinate, so convert directly
