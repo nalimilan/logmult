@@ -433,19 +433,28 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(missing(asp))
       asp <- 1
 
+  if(what == "rows") {
+      dot.grp <- rep("Rows", nwr)
+      rsc <- sc
+      csc <- NULL
+  }
+  else if(what == "columns") {
+      dot.grp <- rep("Columns", nwc)
+      rsc <- NULL
+      csc <- sc
+  }
+  else {
+      dot.grp <- factor(c(rep("Rows", nwr), rep("Columns", nwc)))
+      rsc <- sc[1:nwr,, drop=FALSE]
+      csc <- sc[-(1:nwr),, drop=FALSE]
+  }
+
 
   # 1D plot
   if(ncol(sc) == 1) {
-      if(what == "rows")
-          groups <- rep("Rows", nwr)
-      else if(what == "columns")
-          groups <- rep("Columns", nwc)
-      else
-          groups <- factor(c(rep("Rows", nwr), rep("Columns", nwc)))
-
-      dotchart(sc, groups=groups,
+      dotchart(sc, groups=dot.grp,
                pch=pch, main=main, xlim=xlim, asp=asp, color=col)
-      return(invisible(list(row=sc[rownames(x$row),, drop=FALSE], col=sc[rownames(x$col),, drop=FALSE])))
+      return(invisible(list(row=rsc, col=csc)))
   }
 
 
@@ -624,7 +633,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   pointLabel(sc[, dim[1]], sc[, dim[2]], rownames(sc), font=font)
 
-  invisible(list(row=sc[rownames(x$row),], col=sc[rownames(x$col),]))
+  invisible(list(row=rsc, col=csc))
 }
 
 averaged.assoc <- function(x, type=c("average", "average.rotate")) {

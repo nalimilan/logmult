@@ -160,7 +160,7 @@
 }
 \value{
   An invisible list with components \code{row} and \code{col}, two matrices containing the coordinates of the
-  plotted points.
+  plotted points (\code{NULL} when not plotted).
 }
 
 \references{
