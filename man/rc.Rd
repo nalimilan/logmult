@@ -177,8 +177,8 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   \dontrun{
   data(gss8590)
 
-  # The table used in Wong (2010) is not perfectly consistent
-  # with that of Wong (2001)
+  # The table used in Wong (2001) is not perfectly consistent
+  # with that of Wong (2010)
   tab <- margin.table(gss8590[,,c(2,4)], 1:2)
   tab[2,4] <- 49
 
