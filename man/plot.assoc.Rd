@@ -158,6 +158,10 @@
   The \code{plot.assoc} function is called internally by all others, and may be leveraged for advanced use cases,
   like plotting custom models that do not correspond stricly to the supported types.
 }
+\value{
+  An invisible list with components \code{row} and \code{col}, two matrices containing the coordinates of the
+  plotted points.
+}
 
 \references{
   For RC(M) models:

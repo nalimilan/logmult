@@ -445,7 +445,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
       dotchart(sc, groups=groups,
                pch=pch, main=main, xlim=xlim, asp=asp, color=col)
-      return()
+      return(invisible(list(row=sc[rownames(x$row),, drop=FALSE], col=sc[rownames(x$col),, drop=FALSE])))
   }
 
 
@@ -623,6 +623,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   box()
 
   pointLabel(sc[, dim[1]], sc[, dim[2]], rownames(sc), font=font)
+
+  invisible(list(row=sc[rownames(x$row),], col=sc[rownames(x$col),]))
 }
 
 averaged.assoc <- function(x, type=c("average", "average.rotate")) {
