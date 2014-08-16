@@ -199,8 +199,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
      ncol(x$phi) != ncol(x$row) || isTRUE(dim(x$row)[3] != dim(x$col)[3]))
       stop("Invalid component length")
 
-  if(ncol(x$row) == 1)
-      stop("This function only plots models with two or more dimensions")
+  if(ncol(x$phi) == 1)
+      dim <- 1
 
   if(any(dim > ncol(x$row)))
       stop("dim must be a valid dimension of the model")
@@ -273,17 +273,28 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
   else {
       # Plotting only uses one layer, so get rid of others to make code cleaner below
-      x$phi <- x$phi[layer,]
+      # We need to drop the third dimension manually to avoid accidentally dropping the
+      # second one when there is only one dimension in the model
+      x$phi <- x$phi[layer,, drop=FALSE]
 
       if(nlr > 1)
-          x$row <- x$row[,,layer]
+          x$row <- x$row[,, layer, drop=FALSE]
       else
-          x$row <- x$row[,,1]
+          x$row <- x$row[,,1, drop=FALSE]
 
       if(nlc > 1)
-          x$col <- x$col[,,layer]
+          x$col <- x$col[,, layer, drop=FALSE]
       else
-          x$col <- x$col[,,1]
+          x$col <- x$col[,,1, drop=FALSE]
+
+      # dim<- removes dimnames...
+      rn <- rownames(x$row)
+      cn <- rownames(x$col)
+      dim(x$phi) <- dim(x$phi)[-1]
+      dim(x$row) <- dim(x$row)[-3]
+      dim(x$col) <- dim(x$col)[-3]
+      rownames(x$row) <- rn
+      rownames(x$col) <- cn
   }
 
   if(isTRUE(nrow(x$diagonal) > 1))
@@ -421,6 +432,22 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   if(missing(asp))
       asp <- 1
+
+
+  # 1D plot
+  if(ncol(sc) == 1) {
+      if(what == "rows")
+          groups <- rep("Rows", nwr)
+      else if(what == "columns")
+          groups <- rep("Columns", nwc)
+      else
+          groups <- factor(c(rep("Rows", nwr), rep("Columns", nwc)))
+
+      dotchart(sc, groups=groups,
+               pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+      return()
+  }
+
 
   if(coords == "cartesian") {
       if(missing(xlab))
@@ -637,11 +664,24 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
 
           phi <- colSums(sweep(x$phi, 1, prop.table(colSums(x$row.weights)), "*"))
 
-          if(type == "average")
-              return(list(phi=phi, row=x$row[,,1], col=x$col[,,1]))
+          # We need to drop the third dimension manually to avoid accidentally dropping the
+          # second one when there is only one dimension in the model
+          row <- x$row[,, 1, drop=FALSE]
+          col <- x$col[,, 1, drop=FALSE]
 
-          adjrow <- sweep(x$row[,,1], 2, sqrt(phi), "*")
-          adjcol <- sweep(x$col[,,1], 2, sqrt(phi), "*")
+          # dim<- removes dimnames...
+          rn <- rownames(x$row)
+          cn <- rownames(x$col)
+          dim(row) <- dim(row)[-3]
+          dim(col) <- dim(col)[-3]
+          rownames(row) <- rownames(x$row)
+          rownames(col) <- rownames(x$col)
+
+          if(type == "average")
+              return(list(phi=phi, row=row, col=col))
+
+          adjrow <- sweep(row, 2, sqrt(phi), "*")
+          adjcol <- sweep(col, 2, sqrt(phi), "*")
 
           # Technique proposed in Goodman (1991), Appendix 4
           lambda <- matrix(0, nr, nc)
