@@ -256,13 +256,15 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
        what <- "rows"
   }
 
+  if(nl == 1 || nlr > 1 || nlc > 1) {
+      warning("'layer=\"average\"' and 'layer=\"average.rotate\"' is only supported with homogeneous layer effect: plotting first layer instead")
+      layer <- 1
+  }
+
   rot <- NULL
   if(layer %in% c("average", "average.rotate")) {
       # For homogeneous association with layer, compute a weighted average of phi over layers
       # And if layer="average.rotate", prepare the drawing of lines representing the axes with the highest variance
-
-      if(nl == 1 || nlr > 1 || nlc > 1)
-          stop("'layer=\"average\"' and 'layer=\"average.rotate\"' is only supported with homogeneous layer effect")
 
       res <- averaged.assoc(x, type=layer)
 
