@@ -67,8 +67,8 @@ stopifnot(all.equal(u2n$unidiff$phi * exp(u2n$unidiff$layer$qvframe$estimate[2])
 
 stopifnot(all.equal(maor(yaish),
                     apply(yaish, 3, maor,
-                          row.weights=prop.table(margin.table(yaish, 1)),
-                          col.weights=prop.table(margin.table(yaish, 2)))))
+                          row.weights=margin.table(yaish, 1),
+                          col.weights=margin.table(yaish, 2))))
 
 
 ###

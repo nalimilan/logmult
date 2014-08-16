@@ -9,7 +9,6 @@ lambda <- function(tab, rp=rep(1/nrow(tab), nrow(tab)), cp=rep(1/ncol(tab), ncol
 maor <- function(tab, phi=FALSE,
                  weighting=c("marginal", "uniform", "none"), norm=2,
                  row.weights=NULL, col.weights=NULL) {
-  weighting.missing <- missing(weighting)
   weighting <- match.arg(weighting)
 
   if(!length(dim(tab)) %in% 2:3) {
@@ -34,16 +33,18 @@ maor <- function(tab, phi=FALSE,
       rp <- margin.table(tab, 1)
       cp <- margin.table(tab, 2)
 
+      if(!is.null(row.weights))
+          rp <- row.weights
+
+      if(!is.null(col.weights))
+          cp <- col.weights
+
       if(any(tab == 0)) {
-          tab[tab == 0] <- 0.5
-          warning("Cells with zero counts found: replacing them with 0.5.")
+          tab <- tab + 0.5
+          warning("Cells with zero counts found: adding 0.5 to each cell of the table.")
       }
 
-      if(weighting.missing)
-          return(apply(tab, 3, maor,
-                       phi=phi, norm=norm,
-                       row.weights=row.weights, col.weights=col.weights))
-      else if(weighting == "marginal")
+      if(weighting == "marginal")
           return(apply(tab, 3, maor,
                        phi=phi, norm=norm,
                        row.weights=rp, col.weights=cp))
@@ -85,7 +86,6 @@ maor <- function(tab, phi=FALSE,
 
   if(!is.null(col.weights))
       cp <- prop.table(col.weights)
-
 
   rp1 <- prop.table(rp)
   cp1 <- prop.table(cp)

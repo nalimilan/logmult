@@ -31,7 +31,7 @@ maor(tab, phi = FALSE,
   \item{row.weights}{optional custom weights to be used for rows, e.g. to compute
       the phi coefficient for several tables using their overall marginal
       distribution. If specified, \code{weighting} is ignored.}
-  \item{col.weights}{see \code{col.weights}.}
+  \item{col.weights}{see \code{row.weights}.}
 }
 \details{
   See Goodman (1996), Equation 52 for the (marginal or other) weighted version of
