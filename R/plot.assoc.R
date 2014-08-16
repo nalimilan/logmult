@@ -393,7 +393,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   # If phi is negative, change sign of columns so that the interpretation
   # is consistent with positive phi
   # This does not make sense for symmetric association
-  # find.stable.scores() and find.stable.scores.hmskew() do the same and wee need to be consistent
+  # find.stable.scores() and find.stable.scores.hmskew() do the same and we need to be consistent
   if(!inherits(x, "assoc.symm")) {
       if(what == "columns")
           sc[, dim] <- sweep(sc[, dim, drop=FALSE], 2, sign(x$phi[dim]), "*")
