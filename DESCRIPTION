@@ -18,3 +18,5 @@ Description: Functions to fit log-multiplicative models using gnm, with
   with one or several dimensions; two skew-symmetric association
   models proposed by Yamaguchi and by van der Heijden & Mooijaart.
 License: GPL (>= 2)
+URL: https://github.com/nalimilan/logmult
+BugReports: https://github.com/nalimilan/logmult/issues
