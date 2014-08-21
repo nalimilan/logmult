@@ -1,3 +1,11 @@
+2014-08-17 - Version 0.6.1
+- plot.rc and friends now return invisibly the coordinates of the plotted
+  category points, for use in adding further plot annotations.
+- plot.rc and friends now provide an ellipse.col argument for the confidence
+  ellipses plotted with the \code{conf.ellipses} argument.
+- plot.assoc now handles the special case of RC(1) models, giving a dotchart
+  of the category scores.
+
 2014-03-10 - Version 0.6
 - COMPATIBILITY BREAK: store marginal weights for each layer instead
   of only the global average. Saved models will have to be fit again
