@@ -8,7 +8,7 @@
 \alias{plot.rcL.symm}
 \alias{plot.hmskewL}
 \title{Plotting Scores from Association Models}
-\description{Graphical display of category scores from association models, mainly in two dimensions.
+\description{Graphical display of category scores from association models.
 }
 \usage{
 \method{plot}{rc}(x, dim = c(1, 2),
@@ -129,17 +129,17 @@
              see \code{\link{points}}.}
   \item{font}{an integer vector indicating the font to use for each label, recycled as necessary;
               see \code{link{par}}.}
-  \item{ellipse.col}{a vector indicating the color of the confidence ellipses, when these are plotted.}
+  \item{ellipse.col}{a vector indicating the colors of the confidence ellipses, when these are plotted; defaults to \code{col}.}
   \item{...}{Further arguments passed to \code{\link{plot}}.}
 }
 \details{
-  The functions documented here represent in a two-dimensional space the category scores obtained from a
+  The functions documented here represent in a one- or two-dimensional space the category scores obtained from a
   log-multiplicative association model. They produce \emph{symmetric biplots} in which the coordinates of points
   on both axes are the product of normalized scores and of the square root of the intrinsic association
   coefficient corresponding to each dimension: thus, row and column points share the same \dQuote{unit}
   on all axes (Goodman, 1991, Appendix 2; Wong, 2010, eq. 2.38; Clogg & Shihadeh, 1994, p. 91-92).
 
-  The special case of RC(1) models (\code{nd=1} in \code{\link{rc}} models is presented as a dotchart
+  The special case of models with only one dimension models (\code{nd=1} in \code{\link{rc} and in \code{\link{rcL}} models is presented as a dotchart
   of the row and column category scores.
   
   Various convenience options are provided, with reasonable defaults for each model family. In particular,
