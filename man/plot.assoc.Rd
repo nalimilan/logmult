@@ -97,7 +97,7 @@
                     as a linear function of the diagonal parameter values.}
   \item{arrow}{Numeric value indicating the angle at which the polar coordinates system arrow should be plotted;
                use NULL for no arrow.}
-  \item{conf.ellipses}{an integer between 0 and 1 giving the confidence level to use when drawing error ellipses
+  \item{conf.ellipses}{an integer between 0 and 1 giving the confidence level to use when drawing error ellipses/bars
                        around the points (see \dQuote{Details} below); by default nothing is plotted. Only possible
                        if jackknife or bootstrap was enabled when fitting the model.}
   \item{replicates}{whether to plot points representing the values of the scores obtained for all of the
@@ -113,7 +113,7 @@
   \item{col}{a vector indicating the color of the point symbols, recycled as necessary; as a special case, a
              vector of length 2 can be passed, to indicate the color of row and column points, respectively.
              See also \code{luminosity}.}
-  \item{col.ellipses}{a vector indicating the color of the confidence ellipses, when these are plotted; see
+  \item{col.ellipses}{a vector indicating the color of the confidence ellipses/bars, when these are plotted; see
                      \code{col} the format.}
   \item{groups}{a vector indicating what symbol should be used for each point, recycled as necessary; groups will
                 use \code{pch} values 21, 24, 22, 23 and 25, in this order, cycling if needed. If not an integer,
@@ -148,7 +148,7 @@
   origin as the general strength of the association for a category on both axes (a property that is lost for
   higher-dimensional models).
 
-  Confidence ellipses are computed from the scores' variances and covariances, based on the assumption that they are
+  Confidence ellipses/bars are computed from the scores' variances and covariances, based on the assumption that they are
   follow a normal distribution, even if standard errors are computed using jackknife or bootstrap. When bootstrap (not
   jackknife) was used, this normality assumption can be assessed visually using the \code{replicates} argument to check 
   whether points globally follow the shape of the ellipses. See \code{\link{se.assoc}} for details about checking the

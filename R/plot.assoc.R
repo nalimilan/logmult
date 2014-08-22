@@ -237,7 +237,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(!is.na(conf.ellipses) && (x$covtype == "none" || length(x$covmat) == 0))
       stop("Cannot plot confidence ellipses on a model without jackknife or bootstrap standard errors")
 
-  if(!is.na(conf.ellipses) && !require("ellipse"))
+  if(!is.na(conf.ellipses) && ncol(x$phi) > 1 && !require("ellipse"))
       stop("Package 'ellipse' is required to plot confidence ellipses.")
 
   if(!is.na(conf.ellipses) && (nrow(x$adj.covmats) != ncol(x$adj.covmats) ||
@@ -473,6 +473,39 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(ncol(sc) == 1) {
       dotchart(sc, groups=dot.grp,
                pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+
+      if(!is.na(conf.ellipses)) {
+          if(layer == "average.rotate")
+              stop("Plotting confidence bars is not supported when 'layer=\"average.rotate\"'")
+
+          covmat <- x$adj.covmats[,, layer]
+
+          i <- 0
+          line <- 0
+          start <- (dim[1] - 1) * (nr + nc)
+          q <- qnorm((1 - conf.ellipses)/2, lower.tail=FALSE)
+
+          if(what %in% c("rows", "both")) {
+              for(i in 1:nwr) {
+                  se <- sqrt(covmat[start + which[[1]][i], start + which[[1]][i]])
+                  segments(sc[i, dim] - q * se, i,
+                           sc[i, dim] + q * se, i,
+                           col=col.ellipses[i], lty="dashed", lwd=2)
+              }
+
+              line <- i + 2
+          }
+
+          if(what %in% c("columns", "both")) {
+              for(j in 1:nwc) {
+                  se <- sqrt(covmat[start + nr + which[[2]][j], start + nr + which[[2]][j]])
+                  segments(sc[i + j, dim] - q * se, line + j,
+                           sc[i + j, dim] + q * se, line + j,
+                           col=col.ellipses[i + j], lty="dashed", lwd=2)
+              }
+          }
+      }
+
       return(invisible(list(row=rsc, col=csc)))
   }
 
