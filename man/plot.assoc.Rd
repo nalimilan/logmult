@@ -188,7 +188,7 @@
 \seealso{\code{\link{rc}}, \code{\link{rcL}}, \code{\link{rcL.trans}}, \code{\link{hmskew}},
          \code{\link{hmskewL}}, \code{\link{yrcskew}}}
 \examples{
-  ## Wong (2010), Figures 2.2 and 2.1 (p. 50-51)
+  ## Wong (2010), Figures 2.2 and 2.3 (p. 50-51)
   data(gss8590)
 
   \dontrun{
