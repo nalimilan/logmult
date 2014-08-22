@@ -453,17 +453,14 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       asp <- 1
 
   if(what == "rows") {
-      dot.grp <- rep("Rows", nwr)
       rsc <- sc
       csc <- NULL
   }
   else if(what == "columns") {
-      dot.grp <- rep("Columns", nwc)
       rsc <- NULL
       csc <- sc
   }
   else {
-      dot.grp <- factor(c(rep("Rows", nwr), rep("Columns", nwc)))
       rsc <- sc[1:nwr,, drop=FALSE]
       csc <- sc[-(1:nwr),, drop=FALSE]
   }
@@ -471,8 +468,19 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   # 1D plot
   if(ncol(sc) == 1) {
-      dotchart(sc, groups=dot.grp,
-               pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+      # dotchart() fails when the 'groups' argument has only one level, so work around it
+      if(what == "rows") {
+          colnames(sc) <- "Rows"
+          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+      }
+      if(what == "columns") {
+          colnames(sc) <- "Columns"
+          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+      }
+      else if(what == "both") {
+          dotchart(sc, groups=factor(c(rep("Rows", nwr), rep("Columns", nwc))),
+                   pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+      }
 
       if(!is.na(conf.ellipses)) {
           if(layer == "average.rotate")
