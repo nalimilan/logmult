@@ -493,11 +493,12 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
           start <- (dim[1] - 1) * (nr + nc)
           q <- qnorm((1 - conf.ellipses)/2, lower.tail=FALSE)
 
+          # min() and max() are required to avoid plotting outside of the box
           if(what %in% c("rows", "both")) {
               for(i in 1:nwr) {
                   se <- sqrt(covmat[start + which[[1]][i], start + which[[1]][i]])
-                  segments(sc[i, dim] - q * se, i,
-                           sc[i, dim] + q * se, i,
+                  segments(max(sc[i, dim] - q * se, par("usr")[1]), i,
+                           min(sc[i, dim] + q * se, par("usr")[2]), i,
                            col=col.ellipses[i], lty="dashed", lwd=2)
               }
 
@@ -507,8 +508,8 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
           if(what %in% c("columns", "both")) {
               for(j in 1:nwc) {
                   se <- sqrt(covmat[start + nr + which[[2]][j], start + nr + which[[2]][j]])
-                  segments(sc[i + j, dim] - q * se, line + j,
-                           sc[i + j, dim] + q * se, line + j,
+                  segments(max(sc[i + j, dim] - q * se, par("usr")[1]), line + j,
+                           min(sc[i + j, dim] + q * se, par("usr")[2]), line + j,
                            col=col.ellipses[i + j], lty="dashed", lwd=2)
               }
           }
