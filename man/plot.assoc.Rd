@@ -8,21 +8,22 @@
 \alias{plot.rcL.symm}
 \alias{plot.hmskewL}
 \title{Plotting Scores from Association Models}
-\description{Graphical display of scores from association models in two dimensions}
+\description{Graphical display of category scores from association models.
+}
 \usage{
 \method{plot}{rc}(x, dim = c(1, 2),
      what = c("both", "rows", "columns"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = c("blue", "red"), groups = NULL,
+     cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rc.symm}(x, dim = c(1, 2), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", groups = NULL,
+     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{hmskew}(x, dim = c(1, 2),
@@ -30,7 +31,7 @@
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
      arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", groups = NULL,
+     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{yrcskew}(x, dim = c(1, 2),
@@ -38,7 +39,7 @@
      mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0),
      arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", groups = NULL,
+     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rcL}(x, dim = c(1, 2), layer = "average",
@@ -46,7 +47,7 @@
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = c("blue", "red"), groups = NULL,
+     cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rcL.symm}(x, dim = c(1, 2), layer = "average",
@@ -54,7 +55,7 @@
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", groups = NULL,
+     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{hmskewL}(x, dim = c(1, 2), layer = "average",
@@ -62,7 +63,7 @@
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
      arrow=45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", groups = NULL,
+     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
@@ -70,7 +71,7 @@
      mass = TRUE, luminosity = length(x$diagonal > 0),
      arrow = NULL, conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = c("blue", "red"), groups = NULL,
+     cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
      xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 }
 \arguments{
@@ -112,6 +113,8 @@
   \item{col}{a vector indicating the color of the point symbols, recycled as necessary; as a special case, a
              vector of length 2 can be passed, to indicate the color of row and column points, respectively.
              See also \code{luminosity}.}
+  \item{col.ellipses}{a vector indicating the color of the confidence ellipses, when these are plotted; see
+                     \code{col} the format.}
   \item{groups}{a vector indicating what symbol should be used for each point, recycled as necessary; groups will
                 use \code{pch} values 21, 24, 22, 23 and 25, in this order, cycling if needed. If not an integer,
                 the number of the factor level will be used.}
@@ -131,11 +134,12 @@
   \item{...}{Further arguments passed to \code{\link{plot}}.}
 }
 \details{
-  All the functions documented here represent in a two-dimensional space the scores obtained from a
+  The functions documented here represent in a one- or two-dimensional space the category scores obtained from a
   log-multiplicative association model. They produce \emph{symmetric biplots} in which the coordinates of points
   on both axes are the product of normalized scores and of the square root of the intrinsic association
   coefficient corresponding to each dimension: thus, row and column points share the same \dQuote{unit}
   on all axes (Goodman, 1991, Appendix 2; Wong, 2010, eq. 2.38; Clogg & Shihadeh, 1994, p. 91-92).
+  As a special case, models with only one dimension are presented as a dotchart of the scores.
 
   Various convenience options are provided, with reasonable defaults for each model family. In particular,
   you may find it necessary to adapt the \code{cex}, \code{mass}, \code{luminosity} and \code{groups} arguments
