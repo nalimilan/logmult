@@ -1,6 +1,6 @@
 Package: logmult
 Type: Package
-Title: Log-multiplicative models, including association models
+Title: Log-Multiplicative Models, Including Association Models
 Version: 0.6.1
 Date: 2014-08-16
 Authors@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
