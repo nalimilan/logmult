@@ -7,14 +7,33 @@ rcm <- rc(color[,,1], 2, weighting="marginal", start=NA)
 rcu <- rc(color[,,1], 2, weighting="uniform", start=NA)
 rcn <- rc(color[,,1], 2, weighting="none", start=NA)
 
-phim <- maor(fitted(rcm), TRUE, "marginal", norm=2)
-phiu <- maor(fitted(rcu), TRUE, "uniform", norm=2)
-phin <- maor(fitted(rcn), TRUE, "none", norm=2)
+phim <- maor(fitted(rcm), TRUE, weighting="marginal", norm=2)
+phiu <- maor(fitted(rcu), TRUE, weighting="uniform", norm=2)
+phin <- maor(fitted(rcn), TRUE, weighting="none", norm=2)
+
+cphim <- maor(fitted(rcm), TRUE, TRUE, weighting="marginal", norm=2)
+cphiu <- maor(fitted(rcm), TRUE, TRUE, weighting="uniform", norm=2)
+cphin <- maor(fitted(rcm), TRUE, TRUE, weighting="none", norm=2)
+
+maorm <- maor(fitted(rcm), weighting="marginal", norm=2)
+maoru <- maor(fitted(rcu), weighting="uniform", norm=2)
+maorn <- maor(fitted(rcn), weighting="none", norm=2)
+
+cmaorm <- maor(fitted(rcm), cell=TRUE, weighting="marginal", norm=2)
+cmaoru <- maor(fitted(rcm), cell=TRUE, weighting="uniform", norm=2)
+cmaorn <- maor(fitted(rcm), cell=TRUE, weighting="none", norm=2)
 
 stopifnot(all.equal(phim, sqrt(sum((rcm$assoc$phi)^2))))
 stopifnot(all.equal(phiu, sqrt(sum(abs(rcu$assoc$phi)^2))))
 stopifnot(all.equal(phin, sqrt(sum(abs(rcn$assoc$phi)^2))))
 
+stopifnot(all.equal(phim, sqrt(sum(cphim))))
+stopifnot(all.equal(phiu, sqrt(sum(cphiu))))
+stopifnot(all.equal(phin, sqrt(sum(cphin))))
+
+stopifnot(all.equal(maorm, exp(sqrt(sum(cmaorm)))))
+stopifnot(all.equal(maoru, exp(sqrt(sum(cmaoru)))))
+stopifnot(all.equal(maorn, exp(sqrt(sum(cmaorn)))))
 
 
 # Test for phi computed from UNIDIFF two-way interaction coefficients
@@ -27,43 +46,41 @@ tab <- aperm(yaish[,,-7], 3:1)
 # rp <- prop.table(margin.table(tab, 1))
 # cp <- prop.table(margin.table(tab, 2))
 # stopifnot(all.equal(u1m$unidiff$phi,
-#                     maor(fitted(u1m)[,,1], TRUE, "marginal", norm=1, rp, cp)))
+#                     maor(fitted(u1m)[,,1], TRUE, weighting="marginal", norm=1, rp, cp)))
 # stopifnot(all.equal(u1m$unidiff$phi,
-#                     maor(fitted(u1m)[,,1], TRUE, "marginal", norm=1, rp, cp)))
+#                     maor(fitted(u1m)[,,1], TRUE, weighting="marginal", norm=1, rp, cp)))
 # 
 # u1u <- unidiff(tab, weighting="uniform", norm=1)
 # stopifnot(all.equal(u1u$unidiff$phi,
-#                     maor(fitted(u1u)[,,1], TRUE, "uniform", norm=1)))
+#                     maor(fitted(u1u)[,,1], TRUE, weighting="uniform", norm=1)))
 # stopifnot(all.equal(u1u$unidiff$phi * exp(u1u$unidiff$layer$qvframe$estimate[2]),
-#                     maor(fitted(u1u)[,,2], TRUE, "uniform", norm=1)))
+#                     maor(fitted(u1u)[,,2], TRUE, weighting="uniform", norm=1)))
 # 
 # u1n <- unidiff(tab, weighting="none", norm=1)
 # stopifnot(all.equal(u1n$unidiff$phi,
-#                     maor(fitted(u1n)[,,1], TRUE, "none", norm=1)))
+#                     maor(fitted(u1n)[,,1], TRUE, weighting="none", norm=1)))
 # stopifnot(all.equal(u1n$unidiff$phi * exp(u1u$unidiff$layer$qvframe$estimate[2]),
-#                     maor(fitted(u1n)[,,2], TRUE, "none", norm=1)))
+#                     maor(fitted(u1n)[,,2], TRUE, weighting="none", norm=1)))
 
 
 # 2-norm
 u2m <- unidiff(tab, weighting="marginal", norm=2)
-rp <- prop.table(margin.table(tab, 1))
-cp <- prop.table(margin.table(tab, 2))
 stopifnot(all.equal(u2m$unidiff$phi,
-                    maor(fitted(u2m)[,,1], TRUE, "marginal", norm=2, rp, cp)))
+                    maor(fitted(u2m), TRUE, norm=2)[1], weighting="marginal", check.attributes=FALSE))
 stopifnot(all.equal(u2m$unidiff$phi * exp(u2m$unidiff$layer$qvframe$estimate[2]),
-                    maor(fitted(u2m)[,,2], TRUE, "marginal", norm=2, rp, cp)))
+                    maor(fitted(u2m), TRUE, norm=2)[2], weighting="marginal", check.attributes=FALSE))
 
 u2u <- unidiff(tab, weighting="uniform", norm=2)
 stopifnot(all.equal(u2u$unidiff$phi,
-                    maor(fitted(u2u)[,,1], TRUE, "uniform", norm=2)))
+                    maor(fitted(u2u), TRUE, weighting="uniform", norm=2)[1], check.attributes=FALSE))
 stopifnot(all.equal(u2u$unidiff$phi * exp(u2u$unidiff$layer$qvframe$estimate[2]),
-                    maor(fitted(u2u)[,,2], TRUE, "uniform", norm=2)))
+                    maor(fitted(u2u), TRUE, weighting="uniform", norm=2)[2], check.attributes=FALSE))
 
 u2n <- unidiff(tab, weighting="none", norm=2)
 stopifnot(all.equal(u2n$unidiff$phi,
-                    maor(fitted(u2n)[,,1], TRUE, "none", norm=2)))
+                    maor(fitted(u2n), TRUE, weighting="none", norm=2)[1], check.attributes=FALSE))
 stopifnot(all.equal(u2n$unidiff$phi * exp(u2n$unidiff$layer$qvframe$estimate[2]),
-                    maor(fitted(u2n)[,,2], TRUE, "none", norm=2)))
+                    maor(fitted(u2n), TRUE, weighting="none", norm=2)[2], check.attributes=FALSE))
 
 stopifnot(all.equal(maor(yaish),
                     apply(yaish, 3, maor,

@@ -6,7 +6,7 @@ lambda <- function(tab, rp=rep(1/nrow(tab), nrow(tab)), cp=rep(1/ncol(tab), ncol
   lambda + sum(logp * rp %o% cp)
 }
 
-maor <- function(tab, phi=FALSE,
+maor <- function(tab, phi=FALSE, cell=FALSE,
                  weighting=c("marginal", "uniform", "none"), norm=2,
                  row.weights=NULL, col.weights=NULL) {
   weighting <- match.arg(weighting)
@@ -90,10 +90,18 @@ maor <- function(tab, phi=FALSE,
   rp1 <- prop.table(rp)
   cp1 <- prop.table(cp)
 
-  phi.norm <- sum(abs(lambda(tab, rp1, cp1))^norm * rp %o% cp)
+  lambda.norm <- abs(lambda(tab, rp1, cp1))^norm * rp %o% cp
 
-  if(phi)
-      phi.norm^(1/norm)
-  else
-      exp((4/sum((rp1 * (1 - rp1)) %o% (cp1 * (1 - cp1))) * phi.norm)^(1/norm))
+  if(phi) {
+      if(cell)
+          lambda.norm
+      else
+          sum(lambda.norm)^(1/norm)
+  }
+  else {
+      if(cell)
+          4/sum((rp1 * (1 - rp1)) %o% (cp1 * (1 - cp1))) * lambda.norm
+      else
+          exp((4/sum((rp1 * (1 - rp1)) %o% (cp1 * (1 - cp1))) * sum(lambda.norm))^(1/norm))
+  }
 }
