@@ -196,7 +196,7 @@ svyrep <- function(formula, design, theta, ...,
         survey::svytable(formula, design, Ntotal=Ntotal, exclude=exclude)
     })
 
-    if(!is.null(cl) && require(parallel)) {
+    if(!is.null(cl) && requireNamespace("parallel")) {
         if(load.balancing)
             u <- parallel::parLapplyLB(cl, 1:length(tabl), function(i, ...) theta(tab=tabl[[i]], ...), ...)
         else

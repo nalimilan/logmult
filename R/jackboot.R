@@ -6,17 +6,16 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
   cat("Computing", se, "standard errors...\n")
 
   if(is.null(ncpus))
-      ncpus <- if(require(parallel)) min(parallel::detectCores(), 5)
+      ncpus <- if(requireNamespace("parallel")) min(parallel::detectCores(), 5)
                else 1
 
-  if(ncpus > 1 && require(parallel)) {
+  if(ncpus > 1 && requireNamespace("parallel")) {
       cl <- parallel::makePSOCKcluster(rep("localhost", ncpus), outfile="", methods=FALSE)
       on.exit(parallel::stopCluster(cl))
 
       libpaths <- .libPaths()
       parallel::clusterExport(cl, "libpaths", env=environment())
-      parallel::clusterEvalQ(cl, library(logmult, lib.loc=libpaths,
-                                         warn.conflicts=FALSE, quietly=TRUE, verbose=FALSE))
+      parallel::clusterEvalQ(cl, requireNamespace("logmult", lib.loc=libpaths, quietly=TRUE))
 
       # Printing output from all nodes at the same time would be a mess, only print "."
       trace <- FALSE

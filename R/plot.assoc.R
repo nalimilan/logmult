@@ -237,7 +237,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(!is.na(conf.ellipses) && (x$covtype == "none" || length(x$covmat) == 0))
       stop("Cannot plot confidence ellipses on a model without jackknife or bootstrap standard errors")
 
-  if(!is.na(conf.ellipses) && ncol(x$phi) > 1 && !require("ellipse"))
+  if(!is.na(conf.ellipses) && ncol(x$phi) > 1 && !requireNamespace("ellipse"))
       stop("Package 'ellipse' is required to plot confidence ellipses.")
 
   if(!is.na(conf.ellipses) && (nrow(x$adj.covmats) != ncol(x$adj.covmats) ||
