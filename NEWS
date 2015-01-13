@@ -1,3 +1,15 @@
+2015-01-13 - Version 0.6.1
+- Support 1D association plots using dotchart().
+- Add col.ellipses argument to plot.assoc() functions (based on work by Michael Friendly).
+- Avoid plotting confidence bars outside of box in plot.assoc().
+- Plot first layer instead of failing by default for heterogeneous RC-L.
+- Return coordinates of plotted points from plot.assoc().
+- Support three-way tables and NA cells in maor().
+- Improve documentation for maor().
+- Do not fail when dimension names are empty or not unique.
+- Fix comments in documentation (spotted by Michael Friendly).
+- Various small fixes.
+
 2014-03-10 - Version 0.6
 - COMPATIBILITY BREAK: store marginal weights for each layer instead
   of only the global average. Saved models will have to be fit again
