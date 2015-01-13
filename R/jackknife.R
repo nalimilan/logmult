@@ -27,7 +27,7 @@ jackknife <- function(x, theta, ...,
     # Run this first to find out caller errors before running parLapply
     thetahat <- as.numeric(theta(x, ...))
 
-    if(!is.null(cl) && require(parallel)) {
+    if(!is.null(cl) && requireNamespace("parallel")) {
         if(load.balancing)
             u <- parallel::parLapplyLB(cl, 1:n, function(i, x, theta, ...) theta(x[-i], ...), x, theta, ...)
         else
