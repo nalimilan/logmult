@@ -584,15 +584,15 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
       if(what %in% c("rows", "both")) {
           for(i in 1:nwr)
-              polygon(ellipse(covmat[start + which[[1]][i], start + which[[1]][i]],
-                              centre=sc[i, dim], level=conf.ellipses),
+              polygon(ellipse::ellipse(covmat[start + which[[1]][i], start + which[[1]][i]],
+                                       centre=sc[i, dim], level=conf.ellipses),
                       border=col.ellipses[i], lty="dashed", lwd=2)
       }
 
       if(what %in% c("columns", "both")) {
           for(j in 1:nwc)
-              polygon(ellipse(covmat[start + nr + which[[2]][j], start + nr + which[[2]][j]],
-                              centre=sc[i + j, dim], level=conf.ellipses),
+              polygon(ellipse::ellipse(covmat[start + nr + which[[2]][j], start + nr + which[[2]][j]],
+                                       centre=sc[i + j, dim], level=conf.ellipses),
                       border=col.ellipses[i + j], lty="dashed", lwd=2)
       }
   }
