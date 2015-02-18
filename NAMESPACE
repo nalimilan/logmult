@@ -54,5 +54,6 @@ S3method(summary, anoas)
 S3method(print, summary.anoas)
 
 export(maor)
+export(ras)
 
 import(stats, graphics, gnm)
