@@ -17,14 +17,14 @@
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
-     add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rc.symm}(x, dim = c(1, 2), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{hmskew}(x, dim = c(1, 2),
      what = c("skew-symmetric", "symmetric"), which = NULL,
@@ -32,7 +32,7 @@
      arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{yrcskew}(x, dim = c(1, 2),
      what = c("skew-symmetric", "symmetric"), which = NULL,
@@ -40,7 +40,7 @@
      arrow = 45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rcL}(x, dim = c(1, 2), layer = "average",
      what = c("both", "rows", "columns"), which = NULL,
@@ -48,7 +48,7 @@
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
-     add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rcL.symm}(x, dim = c(1, 2), layer = "average",
      which = NULL,
@@ -56,7 +56,7 @@
      conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{hmskewL}(x, dim = c(1, 2), layer = "average",
      what = c("skew-symmetric", "symmetric"), which = NULL,
@@ -64,7 +64,7 @@
      arrow=45, conf.ellipses = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"), which = NULL,
@@ -72,7 +72,7 @@
      arrow = NULL, conf.ellipses = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
      cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
-     add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 }
 \arguments{
   \item{x}{an association model, or an object inheriting from class \code{assoc}.}
@@ -119,6 +119,8 @@
                 use \code{pch} values 21, 24, 22, 23 and 25, in this order, cycling if needed. If not an integer,
                 the number of the factor level will be used.}
   \item{add}{whether to draw over an existing plot instead of creating a new one.}
+  \item{type}{set to "n" to avoid actually plotting the points and labels;
+              useful for customization based on the returned coordinates, see \dQuote{Value} below.}
   \item{xlim}{numeric vector of length 2, giving the x coordinates range.}
   \item{ylim}{numeric vector of length 2, giving the y coordinates range.}
   \item{asp}{the y/x aspect ratio, see \code{\link{plot.window}}.}
