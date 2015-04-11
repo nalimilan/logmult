@@ -3,7 +3,7 @@ plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"), which=NUL
                     conf.ellipses=NA, replicates=FALSE,
                     coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                     cex=par("cex"), col=c("blue", "red"), col.ellipses=col, groups=NULL,
-                    xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
+                    add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   what <- match.arg(what)
   coords <- match.arg(coords)
 
@@ -16,7 +16,7 @@ plot.rc <- function(x, dim=c(1, 2), what=c("both", "rows", "columns"), which=NUL
   plot.assoc(x$assoc, dim=dim, what=what, which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, col.ellipses=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
+             add=add, xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
              pch=pch, font=font, ...)
 }
 
@@ -25,7 +25,7 @@ plot.rc.symm <- function(x, dim=c(1, 2), which=NULL,
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                          cex=par("cex"), col="blue", col.ellipses=col, groups=NULL,
-                         xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
+                         add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   coords <- match.arg(coords)
 
   if(!inherits(x, "rc.symm"))
@@ -37,7 +37,7 @@ plot.rc.symm <- function(x, dim=c(1, 2), which=NULL,
   plot.assoc(x$assoc, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, col.ellipses=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
+             add=add, xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
              pch=pch, font=font, ...)
 }
 
@@ -46,7 +46,7 @@ plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), w
                         conf.ellipses=NA, replicates=FALSE,
                         coords=c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
                         cex=par("cex"), col="blue", col.ellipses=col, groups=NULL,
-                        xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
+                        add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   if(!inherits(x, "hmskew"))
       stop("x must be a hmskew object")
 
@@ -71,7 +71,7 @@ plot.hmskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), w
   plot.assoc(ass, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, col.ellipses=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
+             add=add, xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
              pch=pch, font=font, ...)
 }
 
@@ -80,7 +80,7 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), 
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
                          cex=par("cex"), col="blue", col.ellipses=col, groups=NULL,
-                         xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
+                         add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   if(!inherits(x, "yrcskew"))
       stop("x must be a yrcskew object")
 
@@ -104,7 +104,7 @@ plot.yrcskew <- function(x, dim=c(1, 2), what=c("skew-symmetric", "symmetric"), 
   plot.assoc(ass, dim=dim, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, col.ellipses=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
+             add=add, xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
              pch=pch, font=font, ...)
 }
 
@@ -113,7 +113,7 @@ plot.rcL <- function(x, dim=c(1, 2), layer="average", what=c("both", "rows", "co
                     conf.ellipses=NA, replicates=FALSE,
                     coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                     cex=par("cex"), col=c("blue", "red"), col.ellipses=col, groups=NULL,
-                    xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
+                    add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   what <- match.arg(what)
   coords <- match.arg(coords)
 
@@ -126,7 +126,7 @@ plot.rcL <- function(x, dim=c(1, 2), layer="average", what=c("both", "rows", "co
   plot.assoc(x$assoc, dim=dim, layer=layer, what=what, which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, col.ellipses=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
+             add=add, xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
              pch=pch, font=font, ...)
 }
 
@@ -135,7 +135,7 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer="average", which=NULL,
                           conf.ellipses=NA, replicates=FALSE,
                           coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                           cex=par("cex"), col="blue", col.ellipses=col, groups=NULL,
-                          xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
+                          add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   coords <- match.arg(coords)
 
   if(!inherits(x, "rcL.symm"))
@@ -147,7 +147,7 @@ plot.rcL.symm <- function(x, dim=c(1, 2), layer="average", which=NULL,
   plot.assoc(x$assoc, dim=dim, layer=layer, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=NULL, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, col.ellipses=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
+             add=add, xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab, main=main,
              pch=pch, font=font, ...)
 }
 
@@ -157,7 +157,7 @@ plot.hmskewL <- function(x, dim=c(1, 2), layer="average", what=c("skew-symmetric
                          conf.ellipses=NA, replicates=FALSE,
                          coords=c("polar", "cartesian"), rev.axes=c(FALSE, FALSE),
                          cex=par("cex"), col="blue", col.ellipses=col, groups=NULL,
-                         xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
+                         add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   if(!inherits(x, "hmskewL"))
       stop("x must be a hmskewL object")
 
@@ -182,7 +182,7 @@ plot.hmskewL <- function(x, dim=c(1, 2), layer="average", what=c("skew-symmetric
   plot.assoc(ass, dim=dim, layer=layer, what="rows", which=which, mass=mass, luminosity=luminosity,
              arrow=arrow, conf.ellipses=conf.ellipses, replicates=replicates,
              coords=coords, rev.axes=rev.axes, cex=cex, col=col, col.ellipses=col, groups=groups,
-             xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab,
+             add=add, xlim=xlim, ylim=ylim, asp=asp, xlab=xlab, ylab=ylab,
              main=main, font=font, ...)
 }
 
@@ -191,7 +191,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
                        conf.ellipses=NA, replicates=FALSE,
                        coords=c("cartesian", "polar"), rev.axes=c(FALSE, FALSE),
                        cex=par("cex"), col=c("blue", "red"), col.ellipses=col, groups=NULL,
-                       xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
+                       add=FALSE, xlim, ylim, asp, xlab, ylab, main, pch, font, ...) {
   if(!(inherits(x, "assoc")))
       stop("x must be an assoc object")
 
@@ -519,7 +519,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   }
 
 
-  if(coords == "cartesian") {
+  if(!add && coords == "cartesian") {
       if(missing(xlab))
           xlab <- sprintf("Dimension %i (%s)",
                           dim[1], prettyNum(round(x$phi[dim[1]], 2), nsmall=2))
@@ -554,7 +554,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
           }
       }
   }
-  else {
+  else if(!add) {
       opar <- par(mar=c(1, 1, 1, 1))
       on.exit(par(opar))
 
