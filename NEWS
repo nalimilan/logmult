@@ -1,3 +1,6 @@
+2015-04-22 - Version 0.6.2
+- Fix yrskew to be compatible with gnm version 1.0-8 (thanks to Heather Turner).
+
 2015-01-13 - Version 0.6.1
 - Support 1D association plots using dotchart().
 - Add col.ellipses argument to plot.assoc() functions (based on work by Michael Friendly).

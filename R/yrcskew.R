@@ -82,14 +82,10 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       cat("Running real model...\n")
   }
 
-  # We integrate computations in the formula rather than doing them separately
-  # because gnm() does not seem to allow using objects outside of the data argument
-  # in formulas called from functions. This seems to be a problem with how the formula's
-  # environment is handled, and also happens when calling gnm() directly without eval().
-  f <- sprintf("%s + instances(YRCSkew(%s, %s, ifelse(as.numeric(%s) < as.numeric(%s), 1, 0), ifelse(as.numeric(%s) > as.numeric(%s), 1, 0)), %s)",
-                                       basef,
-                                       vars[1], vars[2],
-                                       vars[1], vars[2], vars[1], vars[2], nd.skew)
+  f <- sprintf("%s + instances(YRCSkew(%s, %s, factor(ifelse(as.numeric(%s) < as.numeric(%s), 1, 0)), factor(ifelse(as.numeric(%s) > as.numeric(%s), 1, 0))), %s)",
+               basef,
+               vars[1], vars[2],
+               vars[1], vars[2], vars[1], vars[2], nd.skew)
 
   args <- list(formula=eval(as.formula(f)), data=tab,
                constrain="YRCSkew\\(.*\\)0$",
