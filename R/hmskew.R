@@ -117,6 +117,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
 
   model$assoc.hmskew <- assoc.hmskew(model, weighting=weighting, rowsup=rowsup, colsup=colsup)
 
+  model$call.gnm <- model$call
   model$call <- match.call()
 
 

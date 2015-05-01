@@ -1,3 +1,9 @@
+asGnm.unidiff <- asGnm.assocmod <- function(object, ...) {
+    object$call <- object$call.gnm
+    class(object) <- c("gnm", "glm", "lm")
+    object
+}
+
 printModelHeading <- function(x, digits=max(3, getOption("digits") - 4)) {
   cat("Call:\n", deparse(x$call), "\n", sep="", fill=TRUE)
 

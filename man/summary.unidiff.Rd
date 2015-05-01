@@ -56,6 +56,10 @@
   \item{aic}{the value of the AIC for the model fit (contrary to the value reported by
       \code{\link{AIC}} and \code{\link{extractAIC}}, the reference is 0 for the
       saturated model).}
+  \item{family}{the \code{family} component from object.}
+  \item{dispersion}{the estimated dispersion}
+  \item{df}{a 3-vector of the rank of the model; the number of residual
+            degrees of freedom; and number of unconstrained coefficients.}
 }
 \author{
   Milan Bouchet-Valat

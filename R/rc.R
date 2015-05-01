@@ -82,6 +82,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   newclasses <- if(symmetric) c("rc.symm", "rc", "assocmod") else c("rc", "assocmod")
   class(model) <- c(newclasses, class(model))
 
+  model$call.gnm <- model$call
   model$call <- match.call()
 
   model$assoc <- assoc(model, weighting=weighting, rowsup=rowsup, colsup=colsup)

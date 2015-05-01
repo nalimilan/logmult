@@ -128,6 +128,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   newclasses <- if(symmetric) c("rcL.symm", "rcL", "assocmod") else c("rcL", "assocmod")
   class(model) <- c(newclasses, class(model))
 
+  model$call.gnm <- model$call
   model$call <- match.call()
 
   if(layer.effect == "none") {
@@ -148,6 +149,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   class(model$assoc) <- if(symmetric) c("assoc.rcL", "assoc.symm", "assoc")
                         else c("assoc.rcL", "assoc")
 
+  model$call.gnm <- model$call
   model$call <- match.call()
 
 

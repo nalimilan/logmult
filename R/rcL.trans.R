@@ -139,6 +139,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
                 else c("rcL.trans", "rcL", "assocmod")
   class(model) <- c(newclasses, class(model))
 
+  model$call.gnm <- model$call
   model$call <- match.call()
 
   model$assoc <- assoc(model, weighting=weighting)

@@ -158,6 +158,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   class(model) <- c("hmskewL", "assocmod", class(model))
 
+  model$call.gnm <- model$call
   model$call <- match.call()
 
   if(is.na(nd.symm) || nd.symm == 0) {

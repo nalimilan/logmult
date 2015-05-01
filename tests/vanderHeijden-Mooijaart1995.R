@@ -25,3 +25,8 @@ round(ass$phi[1] * (ass$row[,2,1] %o% ass$row[,1,1] - ass$row[,1,1] %o% ass$row[
 
 # Plot
 plot(model, coords="cartesian")
+
+# Test anova
+indep <- gnm(Freq ~ O + D, data=ocg1973, family=poisson)
+symm <- gnm(Freq ~ O + D + Symm(O, D), data=ocg1973, family=poisson)
+anova(indep, symm, model, test="LR")

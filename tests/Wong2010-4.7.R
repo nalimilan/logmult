@@ -51,6 +51,10 @@ stopifnot(isTRUE(all.equal(model.heterog$assoc$col[,,-2],
                            check.attributes=FALSE,
                            tolerance=1e-6)))
 
+# Test anova
+indep <- gnm(Freq ~ Education*Group + Occupation*Group, data=gss7590, family=poisson)
+a <- anova(indep, model, model.heterog, test="LR")
+
 } else {
 cat("Skipped because _R_CHECK_TIMINGS_ is set and not empty.\n")
 }

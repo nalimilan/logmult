@@ -135,6 +135,11 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
                             0.7927,  0.2948, -0.3342,  0.3295,  0.0612, -0.5712,  0.2573,
                             0.2574,  0.0482,  0.7824, -0.4677, -0.2085, -0.0015, -0.153)))
 
+
+      # Test anova
+      indep <- gnm(Freq ~ orig*educ + dest*educ, data=as.table(yaish), family=poisson)
+      anova(indep, model, test="LR")
+      anova(indep, model, test="Chisq")
   }
 }
 

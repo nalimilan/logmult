@@ -99,6 +99,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
 
   class(model) <- c("yrcskew", "rc.symm", "rc", "assocmod", class(model))
 
+  model$call.gnm <- model$call
   model$call <- match.call()
 
   if(!is.na(nd.symm))

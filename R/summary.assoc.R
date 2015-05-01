@@ -121,6 +121,7 @@ summary.assocmod <- function(object, weighting, ...) {
   if(all(is.na(coefficients[,"Adjusted"])))
       coefficients <- coefficients[,!colnames(coefficients) == "Adjusted"]
 
+  summ.gnm <- summary(asGnm(object))
 
   res <- list(call=object$call,
               deviance.resid=residuals(object, type="deviance"),
@@ -131,7 +132,9 @@ summary.assocmod <- function(object, weighting, ...) {
               weighting=weighting,
               deviance=object$deviance, df.residual=object$df.residual,
               bic=object$deviance - log(sum(na.omit(c(object$data)))) * object$df.residual,
-              aic=object$deviance - 2 * object$df.residual)
+              aic=object$deviance - 2 * object$df.residual,
+              # Needed by R functions like anova()
+              family=object$family, dispersion=summ.gnm$dispersion, df=summ.gnm$df)
 
   class(res) <- "summary.assocmod"
 

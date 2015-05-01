@@ -34,3 +34,7 @@ stopifnot(all.equal(round(c(unweighted$col, unweighted$col * sqrt(unweighted$phi
                       -1.62, -1.19, -0.28, 0.14, 1.1, 1.59,
                       -1.38, -1, -0.21, 0.16, 1, 1.43,
                       -1.37, -1, -0.21, 0.16, 1, 1.42)))
+
+# Test anova
+indep <- gnm(Freq ~ Occupation + Years.of.Schooling, data=gss88, family=poisson)
+anova(indep, unweighted, test="LR")

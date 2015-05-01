@@ -45,7 +45,7 @@ tab2 <- structure(c(261L, 43L, 21L, 5L, 7L, 26L, 5L, 16L, 17L, 7L, 1L,
                     3L, 39L, 31L, 22L, 2L, 28L, 44L, 34L, 20L, 19L, 16L, 11L, 64L,
                     165L, 105L, 9L, 41L, 35L, 42L, 52L, 20L, 38L, 10L, 111L, 299L,
                     309L, 12L, 1L, 3L, 2L, 2L, 0L, 4L, 25L, 4L, 32L, 19L, 16L),
-                  .Dim = c(11L, 11L, 2L),
+                  .Dim = c(11L, 11L, 2L), class="table",
                   .Dimnames = structure(list(H = c("I", "II", "IIIa", "IIIb", "IVa",
                                                    "IVb", "IVc", "V", "VI", "VIIa", "VIIb"),
                                              F = c("I", "II", "IIIa", "IIIb", "IVa", "IVb",
@@ -59,3 +59,8 @@ stopifnot(isTRUE(all.equal(round(c(model2$assoc$phi), 2), c(0.18, 0.04, 0.18, 0.
 stopifnot(isTRUE(all.equal(round(c(model2$assoc$row), 2),
                            c(1.97, 1.38,  0.05, -0.24, -1.02, 0.57, -0.79, -0.16, -0.14, -1.32, -1.56,
                              0,   -0.03, -0.94,  0.98, -0.10, 0.71,  2.65, -0.86, -0.66, -0.77,  0.79))))
+
+# Test anova
+indep <- gnm(Freq ~ M*T + W*T, data=tab2, family=poisson)
+anova(indep, model2, test="LR")
+anova(indep, model2, test="Chisq")
