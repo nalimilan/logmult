@@ -99,9 +99,17 @@ maor <- function(tab, phi=FALSE, cell=FALSE,
           sum(lambda.norm)^(1/norm)
   }
   else {
-      if(cell)
-          4/sum((rp1 * (1 - rp1)) %o% (cp1 * (1 - cp1))) * lambda.norm
-      else
-          exp((4/sum((rp1 * (1 - rp1)) %o% (cp1 * (1 - cp1))) * sum(lambda.norm))^(1/norm))
+      if(weighting == "none") {
+          if(cell)
+              4 * nrow(tab) * ncol(tab) * lambda.norm
+          else
+              exp((4 * nrow(tab) * ncol(tab) * sum(lambda.norm))^(1/norm))
+      }
+      else {
+          if(cell)
+              4/sum((rp1 * (1 - rp1)) %o% (cp1 * (1 - cp1))) * lambda.norm
+          else
+              exp((4/sum((rp1 * (1 - rp1)) %o% (cp1 * (1 - cp1))) * sum(lambda.norm))^(1/norm))
+      }
   }
 }
