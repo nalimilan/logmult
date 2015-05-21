@@ -254,7 +254,7 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
   nc <- ncol(tab)
   nl <- dim(tab)[3]
 
-  # Weight with marginal frequencies, cf. Becker & Clogg (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
+  # Weight with marginal frequencies, cf. Clogg & Shihadeh (1994), p. 83-84, and Becker & Clogg (1989), p. 144.
   weighting <- match.arg(weighting)
   if(weighting == "marginal")
       p <- prop.table(apply(tab, 1, sum, na.rm=TRUE) + apply(tab, 2, sum, na.rm=TRUE))
