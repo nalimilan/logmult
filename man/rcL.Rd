@@ -140,7 +140,7 @@ rcL(tab, nd = 1,
   }
 
 
-  ## Wong (2010), Table 4.7 (p. 103), model 9
+  ## Wong (2010), Table 4.6 (p. 103), model 9
   \dontrun{
   data(gss7590)
 
