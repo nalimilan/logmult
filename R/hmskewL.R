@@ -1,7 +1,8 @@
 ## Skew-symmetric association model with layer effect (extension of van der Heijden & Mooijaart, 1995)
 
 hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "heterogeneous", "none"),
-                    layer.effect.symm=c("heterogeneous", "uniform", "homogeneous.scores", "none"),
+                    layer.effect.symm=c("heterogeneous", "uniform", "regression.type",
+                                        "homogeneous.scores", "none"),
                     diagonal=c("none", "heterogeneous", "homogeneous"),
                     weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
                     nreplicates=100, ncpus=getOption("boot.ncpus"),
@@ -36,6 +37,8 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
       stop("layer.effect.symm == \"homogeneous.scores\" is only valid when nd.symm is not NA")
   else if(!is.na(nd.symm) && layer.effect.symm == "uniform")
       stop("layer.effect.symm == \"uniform\" is only valid when nd.symm is NA")
+  else if(!is.na(nd.symm) && layer.effect.symm == "regression.type")
+      stop("layer.effect.symm == \"regression.type\" is only valid when nd.symm is NA")
 
   if(length(dim(tab)) > 3)
       tab <- margin.table(tab, 1:3)
@@ -62,14 +65,17 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
           f1.symm <- sprintf("+ %s:Symm(%s, %s)",
                              vars[3], vars[1], vars[2])
       else if(layer.effect.symm == "uniform")
-          f1.symm <- sprintf("+ Mult(Exp(%s), Symm(%s, %s))", 
+          f1.symm <- sprintf("+ Mult(Exp(%s), Symm(%s, %s))",
                              vars[3], vars[1], vars[2])
+      else if(layer.effect.symm == "regression.type")
+          f1.symm <- sprintf("+ Symm(%s, %s) + Mult(%s, Symm(%s, %s))",
+                             vars[1], vars[2], vars[3], vars[1], vars[2])
       else
           f1.symm <- sprintf("+ Symm(%s, %s)", 
                              vars[1], vars[2])
   }
   else if(!is.na(nd.symm) && nd.symm > 0) {
-      if(layer.effect.symm == "uniform") {
+      if(layer.effect.symm %in% c("uniform", "regression.type")) {
           # Handled at the top of the function
           stop()
       }
@@ -99,7 +105,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   nastart <- length(start) == 1 && is.na(start)
 
-  if(is.na(nd.symm))
+  if(layer.effect.symm %in% c("heterogeneous", "regression.type"))
       eliminate <- eval(parse(text=sprintf("quote(Symm(%s, %s))", vars[1], vars[2])))
   else
       eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))

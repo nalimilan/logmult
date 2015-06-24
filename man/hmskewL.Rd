@@ -14,6 +14,7 @@ hmskewL(tab, nd.symm = NA,
         layer.effect.skew = c("homogeneous.scores", "heterogeneous",
                               "none"),
         layer.effect.symm = c("heterogeneous", "uniform",
+                              "regression.type",
                               "homogeneous.scores", "none"),
         diagonal = c("none", "heterogeneous", "homogeneous"),
         weighting = c("marginal", "uniform", "none"),
@@ -82,8 +83,9 @@ hmskewL(tab, nd.symm = NA,
   When \code{nd.symm} is different from \code{NA}, the symmetric association works exactly like a call to \code{rcL},
   with parameters \code{nd.symm} and \code{layer.effect.symm} translated respectively to \code{nd} and
   \code{layer.effect}. When \code{nd.symm == NA}, symmetric association parameters are either stable across layers,
-  are multiplied by a layer coefficient (UNIDIFF model, see \code{\link{unidiff}}), or are different for each layer,
-  when \code{layer.effect.symm} is respectively \code{none}, \code{uniform} and \code{heterogeneous}.
+  are multiplied by a layer coefficient (UNIDIFF model, see \code{\link{unidiff}}), follow a regression-type
+  (Goodman-Hout) specification, or are different for each layer, when \code{layer.effect.symm} is respectively
+  \code{none}, \code{uniform}, \code{regression.type} and \code{heterogeneous}.
 
   Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
