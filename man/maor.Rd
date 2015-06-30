@@ -16,7 +16,8 @@
 \usage{
 maor(tab, phi = FALSE, cell = FALSE,
      weighting = c("marginal", "uniform", "none"),
-     norm = 2, row.weights = NULL, col.weights = NULL)
+     norm = 2, component=c("total", "symmetric", "antisymmetric"),
+     row.weights = NULL, col.weights = NULL)
 }
 \arguments{
   \item{tab}{a two- or three-way table without zero cells; for three-way tables,
@@ -30,6 +31,8 @@ maor(tab, phi = FALSE, cell = FALSE,
   \item{norm}{the norm to use to compute the mean of \eqn{\lambda_{ij}} parameters,
       1 for the mean of absolute values, or 2 for the square root
       of the sum of squared parameters (as in the original version).}
+  \item{component}{whether to compute the total association, or from symmetric
+      or antisymmetric interaction coefficients only.}
   \item{row.weights}{optional custom weights to be used for rows, e.g. to compute
       the phi coefficient for several tables using their overall marginal
       distribution. If specified, \code{weighting} is ignored.}
