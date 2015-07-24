@@ -401,7 +401,8 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
   col.weights <- apply(tab, c(2, 3), sum, na.rm=TRUE)
 
   obj <- list(phi = layer, row = sc, col = sc, diagonal = dg,
-              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights,
+              vars = vars)
 
   class(obj) <- c("assoc.hmskewL", "assoc.symm", "assoc")
   obj

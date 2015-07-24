@@ -266,7 +266,8 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"),
   }
 
   obj <- list(phi = phi, row = sc, col = sc, diagonal = dg,
-              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights,
+              vars = vars)
 
   ## Supplementary rows/columns
   if(!is.null(rowsup) || !is.null(colsup)) {

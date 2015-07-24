@@ -400,7 +400,8 @@ assoc.rcL <- function(model, weighting=c("marginal", "uniform", "none"), ...) {
   col.weights <- apply(tab, c(2, 3), sum, na.rm=TRUE)
 
   obj <- list(phi = layer, row = row, col = col, diagonal = dg,
-              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights,
+              vars = vars)
 
   class(obj) <- c("assoc.rcL", "assoc")
   obj
@@ -577,7 +578,8 @@ assoc.rcL.symm <- function(model, weighting=c("marginal", "uniform", "none"), ..
   col.weights <- apply(tab, c(2, 3), sum, na.rm=TRUE)
 
   obj <- list(phi = layer, row = sc, col = sc, diagonal = dg,
-              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights,
+              vars = vars)
 
   class(obj) <- c("assoc.rcL", "assoc.symm", "assoc")
   obj

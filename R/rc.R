@@ -239,7 +239,8 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"),
   }
 
   obj <- list(phi = phi, row = row, col = col, diagonal = dg,
-              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights,
+              vars = vars)
 
 
   ## Supplementary rows/columns
@@ -362,7 +363,8 @@ assoc.rc.symm <- function(model, weighting=c("marginal", "uniform", "none"),
   }
 
   obj <- list(phi = phi, row = sc, col= sc, diagonal = dg,
-              weighting = weighting, row.weights = row.weights, col.weights = col.weights)
+              weighting = weighting, row.weights = row.weights, col.weights = col.weights,
+              vars = vars)
 
   ## Supplementary rows/columns
   if(!is.null(rowsup) || !is.null(colsup)) {

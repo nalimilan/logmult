@@ -633,8 +633,10 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       if(is.na(arrow))
           arrow <- 45
 
-      arc <- draw.arc(0, 0, deg1=arrow, deg2=arrow-20, radius=par("usr")[2]/1.1)[1,]
-      arrow.head(arc[3], arc[4], arc[1], arc[2])
+      arc <- draw.arc(0, 0, deg1=arrow, deg2=arrow-20, radius=par("usr")[2]/1.1)
+      arrow.head(arc[1, 3], arc[1, 4], arc[1, 1], arc[1, 2])
+      text(arc[nrow(arc), 1] - sinpi(arrow/180) * par("cxy")[1], arc[nrow(arc), 2] + cospi(arrow/180) * par("cxy")[2], x$vars[1])
+      text(arc[1, 1] + sinpi(arrow/180) * par("cxy")[1], arc[1, 2] - cospi(arrow/180) * par("cxy")[2], x$vars[2])
   }
 
   # If no diagonal-specific parameters are present, we use the association of the point to itself
