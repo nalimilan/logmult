@@ -1,3 +1,6 @@
+# Avoid random failures to converge
+set.seed(1)
+
 # See Becker-Clogg (1989) test
 
 library(logmult)
@@ -37,6 +40,7 @@ stopifnot(all.equal(maorn, exp(sqrt(sum(cmaorn)))))
 
 
 # Test on perfectly symmetric association
+data(ocg1973)
 rcm <- rc(ocg1973, 2, symmetric=TRUE, weighting="marginal", start=NA)
 rcu <- rc(ocg1973, 2, symmetric=TRUE, weighting="uniform", start=NA)
 rcn <- rc(ocg1973, 2, symmetric=TRUE, weighting="none", start=NA)
@@ -361,7 +365,7 @@ res <- replicate(10, {
     rp <- rep(1, nr)
     cp <- rep(1, nc)
     c(maor(tab, weighting="none", norm=norm),
-      exp((sum(abs(log(or(tab)))^norm, na.rm=TRUE)/((nr-1) * (nc-1)))^(1/norm)))
+      exp(sum(abs(log(or(tab)))^norm, na.rm=TRUE)^(1/norm)))
 })
 
 stopifnot(all.equal(res[1,], res[2,]))
