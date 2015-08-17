@@ -272,6 +272,11 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       x$phi <- res$phi
       x$row <- res$row
       x$col <- res$col
+
+      if(isTRUE(nrow(x$diagonal) > 1))
+          x$diagonal <- colSums(x$diagonal * t(x$row.weights))/rowSums(x$row.weights)
+      else if(length(x$diagonal) > 0)
+          x$diagonal <- x$diagonal[1,]
   }
   else {
       # Plotting only uses one layer, so get rid of others to make code cleaner below
@@ -297,12 +302,12 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       dim(x$col) <- dim(x$col)[-3]
       rownames(x$row) <- rn
       rownames(x$col) <- cn
-  }
 
-  if(isTRUE(nrow(x$diagonal) > 1))
-      x$diagonal <- x$diagonal[layer,]
-  else if(length(x$diagonal) > 0)
-      x$diagonal <- x$diagonal[1,]
+      if(isTRUE(nrow(x$diagonal) > 1))
+          x$diagonal <- x$diagonal[layer,]
+      else if(length(x$diagonal) > 0)
+          x$diagonal <- x$diagonal[1,]
+  }
 
   if(what != "both") {
       if(is.null(which))
