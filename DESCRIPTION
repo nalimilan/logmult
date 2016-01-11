@@ -1,8 +1,8 @@
 Package: logmult
 Type: Package
 Title: Log-Multiplicative Models, Including Association Models
-Version: 0.6.2
-Date: 2015-04-22
+Version: 0.6.3
+Date: 2015-01-12
 Authors@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
                   role=c("aut", "cre"))
 Imports: stats, graphics, qvcalc
