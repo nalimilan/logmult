@@ -23,8 +23,8 @@ maoru <- maor(fitted(rcu), weighting="uniform", norm=2)
 maorn <- maor(fitted(rcn), weighting="none", norm=2)
 
 cmaorm <- maor(fitted(rcm), cell=TRUE, weighting="marginal", norm=2)
-cmaoru <- maor(fitted(rcm), cell=TRUE, weighting="uniform", norm=2)
-cmaorn <- maor(fitted(rcm), cell=TRUE, weighting="none", norm=2)
+cmaoru <- maor(fitted(rcu), cell=TRUE, weighting="uniform", norm=2)
+cmaorn <- maor(fitted(rcn), cell=TRUE, weighting="none", norm=2)
 
 stopifnot(all.equal(phim, sqrt(sum((rcm$assoc$phi)^2))))
 stopifnot(all.equal(phiu, sqrt(sum(abs(rcu$assoc$phi)^2))))
@@ -150,8 +150,8 @@ amaorn <- maor(fitted(hmn), component="antisymmetric", weighting="none", norm=2)
 
 cmaorm <- maor(fitted(hmm), cell=TRUE, weighting="marginal", norm=2,
                row.weights=w, col.weights=w)
-cmaoru <- maor(fitted(hmm), cell=TRUE, weighting="uniform", norm=2)
-cmaorn <- maor(fitted(hmm), cell=TRUE, weighting="none", norm=2)
+cmaoru <- maor(fitted(hmu), cell=TRUE, weighting="uniform", norm=2)
+cmaorn <- maor(fitted(hmn), cell=TRUE, weighting="none", norm=2)
 
 stopifnot(all.equal(phim, aphim))
 stopifnot(all.equal(phiu, aphiu))
@@ -218,8 +218,8 @@ amaorn <- maor(fitted(hmn), component="antisymmetric", weighting="none", norm=2)
 
 cmaorm <- maor(fitted(hmm), cell=TRUE, weighting="marginal", norm=2,
                row.weights=w, col.weights=w)
-cmaoru <- maor(fitted(hmm), cell=TRUE, weighting="uniform", norm=2)
-cmaorn <- maor(fitted(hmm), cell=TRUE, weighting="none", norm=2)
+cmaoru <- maor(fitted(hmu), cell=TRUE, weighting="uniform", norm=2)
+cmaorn <- maor(fitted(hmn), cell=TRUE, weighting="none", norm=2)
 
 stopifnot(all.equal(phim, sqrt(sphim^2 + aphim^2)))
 stopifnot(all.equal(phiu, sqrt(sphiu^2 + aphiu^2)))
@@ -235,14 +235,9 @@ stopifnot(all.equal(phim, sqrt(sum(cphim))))
 stopifnot(all.equal(phiu, sqrt(sum(cphiu))))
 stopifnot(all.equal(phin, sqrt(sum(cphin))))
 
-stopifnot(all.equal(maorm, exp(sqrt(sum(cmaorm))), tolerance=1e-6))
-print(maoru)
-print(exp(sqrt(sum(cmaoru))))
-print(all.equal(maoru, exp(sqrt(sum(cmaoru)))))
-print(all.equal(log(maoru), sqrt(sum(cmaoru))))
-stopifnot(all.equal(log(maoru), sqrt(sum(cmaoru)), tolerance=1e-6))
-stopifnot(all.equal(maoru, exp(sqrt(sum(cmaoru))), tolerance=1e-5))
-stopifnot(all.equal(maorn, exp(sqrt(sum(cmaorn))), tolerance=1e-6))
+stopifnot(all.equal(maorm, exp(sqrt(sum(cmaorm)))))
+stopifnot(all.equal(maoru, exp(sqrt(sum(cmaoru)))))
+stopifnot(all.equal(maorn, exp(sqrt(sum(cmaorn)))))
 
 
 # Test for phi computed from UNIDIFF two-way interaction coefficients

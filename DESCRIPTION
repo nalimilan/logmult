@@ -7,7 +7,7 @@ Authors@R: c(person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
                     role=c("aut", "cre")),
              person("Heather", "Turner", email="ht@heatherturner.net",
                     role="ctb"))
-Imports: stats, graphics, qvcalc
+Imports: stats, utils, graphics, qvcalc
 Depends: gnm (>= 1.0-5)
 Suggests: survey, boot, ellipse, parallel
 Description: Functions to fit log-multiplicative models using gnm, with
