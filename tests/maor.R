@@ -236,7 +236,12 @@ stopifnot(all.equal(phiu, sqrt(sum(cphiu))))
 stopifnot(all.equal(phin, sqrt(sum(cphin))))
 
 stopifnot(all.equal(maorm, exp(sqrt(sum(cmaorm))), tolerance=1e-6))
-stopifnot(all.equal(maoru, exp(sqrt(sum(cmaoru))), tolerance=1e-6))
+print(maoru)
+print(exp(sqrt(sum(cmaoru))))
+print(all.equal(maoru, exp(sqrt(sum(cmaoru)))))
+print(all.equal(log(maoru), sqrt(sum(cmaoru))))
+stopifnot(all.equal(log(maoru), sqrt(sum(cmaoru)), tolerance=1e-6))
+stopifnot(all.equal(maoru, exp(sqrt(sum(cmaoru))), tolerance=1e-5))
 stopifnot(all.equal(maorn, exp(sqrt(sum(cmaorn))), tolerance=1e-6))
 
 
