@@ -84,10 +84,10 @@ svygnm.svyrep.design<-function(formula, design, subset=NULL, data.fun=NULL,
           args$verbose <- FALSE
 
           if(is.null(ncpus))
-            ncpus <- if(requireNamespace(parallel)) min(parallel::detectCores(), 5)
+            ncpus <- if(requireNamespace("parallel")) min(parallel::detectCores(), 5)
                      else 1
 
-          if (ncpus > 1 && requireNamespace(parallel)){
+          if (ncpus > 1 && requireNamespace("parallel")){
             cl <- parallel::makePSOCKcluster(rep("localhost", ncpus), outfile="", methods=FALSE)
             on.exit(parallel::stopCluster(cl))
 
