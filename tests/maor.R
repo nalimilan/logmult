@@ -235,9 +235,9 @@ stopifnot(all.equal(phim, sqrt(sum(cphim))))
 stopifnot(all.equal(phiu, sqrt(sum(cphiu))))
 stopifnot(all.equal(phin, sqrt(sum(cphin))))
 
-stopifnot(all.equal(maorm, exp(sqrt(sum(cmaorm)))))
-stopifnot(all.equal(maoru, exp(sqrt(sum(cmaoru)))))
-stopifnot(all.equal(maorn, exp(sqrt(sum(cmaorn)))))
+stopifnot(all.equal(maorm, exp(sqrt(sum(cmaorm))), tolerance=1e-6))
+stopifnot(all.equal(maoru, exp(sqrt(sum(cmaoru))), tolerance=1e-6))
+stopifnot(all.equal(maorn, exp(sqrt(sum(cmaorn))), tolerance=1e-6))
 
 
 # Test for phi computed from UNIDIFF two-way interaction coefficients
