@@ -15,7 +15,8 @@ jackboot <- function(se, ncpus, nreplicates, tab, model, assoc1, assoc2,
 
       libpaths <- .libPaths()
       parallel::clusterExport(cl, "libpaths", env=environment())
-      parallel::clusterEvalQ(cl, requireNamespace("logmult", lib.loc=libpaths, quietly=TRUE))
+      parallel::clusterEvalQ(cl, library("logmult", lib.loc=libpaths,
+                                         warn.conflicts=FALSE, quietly=TRUE))
 
       # Printing output from all nodes at the same time would be a mess, only print "."
       trace <- FALSE
