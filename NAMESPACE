@@ -71,4 +71,4 @@ S3method(logLik, svrepgnm)
 S3method(extractAIC, svrepgnm)
 S3method(model.matrix, svygnm)
 
-import(stats, graphics, gnm)
+import(stats, utils, graphics, grDevices, gnm)
