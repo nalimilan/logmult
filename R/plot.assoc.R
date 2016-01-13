@@ -905,61 +905,6 @@ pointLabel <- function(x, y = NULL, labels = seq(along = x), cex = 1,
 
   if (trace) cat("portion covered =", sum(rect_intersect(xy, rectv,xy,rectv))/(image_width*image_height),"\n")
 
-  GA <- function() {
-    # Make some starting genes
-    n_startgenes = 1000     # size of starting gene pool 
-    n_bestgenes = 30       # genes selected for cross-breeding
-    prob = 0.2
-
-    # Mutation function: O(n^2) time
-    mutate <- function(gene) {
-      offset = gen_offset(gene)
-      # Directed mutation where two rectangles intersect
-      doesIntersect = rect_intersect(xy[rectidx1] + offset[rectidx1], rectv[rectidx1],
-                                      xy[rectidx2] + offset[rectidx2], rectv[rectidx2]) > 0
-  
-      for (i in which(doesIntersect)) {
-        gene[rectidx1[i]] = sample(1:8, 1)
-      }
-      # And a bit of random mutation, too
-      for (i in seq(along=gene))
-        if (runif(1) <= prob)
-          gene[i] = sample(1:8, 1)
-      gene
-    }
-
-    # Crossbreed two genes, then mutate at "hot spots" where intersections remain
-    crossbreed <- function(g1, g2)
-      ifelse(sample(c(0,1), length(g1), replace = TRUE) > .5, g1, g2)
-
-
-    genes = matrix(sample(1:8, n_labels * n_startgenes, replace = TRUE), n_startgenes, n_labels)
-
-    for (i in 1:10) {
-      scores = array(0., NROW(genes))
-      for (j in 1:NROW(genes))
-        scores[j] = objective(genes[j,])
-      rankings = order(scores)
-      genes = genes[rankings,]
-      bestgenes = genes[1:n_bestgenes,]
-      bestscore = scores[rankings][1]
-      if (bestscore == 0) {
-        if (trace) cat("overlap area =", bestscore, "\n")
-        break
-      }
-      # At each stage, we breed the best genes with one another
-      genes = matrix(0, n_bestgenes^2, n_labels)
-      for (j in 1:n_bestgenes)
-        for (k in 1:n_bestgenes)
-          genes[n_bestgenes*(j-1) + k,] = mutate(crossbreed(bestgenes[j,], bestgenes[k,]))
-    
-      genes = rbind(bestgenes, genes)
-      if (trace) cat("overlap area =", bestscore, "\n")
-    }
-    nx = Re(xy + gen_offset(bestgenes[1,]))
-    ny = Im(xy + gen_offset(bestgenes[1,]))
-    list(x = nx, y = ny)
-  }
   SANN <- function() {
     # Make some starting "genes"
     #gene = sample(1:8, n_labels, repl = TRUE)
