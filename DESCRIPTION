@@ -2,9 +2,11 @@ Package: logmult
 Type: Package
 Title: Log-Multiplicative Models, Including Association Models
 Version: 0.6.3
-Date: 2015-01-12
-Authors@R: person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
-                  role=c("aut", "cre"))
+Date: 2016-01-13
+Authors@R: c(person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
+                    role=c("aut", "cre")),
+             person("Heather", "Turner", email="ht@heatherturner.net",
+                    role="ctb"))
 Imports: stats, graphics, qvcalc
 Depends: gnm (>= 1.0-5)
 Suggests: survey, boot, ellipse, parallel

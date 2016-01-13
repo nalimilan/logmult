@@ -1,3 +1,17 @@
+2016-01-13 - Version 0.6.3
+- Fix computing standard errors with ncpus > 1.
+- Add svygnm() function, equivalent for generalized nonlinear models
+  to svyglm() from package survey.
+- Add ras() function to run RAS/Demming-Stephan algorithm
+- Allow computing symmetric and antisymmetric components of MAOR
+- Allow regression-type (Goodman-Hout) symmetric association in hmskew models
+- Change (undocumented) definition of unweighted MAOR
+- Fix plotting association models with layers and diagonal when keeping default arguments
+- Plot variable names next to arrow in hmskew models
+- Fix calling anova() on logmult objects (noticed by Heather Turner)
+- Accept type="n" and add=TRUE arguments in plot.assoc()
+- Fix references in docs
+
 2015-04-22 - Version 0.6.2
 - Fix yrskew to be compatible with gnm version 1.0-8 (thanks to Heather Turner).
 
