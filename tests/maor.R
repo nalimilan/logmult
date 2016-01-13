@@ -181,6 +181,10 @@ hmm <- hmskew(ocg1973, nd.symm=1, weighting="marginal", start=NA)
 hmu <- hmskew(ocg1973, nd.symm=1, weighting="uniform", start=NA)
 hmn <- hmskew(ocg1973, nd.symm=1, weighting="none", start=NA)
 
+print(all.equal(fitted(hmm), fitted(hmu)))
+print(all.equal(fitted(hmm), fitted(hmn)))
+print(all.equal(fitted(hmu), fitted(hmn)))
+
 w <- (hmm$assoc$row.weights + hmm$assoc$col.weights)[,1]/2
 phim <- maor(fitted(hmm), TRUE, weighting="marginal", norm=2, row.weights=w, col.weights=w)
 phiu <- maor(fitted(hmu), TRUE, weighting="uniform", norm=2)
