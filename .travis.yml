@@ -1,6 +1,8 @@
 language: r
 sudo: required
 warnings_are_errors: true
+notifications:
+  email: false
 
 r_github_packages:
   - jimhester/covr
