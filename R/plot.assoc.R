@@ -789,7 +789,6 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
 
 # Function taken from the directlabels package, but it is in the public domain
 pointLabel <- function(x, y = NULL, labels = seq(along = x), cex = 1,
-                        method = c("SANN", "GA"),
                         allowSmallOverlap = FALSE,
                         trace = FALSE,
                         doPlot = TRUE,
@@ -811,8 +810,6 @@ pointLabel <- function(x, y = NULL, labels = seq(along = x), cex = 1,
   y = z$y
   if (length(labels) < length(x))
     labels = rep(labels, length(x))
-
-  method <- match.arg(method)
 
   boundary = par()$usr
   image_width = boundary[2] - boundary[1]
@@ -940,10 +937,8 @@ pointLabel <- function(x, y = NULL, labels = seq(along = x), cex = 1,
     ny = Im(xy + gen_offset(bestgene))
     list(x = nx, y = ny)
   }
-  if (method == "SANN")
-    xy = SANN()
-  else
-    xy = GA()
+
+  xy = SANN()
 
   # Taken from http://article.gmane.org/gmane.comp.lang.r.general/147787
   shadowtext <- function(xy, labels, col='black', bg='white',
