@@ -478,16 +478,17 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
       # dotchart() fails when the 'groups' argument has only one level, so work around it
       if(what == "rows") {
-          colnames(sc) <- "Rows"
+          colnames(sc) <- model$assoc$vars[1]
           dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col)
       }
       if(what == "columns") {
-          colnames(sc) <- "Columns"
+          colnames(sc) <- model$assoc$vars[2]
           dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col)
       }
       else if(what == "both") {
-          dotchart(sc, groups=factor(c(rep("Rows", nwr), rep("Columns", nwc))),
-                   pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col)
+          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col,
+                   groups=factor(c(rep(model$assoc$vars[1], nwr), rep(model$assoc$vars[2], nwc)),
+                                 levels=rev(model$assoc$vars)))
       }
 
       if(!is.na(conf.ellipses)) {
