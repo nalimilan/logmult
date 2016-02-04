@@ -234,7 +234,7 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
   if(!is.na(conf.int) && !isTRUE(conf.int > 0 && conf.int < 1))
       stop("'conf.int' must be NA or a numeric strictly between 0 and 1")
 
-  if(!is.na(conf.int) && (x$covtype == "none" || length(x$covmat) == 0))
+  if(!(is.na(conf.int) || conf.int == 0) && (x$covtype == "none" || length(x$covmat) == 0))
       stop("Cannot plot confidence intervals for a model without jackknife or bootstrap standard errors")
 
   if(!is.na(conf.int) && ncol(x$phi) > 1 && !requireNamespace("ellipse"))
@@ -478,17 +478,16 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
       # dotchart() fails when the 'groups' argument has only one level, so work around it
       if(what == "rows") {
-          colnames(sc) <- model$assoc$vars[1]
+          colnames(sc) <- x$vars[1]
           dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col)
       }
       if(what == "columns") {
-          colnames(sc) <- model$assoc$vars[2]
+          colnames(sc) <- x$vars[2]
           dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col)
       }
       else if(what == "both") {
           dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col,
-                   groups=factor(c(rep(model$assoc$vars[1], nwr), rep(model$assoc$vars[2], nwc)),
-                                 levels=rev(model$assoc$vars)))
+                   groups=factor(c(rep(x$vars[1], nwr), rep(x$vars[2], nwc)), levels=rev(x$vars)))
       }
 
       if(!is.na(conf.int)) {
