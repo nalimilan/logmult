@@ -20,7 +20,7 @@ summary(model) # Jackknife standard errors are slightly different
 
 # Compare with bootstrap standard errors
 model2 <- rc(tab, nd=2, weighting="none", se="bootstrap", start=NA)
-plot(model, conf.ellipses=0.95)
+plot(model, conf.int=0.95)
 summary(model2)
 
 # A few scores differ from reported results by .001

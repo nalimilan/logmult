@@ -190,7 +190,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
 
   # Compare with bootstrap standard errors
   model2 <- rc(tab, nd=2, weighting="none", se="bootstrap")
-  plot(model, conf.ellipses=0.95)
+  plot(model, conf.int=0.95)
   summary(model2)
   }
 }

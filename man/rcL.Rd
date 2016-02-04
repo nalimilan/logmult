@@ -134,8 +134,8 @@ rcL(tab, nd = 1,
   summary(marginal)
 
   opar <- par(mfrow=c(1, 2))
-  plot(marginal, layer="Caithness", conf.ellipses=0.95)
-  plot(marginal, layer="Aberdeen", conf.ellipses=0.95)
+  plot(marginal, layer="Caithness", conf.int=0.95)
+  plot(marginal, layer="Aberdeen", conf.int=0.95)
   par(opar)
   }
 

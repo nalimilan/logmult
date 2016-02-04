@@ -14,65 +14,65 @@
 \method{plot}{rc}(x, dim = c(1, 2),
      what = c("both", "rows", "columns"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = NA, replicates = FALSE,
+     conf.int = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
-     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     cex = par("cex"), col = c("blue", "red"), col.conf.int = col, groups = NULL,
+     add = FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rc.symm}(x, dim = c(1, 2), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = NA, replicates = FALSE,
+     conf.int = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     cex = par("cex"), col = "blue", col.conf.int = col, groups = NULL,
+     add = FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{hmskew}(x, dim = c(1, 2),
      what = c("skew-symmetric", "symmetric"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
-     arrow = 45, conf.ellipses = NA, replicates = FALSE,
+     arrow = 45, conf.int = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     cex = par("cex"), col = "blue", col.conf.int = col, groups = NULL,
+     add = FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{yrcskew}(x, dim = c(1, 2),
      what = c("skew-symmetric", "symmetric"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc.yrcskew$diagonal > 0),
-     arrow = 45, conf.ellipses = NA, replicates = FALSE,
+     arrow = 45, conf.int = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     cex = par("cex"), col = "blue", col.conf.int = col, groups = NULL,
+     add = FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rcL}(x, dim = c(1, 2), layer = "average",
      what = c("both", "rows", "columns"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = NA, replicates = FALSE,
+     conf.int = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
-     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     cex = par("cex"), col = c("blue", "red"), col.conf.int = col, groups = NULL,
+     add = FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{rcL.symm}(x, dim = c(1, 2), layer = "average",
      which = NULL,
      mass = TRUE, luminosity = length(x$assoc$diagonal > 0),
-     conf.ellipses = NA, replicates = FALSE,
+     conf.int = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     cex = par("cex"), col = "blue", col.conf.int = col, groups = NULL,
+     add = FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{hmskewL}(x, dim = c(1, 2), layer = "average",
      what = c("skew-symmetric", "symmetric"), which = NULL,
      mass = TRUE, luminosity = length(x$assoc.hmskew$diagonal > 0),
-     arrow=45, conf.ellipses = NA, replicates = FALSE,
+     arrow=45, conf.int = NA, replicates = FALSE,
      coords = c("polar", "cartesian"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = "blue", col.ellipses = col, groups = NULL,
-     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     cex = par("cex"), col = "blue", col.conf.int = col, groups = NULL,
+     add = FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 
 \method{plot}{assoc}(x, dim = c(1, 2), layer = 1,
      what = c("both", "rows", "columns"), which = NULL,
      mass = TRUE, luminosity = length(x$diagonal > 0),
-     arrow = NULL, conf.ellipses = NA, replicates = FALSE,
+     arrow = NULL, conf.int = NA, replicates = FALSE,
      coords = c("cartesian", "polar"), rev.axes = c(FALSE, FALSE),
-     cex = par("cex"), col = c("blue", "red"), col.ellipses = col, groups = NULL,
-     add=FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
+     cex = par("cex"), col = c("blue", "red"), col.conf.int = col, groups = NULL,
+     add = FALSE, type, xlim, ylim, asp, xlab, ylab, main, pch, font, ...)
 }
 \arguments{
   \item{x}{an association model, or an object inheriting from class \code{assoc}.}
@@ -97,9 +97,9 @@
                     as a linear function of the diagonal parameter values.}
   \item{arrow}{Numeric value indicating the angle at which the polar coordinates system arrow should be plotted;
                use NULL for no arrow.}
-  \item{conf.ellipses}{an integer between 0 and 1 giving the confidence level to use when drawing error ellipses/bars
-                       around the points (see \dQuote{Details} below); by default nothing is plotted. Only possible
-                       if jackknife or bootstrap was enabled when fitting the model.}
+  \item{conf.int}{an integer between 0 and 1 giving the confidence level to use when drawing error bars/ellipses
+                 around the points (see \dQuote{Details} below); by default nothing is plotted. Only possible
+                 if jackknife or bootstrap was enabled when fitting the model.}
   \item{replicates}{whether to plot points representing the values of the scores obtained for all of the
                     jackknife of bootrap replicates, when applicable (see \dQuote{Details} below).}
   \item{coords}{whether to use a Cartesian or a polar coordinate system; the former makes sense when axes
@@ -113,7 +113,7 @@
   \item{col}{a vector indicating the color of the point symbols, recycled as necessary; as a special case, a
              vector of length 2 can be passed, to indicate the color of row and column points, respectively.
              See also \code{luminosity}.}
-  \item{col.ellipses}{a vector indicating the color of the confidence ellipses/bars, when these are plotted; see
+  \item{col.conf.int}{a vector indicating the color of the confidence bars/ellipses, when these are plotted; see
                      \code{col} the format.}
   \item{groups}{a vector indicating what symbol should be used for each point, recycled as necessary; groups will
                 use \code{pch} values 21, 24, 22, 23 and 25, in this order, cycling if needed. If not an integer,
@@ -151,7 +151,7 @@
   origin as the general strength of the association for a category on both axes (a property that is lost for
   higher-dimensional models).
 
-  Confidence ellipses/bars are computed from the scores' variances and covariances, based on the assumption that they are
+  Confidence bars/ellipses are computed from the scores' variances and covariances, based on the assumption that they are
   follow a normal distribution, even if standard errors are computed using jackknife or bootstrap. When bootstrap (not
   jackknife) was used, this normality assumption can be assessed visually using the \code{replicates} argument to check 
   whether points globally follow the shape of the ellipses. See \code{\link{se.assoc}} for details about checking the
@@ -197,8 +197,8 @@
   \dontrun{
   model <- rc(margin.table(gss8590[,,c(2,4)], 1:2),
               nd=2, weighting="none", se="jackknife")
-  plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.ellipses=0.95)
-  plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.ellipses=0.95)
+  plot(model, what="row", rev.axes=c(TRUE, FALSE), conf.int=0.95)
+  plot(model, what="col", rev.axes=c(TRUE, FALSE), conf.int=0.95)
   }
 
   ## Wong (2010), Figures 4.1 and 4.2 (p. 108-109)
