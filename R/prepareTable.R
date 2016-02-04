@@ -19,10 +19,11 @@ prepareTable <- function(tab, twoWay=TRUE, rowsup=NULL, colsup=NULL) {
   if(length(names(dimnames(tab))) > 0)
       names(dimnames(tab)) <- make.names(names(dimnames(tab)), unique=TRUE)
   else
-      names(dimnames(tab)) <- paste0("Var", seq.int(length(dim(tab))))
+      names(dimnames(tab)) <- head(c("Rows", "Columns", "Layers",
+                                     paste0("Var", seq.int(length(dim(tab))))), length(dim(tab)))
 
 
-  # gnm doesn't include coefficients for row/columns that are empty or with NA name
+  # gnm doesn't include coefficients for rows/columns that are empty or with NA name
   # so get rid of them too
   if(length(dim(tab)) == 2)
       tab <- as.table(tab[!is.na(rownames(tab)) & rowSums(tab, na.rm=TRUE) > 0,
