@@ -479,15 +479,15 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
       # dotchart() fails when the 'groups' argument has only one level, so work around it
       if(what == "rows") {
           colnames(sc) <- "Rows"
-          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, color=col, xlab=xlab)
+          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col)
       }
       if(what == "columns") {
           colnames(sc) <- "Columns"
-          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, color=col, xlab=xlab)
+          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col)
       }
       else if(what == "both") {
           dotchart(sc, groups=factor(c(rep("Rows", nwr), rep("Columns", nwc))),
-                   pch=pch, main=main, xlim=xlim, asp=asp, color=col, xlab=xlab)
+                   pch=pch, main=main, xlim=xlim, asp=asp, xlab=xlab, color=col)
       }
 
       if(!is.na(conf.ellipses)) {
@@ -507,7 +507,9 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
                   se <- sqrt(covmat[start + which[[1]][i], start + which[[1]][i]])
                   segments(max(sc[i, dim] - q * se, par("usr")[1]), i,
                            min(sc[i, dim] + q * se, par("usr")[2]), i,
-                           col=col.ellipses[i], lty="dashed", lwd=2)
+                           col=col.ellipses[i], lwd=1.5)
+                  # To paint the points over segments
+                  points(sc[i, dim], i, pch=pch, col=col[i])
               }
 
               line <- i + 2
@@ -518,7 +520,9 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
                   se <- sqrt(covmat[start + nr + which[[2]][j], start + nr + which[[2]][j]])
                   segments(max(sc[i + j, dim] - q * se, par("usr")[1]), line + j,
                            min(sc[i + j, dim] + q * se, par("usr")[2]), line + j,
-                           col=col.ellipses[i + j], lty="dashed", lwd=2)
+                           col=col.ellipses[i + j], lwd=1.5)
+                  # To paint the points over segments
+                  points(sc[i + j, dim], line + j, col=col[i + j])
               }
           }
       }
