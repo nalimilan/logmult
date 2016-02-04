@@ -473,18 +473,21 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 
   # 1D plot
   if(ncol(sc) == 1) {
+      if(missing(xlab))
+          xlab <- "Category scores"
+
       # dotchart() fails when the 'groups' argument has only one level, so work around it
       if(what == "rows") {
           colnames(sc) <- "Rows"
-          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, color=col, xlab=xlab)
       }
       if(what == "columns") {
           colnames(sc) <- "Columns"
-          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+          dotchart(sc, pch=pch, main=main, xlim=xlim, asp=asp, color=col, xlab=xlab)
       }
       else if(what == "both") {
           dotchart(sc, groups=factor(c(rep("Rows", nwr), rep("Columns", nwc))),
-                   pch=pch, main=main, xlim=xlim, asp=asp, color=col)
+                   pch=pch, main=main, xlim=xlim, asp=asp, color=col, xlab=xlab)
       }
 
       if(!is.na(conf.ellipses)) {
