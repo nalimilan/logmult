@@ -80,7 +80,7 @@
              and vertical axes respectively; default is first dimension horizontal and second
              dimension vertical.}
   \item{layer}{integer indicating which layer should be represented, or \dQuote{average} or
-               \dQuote{average.rotate} when scores are homogeneous (see \dQuote{Details below}).}
+               \dQuote{average.rotate} when scores are homogeneous (see \dQuote{Details} below).}
   \item{what}{for \code{rc} and \code{assoc} objects, whether points corresponding to rows, columns
               or both should be plotted; for \code{hmskew} and \code{yrcskew} objects, what association
               should be plotted.}
@@ -158,7 +158,7 @@
   validity of jackknife or bootstrap results.
 
   When \code{layer} is set to \dQuote{average} for models with layer effect and homogeneous scores, intrinsic association
-  coefficients are weighted across all layers. In addition, if \code{layer} set to \dQuote{average.rotate}, scores are
+  coefficients are weighted across all layers. In addition, if \code{layer} is set to \dQuote{average.rotate}, scores are
   rotated so that axes of the plot are those with the highest variance; oblique axes represent the original dimensions
   in the new space.
 

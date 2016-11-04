@@ -64,3 +64,10 @@ stopifnot(isTRUE(all.equal(round(c(model2$assoc$row), 2),
 indep <- gnm(Freq ~ M*T + W*T, data=tab2, family=poisson)
 anova(indep, model2, test="LR")
 anova(indep, model2, test="Chisq")
+
+
+# Check that plotting works for both symmetric and skew-symmetric components
+model <- hmskewL(tab[5:1, 5:1,], nd.symm=1, layer.effect.symm="homogeneous")
+plot(model)
+plot(model, what="symmetric")
+ass <- model$assoc

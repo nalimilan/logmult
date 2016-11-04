@@ -256,15 +256,20 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
        what <- "rows"
   }
 
+  if(layer %in% c("average", "average.rotate")) {
+      if(nl == 1) { # No average to compute
+          layer <- 1
+      }
+      else if(nlr > 1 || nlc > 1) {
+          warning("'layer=\"average\"' and 'layer=\"average.rotate\"' is only supported with homogeneous layer effect: plotting first layer instead")
+          layer <- 1
+      }
+  }
+
   rot <- NULL
   if(layer %in% c("average", "average.rotate")) {
       # For homogeneous association with layer, compute a weighted average of phi over layers
       # And if layer="average.rotate", prepare the drawing of lines representing the axes with the highest variance
-
-      if(nl == 1 || nlr > 1 || nlc > 1) {
-          warning("'layer=\"average\"' and 'layer=\"average.rotate\"' is only supported with homogeneous layer effect: plotting first layer instead")
-          layer <- 1
-      }
 
       res <- averaged.assoc(x, type=layer)
 
@@ -717,19 +722,31 @@ plot.assoc <- function(x, dim=c(1, 2), layer=1, what=c("both", "rows", "columns"
 averaged.assoc <- function(x, type=c("average", "average.rotate")) {
       type <- match.arg(type)
 
+      row <- x$row
+      col <- x$col
+
       nd <- ncol(x$phi)
-      nr <- nrow(x$row)
-      nc <- nrow(x$col)
+      nr <- nrow(row)
+      nc <- nrow(col)
+
+      # We need to drop the third dimension manually to avoid accidentally dropping the
+      # second one when there is only one dimension in the model
+      # dim<- removes dimnames...
+      dim(row) <- dim(row)[1:2]
+      dim(col) <- dim(col)[1:2]
+      rownames(row) <- rownames(x$row)
+      rownames(col) <- rownames(x$col)
 
       if(inherits(x, "assoc.symm")) {
           p <- get.probs(x)$rp
 
+          # The sum of row weights for each layer is equal to that of column weights
           phi <- colSums(sweep(x$phi, 1, prop.table(colSums(x$row.weights)), "*"))
 
           if(type == "average")
-              return(list(phi=phi, row=x$row[,,1], col=x$col[,,1]))
+              return(list(phi=phi, row=row, col=col))
 
-          adjsc <- sweep(x$row[,,1], 2, sqrt(phi), "*")
+          adjsc <- sweep(row, 2, sqrt(phi), "*")
 
           # Technique proposed in Goodman (1991), Appendix 4, but with eigenvalues decomposition
           lambda <- matrix(0, nr, nc)
@@ -737,7 +754,8 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
               lambda <- lambda + (adjsc[,i] %o% adjsc[,i])
           lambda0 <- lambda * sqrt(p %o% p) # Eq. A.4.3
           eigen <- eigen(lambda0, symmetric=TRUE)
-          sc2 <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd] # Eq. A.4.7
+
+          sc2 <- diag(1/sqrt(p)) %*% eigen$vectors[,1:nd, drop=FALSE] # Eq. A.4.7
           phi2 <- t(eigen$values[1:nd])
 
           adjsc2 <- sweep(sc2, 2, sqrt(phi), "*")
@@ -751,20 +769,8 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
           rp <- probs$rp
           cp <- probs$cp
 
+          # The sum of row weights for each layer is equal to that of column weights
           phi <- colSums(sweep(x$phi, 1, prop.table(colSums(x$row.weights)), "*"))
-
-          # We need to drop the third dimension manually to avoid accidentally dropping the
-          # second one when there is only one dimension in the model
-          row <- x$row[,, 1, drop=FALSE]
-          col <- x$col[,, 1, drop=FALSE]
-
-          # dim<- removes dimnames...
-          rn <- rownames(x$row)
-          cn <- rownames(x$col)
-          dim(row) <- dim(row)[-3]
-          dim(col) <- dim(col)[-3]
-          rownames(row) <- rownames(x$row)
-          rownames(col) <- rownames(x$col)
 
           if(type == "average")
               return(list(phi=phi, row=row, col=col))
@@ -778,8 +784,9 @@ averaged.assoc <- function(x, type=c("average", "average.rotate")) {
               lambda <- lambda + adjrow[,i] %o% adjcol[,i]
           lambda0 <- lambda * sqrt(rp %o% cp) # Eq. A.4.3
           sv <- svd(lambda0)
-          row2 <- diag(1/sqrt(rp)) %*% sv$u[,1:nd] # Eq. A.4.7
-          col2 <- diag(1/sqrt(cp)) %*% sv$v[,1:nd] # Eq. A.4.7
+
+          row2 <- diag(1/sqrt(rp)) %*% sv$u[,1:nd, drop=FALSE] # Eq. A.4.7
+          col2 <- diag(1/sqrt(cp)) %*% sv$v[,1:nd, drop=FALSE] # Eq. A.4.7
           phi2 <- t(sv$d[1:nd])
 
           adjrow2 <- sweep(row2, 2, sqrt(phi2), "*")
