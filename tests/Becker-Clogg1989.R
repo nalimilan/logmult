@@ -1,8 +1,10 @@
 ## Becker & Clogg (1989), Table 5 (p. 145)
 # See also ?rc
 
+options(boot.ncpus=2) # For CRAN policies
 timings <- as.numeric(Sys.getenv("_R_CHECK_TIMINGS_"))
-if(!is.na(timings) && timings > 60) {
+notcran <- Sys.getenv("NOT_CRAN")
+if(notcran != "" || (!is.na(timings) && timings > 60)) {
 
 library(logmult)
 data(color)
@@ -114,6 +116,5 @@ stopifnot(isTRUE(all.equal(c(round(marginal$assoc$col, d=3)),
 # as they are larger than the unweighted ones, while phi are much smaller.
 stopifnot(isTRUE(all.equal(c(round(se(unweighted)$phi, d=3)),
                            c(c(0.282, 0.221, 0.053, 0.04)))))
-} else {
-cat("Skipped because _R_CHECK_TIMINGS_ is set and not empty.\n")
+
 }

@@ -1,8 +1,10 @@
 ## Wong (2010), Table 2.7 (p. 48-49)
 # See also ?rc
 
+options(boot.ncpus=2) # For CRAN policies
 timings <- as.numeric(Sys.getenv("_R_CHECK_TIMINGS_"))
-if(!is.na(timings) && timings > 60) {
+notcran <- Sys.getenv("NOT_CRAN")
+if(notcran != "" || (!is.na(timings) && timings > 60)) {
 
 library(logmult)
 data(gss8590)
@@ -33,6 +35,4 @@ stopifnot(isTRUE(all.equal(round(c(model$assoc$col), d=3),
                            c(0.765,  0.020, -0.322, -0.55, 0.088,
                             -0.137, -0.549, -0.120, -0.01, 0.816))))
 
-} else {
-cat("Skipped because _R_CHECK_TIMINGS_ is set and not empty.\n")
 }

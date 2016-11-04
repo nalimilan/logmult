@@ -1,7 +1,9 @@
 ## Wong (2010), Table 4.7 (p. 103), model 9
 
+options(boot.ncpus=2) # For CRAN policies
 timings <- as.numeric(Sys.getenv("_R_CHECK_TIMINGS_"))
-if(!is.na(timings) && timings > 60) {
+notcran <- Sys.getenv("NOT_CRAN")
+if(notcran != "" || (!is.na(timings) && timings > 60)) {
 
 library(logmult)
 data(gss7590)
@@ -55,6 +57,4 @@ stopifnot(isTRUE(all.equal(model.heterog$assoc$col[,,-2],
 indep <- gnm(Freq ~ Education*Group + Occupation*Group, data=gss7590, family=poisson)
 a <- anova(indep, model, model.heterog, test="LR")
 
-} else {
-cat("Skipped because _R_CHECK_TIMINGS_ is set and not empty.\n")
 }
