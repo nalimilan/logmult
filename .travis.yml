@@ -1,5 +1,8 @@
 language: r
-sudo: required
+cache: packages
+r:
+  - release
+  - devel
 warnings_are_errors: true
 notifications:
   email: false
@@ -8,4 +11,4 @@ r_github_packages:
   - jimhester/covr
 
 after_success:
-  - Rscript -e 'covr::coveralls()'
+  - Rscript -e 'covr::coveralls(type="all", combine_types=TRUE)'
