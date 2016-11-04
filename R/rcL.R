@@ -4,7 +4,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                 symmetric=FALSE, diagonal=c("none", "heterogeneous", "homogeneous"),
                 weighting=c("marginal", "uniform", "none"), se=c("none", "jackknife", "bootstrap"),
                 nreplicates=100, ncpus=getOption("boot.ncpus"),
-                family=poisson, weights=NULL, start=NULL, etastart=NULL, tolerance=1e-8, iterMax=5000,
+                family=poisson, weights=NULL, start=NULL, etastart=NULL,
+                tolerance=1e-8, iterMax=5000, eliminate=NULL,
                 trace=FALSE, verbose=TRUE, ...) {
   layer.effect <- match.arg(layer.effect)
   diagonal <- match.arg(diagonal)
@@ -47,7 +48,8 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   f1 <- sprintf("Freq ~ %s + %s + %s + %s:%s + %s:%s",
                 vars[1], vars[2], vars[3], vars[1], vars[3], vars[2], vars[3])
 
-  eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
+  if(!is.null(eliminate) && is.na(eliminate))
+      eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
   base <- NULL
 
@@ -58,8 +60,10 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
       cat("Running base model to find starting values...\n")
 
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
-                   family=family, weights=weights, eliminate=eliminate,
+                   family=family, weights=weights,
                    tolerance=1e-6, iterMax=iterMax)
+      if(!is.null(eliminate))
+          args$eliminate <- eliminate
 
       base <- do.call("gnm", c(args, list(...)))
 
@@ -117,8 +121,9 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   args <- list(formula=as.formula(paste(f1, diagstr, f2)), data=tab,
                family=family, weights=weights, start=start, etastart=etastart,
-               eliminate=eliminate,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
+  if(!is.null(eliminate))
+      args$eliminate <- eliminate
 
   model <- do.call("gnm", c(args, list(...)))
 

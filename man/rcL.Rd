@@ -19,7 +19,8 @@ rcL(tab, nd = 1,
     nreplicates = 100, ncpus = getOption("boot.ncpus"),
     family = poisson, weights = NULL,
     start = NULL, etastart = NULL, tolerance = 1e-8,
-    iterMax = 5000, trace = FALSE, verbose = TRUE, ...)
+    iterMax = 5000, eliminate=NULL,
+    trace = FALSE, verbose = TRUE, ...)
 }
 \arguments{
   \item{tab}{ a three-way table, or an object (such as a matrix) that can be coerced into a table;
@@ -53,6 +54,9 @@ rcL(tab, nd = 1,
      instability of estimated scores!}
   \item{iterMax}{ a positive integer specifying the maximum number of main iterations to perform;
      consider raising this value if your model does not converge.}
+  \item{eliminate}{ either \code{NULL} (the default) to estimate all parameters, \code{NA}
+     to skip the estimation of some parameters for increased efficiency, or the name of a
+     factor to be passed as \code{\link{gnm}}'s corresponding argument.}
   \item{trace}{ a logical value indicating whether the deviance
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,

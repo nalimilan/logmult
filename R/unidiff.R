@@ -4,7 +4,7 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                     constrain="auto",
                     weighting=c("marginal", "uniform", "none"), norm=2,
                     family=poisson,
-                    tolerance=1e-8, iterMax=5000,
+                    tolerance=1e-8, iterMax=5000, eliminate=NULL,
                     trace=FALSE, verbose=TRUE,
                     checkEstimability=TRUE, ...) {
   diagonal <- match.arg(diagonal)
@@ -53,12 +53,15 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
                                vars[1], vars[2], vars[3], dimnames(tab)[[3]][1])
   }
 
-  eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
+  if(!is.null(eliminate) && is.na(eliminate))
+      eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(f), data=tab, constrain=constrain,
-               family=family, eliminate=eliminate, tolerance=tolerance, iterMax=iterMax,
+               family=family, tolerance=tolerance, iterMax=iterMax,
                trace=trace, verbose=verbose)
+  if(!is.null(eliminate))
+      args$eliminate <- eliminate
 
   model <- do.call("gnm", c(args, list(...)))
 

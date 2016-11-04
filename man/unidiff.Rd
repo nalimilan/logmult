@@ -13,7 +13,7 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
         constrain = "auto",
         weighting = c("marginal", "uniform", "none"), norm = 2,
         family = poisson,
-        tolerance = 1e-8, iterMax = 5000,
+        tolerance = 1e-8, iterMax = 5000, eliminate=NULL,
         trace = FALSE, verbose = TRUE,
         checkEstimability = TRUE, ...)
 }
@@ -42,6 +42,9 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
      instability of estimated scores!}
   \item{iterMax}{ a positive integer specifying the maximum number of main iterations to perform;
      consider raising this value if your model does not converge.}
+  \item{eliminate}{ either \code{NULL} (the default) to estimate all parameters, \code{NA}
+     to skip the estimation of some parameters for increased efficiency, or the name of a
+     factor to be passed as \code{\link{gnm}}'s corresponding argument.}
   \item{trace}{ a logical value indicating whether the deviance
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
