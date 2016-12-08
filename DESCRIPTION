@@ -11,7 +11,7 @@ Authors@R: c(person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
                     role="ctb"))
 Imports: stats, utils, graphics, grDevices, qvcalc
 Depends: gnm (>= 1.0-5)
-Suggests: survey, boot, ellipse, parallel
+Suggests: survey, boot, ellipse, parallel, knitr, rmarkdown
 Description: Functions to fit log-multiplicative models using gnm, with
   support for convenient printing, plots, and jackknife/bootstrap
   standard errors. For complex survey data, models can be fitted from
@@ -24,3 +24,4 @@ Description: Functions to fit log-multiplicative models using gnm, with
 License: GPL (>= 2)
 URL: https://github.com/nalimilan/logmult
 BugReports: https://github.com/nalimilan/logmult/issues
+VignetteBuilder: knitr

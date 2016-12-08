@@ -1,7 +1,7 @@
 \name{hmskew}
 \alias{hmskew}
 \alias{print.hmskew}
-\title{Fitting van der Heijen & Mooijaart Skew-Symmetric Association Model}
+\title{Fitting van der Heijden & Mooijaart Skew-Symmetric Association Model}
 \description{
   Fits a skew-symmetric association model proposed in van der Heijden & Mooijaart (1995)
   to describe asymmetry of square tables. Skew-symmetric association can be combined with

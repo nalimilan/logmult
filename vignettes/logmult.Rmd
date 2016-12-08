@@ -1,0 +1,138 @@
+---
+title: "Short Reference for logmult"
+author: "Milan Bouchet-Valat"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Short Reference for logmult}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Supported Models and Options
+
+The logmult package currently supports these model families via separate functions:
+
+* UNIDIFF (a.k.a. log-multiplicative layer effect model): `unidiff` function.
+* RC(M) (a.k.a. Goodman Type II) row-column association models: `rc` function.
+* RC(M)-L row-column association models with layer effect: `rcL` function.
+* Skew-symmetric row-column association model (van der Heijden & Mooijaart): `hmskew` function.
+* Skew-symmetric row-column association model with layer effect (extension of
+  van der Heijden & Mooijaart): `hmskewL` function.
+* Skew-symmetric row-column association model (Yamaguchi RC-SK): `yrcskew` function.
+
+Please refer to the inline documentation for each function (e.g. `?unidiff`) for more details
+and classic examples.
+
+These functions take as their first argument a table, typically obtained via the `table`
+or `xtabs` function. Arrays of counts without row, column and layer names will have
+letters attributed automatically; use `rownames`, `colnames` and/or `dimnames` to change
+these names.
+
+Main options common to several models include:
+
+* No weighting, uniform weighting or marginal weighting when normalizing scores:
+  `weighting` argument.
+* Symmetric (a.k.a. homogeneous) scores for rows and columns: `symmetric` argument.
+* Homogeneous scores and association coefficients for all layers, homogeneous scores only
+  (a.k.a. "simple homogeneous"), or heterogeneous scores and association coefficients:
+  `layer.effect`, `layer.effect.symm` and `layer.effect.skew` arguments.
+* Number of dimensions: `nd`, `nd.symm` and `nd.skew` arguments.
+* Diagonal-specific parameters ("quasi-" models), either stable or varying over layers:
+  `diagonal` argument.
+* Jackknife and bootstrap standard errors: `se` and `nreplicates` argument.
+* Supplementary rows and columns: `rowsup` and `colsup` arguments.
+* Fully random or precomputed (semi-random) starting values: `start` argument.
+* Fitting control via arguments passed to `gnm`: tolerance criterion (`tolerance`),
+  maximum number of iterations (`iterMax`), progress output (`trace` and `verbose`),
+  faster fitting by not estimating uninteresting parameters (`elim`).
+
+Custom models which cannot be obtained via the standard options can be fitted manually
+by calling `gnm` directly. Association coefficients can then be extracted by calling one of
+the `assoc.*` functions on the model: `assoc.rc`, `assoc.rcL`, `assoc.rcL.symm`,
+`assoc.hmskew`, `assoc.hmskewL`, `assoc.rc.symm` or `assoc.yrcskew`. Since these functions
+are not exported, you need to fully qualify them to call them, e.g. `logmult:::assoc.rc(model)`.
+The resulting objects (of class `assoc`) can be passed to `plot` and support the same options
+as models.
+
+Models of the "quasi-" type, i.e. excluding some cells of a table, can be fitted by setting
+the corresponding cells of the input table to `NA`. Reported degrees of freedom will be correct
+(contrary to what often happens when setting zero weights for these cells).
+
+# Plotting
+
+The package supports rich plotting features for each model family.
+
+For the UNIDIFF model the layer coefficient can be plotted by simply calling `plot`
+on the fitted model. See `?plot.unidiff` for details and examples.
+
+For association models, one- and multi-dimensional scores plots can be drawn, again by calling
+`plot` on the fitted model. For models with a layer effect, a given layer can be chosen via the
+`layer` argument, or an average of association coefficients can be used (for models with
+homogeneous scores only). Several arguments allow tweaking the display, including:
+
+* Which dimensions to plot: `dim` argument.
+* Whether to plot the symmetric or skew-symmetric part of the association (when applicable):
+  `what` argument.
+* Whether to show rows, columns or both: `what` argument.
+* Which specific rows/columns to represent: `which` argument.
+* Whether to draw confidence intervals/ellipses (when jackknife/bootstrap were enabled
+  for fitting): `conf.int` and `replicates` argument.
+* Whether the size of symbols should vary according to their frequencies: `mass` argument.
+* Whether the luminosity of symbols should vary according to the strength of the association:
+  `luminosity` argument.
+* Whether to reverse the axes: `rev.axes` argument.
+* Standard arguments allow choosing the title (`main`), axis labels (`xlab`, `ylab`),
+  axis limits (`xlim`, `ylim`), symbol size (`cex`) and type (`pch`), draw onto an existing
+  plot (`add`).
+
+See `?plot.assoc` for the full reference.
+
+# Notes About LEM
+
+Results provided by logmult should generally be consistent with LEM, and have been checked
+against it when possible. Some models are known not to work correctly in LEM, though.
+
+* UNIDIFF layer coefficients are consistent with those computed by LEM, including when diagonal
+  cells are excluded (using the `wei` commands or diagonal-specific parameters).
+  Row-column intraction coefficients obtained with `weighting="none"` are consistent with LEM
+  (coefficients reported by LEM exclude the last row and column).
+* RC(1) scores and intrinsic association coefficients are consistent with logmult; some sign
+  changes can happen but do not affect results. This does not apply to not RC(M) models (see below).
+* Multidimensional RC(M) models can be fitted in LEM, but their association parameters
+  are not identified: all results of RC(1) and RC(1)-L models are consistent with logmult
+  (including scores); only fit statistics of RC(M) and RC(M)-L are.
+* RC(M)-L model scores and intrinsic association coefficients are consistent with logmult; some sign
+  changes can happen but do not affect results.
+
+Even when models are supposed to be consistent between LEM and logmult, it can happen that
+different results are obtained. There are several possible reasons to that:
+
+* Several local optima may exist. Since logmult uses random starting values, running the model
+  many times will allow checking whether another solution with a lower deviance exists. This can
+  be achieved with LEM by adding `ran` at the end of the `mod` line.
+* Convergence may appear to have been reached while this is not the case. This is a
+  particularly common risk with LEM since the default tolerance criterion is not very strict.
+  Add a `cri 0.00000001` line (or use an even lower value if time permits) to use a stricter
+  criterion. Even then, check that changing the criterion does not affect
+  too much the estimated coefficients: if that is the case, they may not be reliable.
+
+When unsure whether parameters of a model are identified in LEM, add `ran` at the end
+of the `mod` line to use random starting values. Unidentified coefficients will then be
+different at every run; only identified coefficients will remain the same. logmult only
+reports identifiable parameters. On the other hand, gnm returns unidentified parameters
+from `coef`, but these have `NA` standard errors when calling `summary(asGnm(model))`;
+since random starting values are used by default, unidentified parameters will also be
+different when re-fitting a model.
+
+When using null weights, LEM reports incorrect degrees of freedom, as zero-weight cells
+are still considered as free. With logmult, instead of using null weights, set corresponding
+cells to `NA` in the input table; this will report the same results as LEM, but with correct
+degrees of freedom.
+
+# logmult/gnm Limitations Compared With LEM
+
+gnm and logmult do not always work well with effects coding (`"contr.sum"`). Models may fail
+to converge and parameters extraction will not always work. Using dummy coding
+(`"contr.treatment"`) is recommended, and gives the same log-multiplicative parameters as
+when using effects coding (which only affects linear parameters).
