@@ -1,3 +1,15 @@
+2017-03-20 - Version 0.6.4
+- Add vignette.
+- No longer eliminate parameters by default in unidiff(), rcL() and anoasL().
+  Parameters can still be eliminated (for faster estimation) by passing
+  eliminate=NA.
+- Fix failures in plot.assoc() in corner cases.
+- Improve plotting of RC(1) models.
+- Rename conf.ellipses argument to plot.assoc() to conf.int.
+- Change 'phi' and 'maor' components of 'unidiff' objects to vectors, with
+  one value for each layer. The value which was previously stored in these
+  components is the first value of the vector.
+
 2016-01-15 - Version 0.6.3
 - Fix computing standard errors when ncpus > 1.
 - Add svygnm() function, equivalent for generalized nonlinear models
