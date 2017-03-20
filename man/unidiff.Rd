@@ -79,9 +79,9 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   \item{layer}{a \code{\link{qvcalc}} object holding the (log) layer coefficients, their standard
       errors and quasi-standard errors.}
   \item{phi}{the value of the intrinsic association coefficient (see \code{\link{maor}}) for
-      the first layer.}
-  \item{phi}{the value of the Mean absolute odds ratio (see \code{\link{maor}}) for
-      the first layer.}
+      each layer.}
+  \item{maor}{the value of the Mean absolute odds ratio (see \code{\link{maor}}) for
+      each layer.}
   \item{interaction}{a data frame object holding the two-way interaction coefficients, and their
       standard errors.}
   \item{diagonal}{the value of the \code{diagonal} argument above.}
@@ -129,6 +129,10 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
       stopifnot(all.equal(model$df.residual, 116))
       stopifnot(all.equal(round(model$unidiff$layer$qvframe$estimate, 3),
                           c(0, -0.225, -0.743, -1.039, -2.250)))
+      stopifnot(all.equal(round(model$unidiff$phi, 3),
+                          c(0.601, 0.48, 0.286, 0.213, 0.063), check.attributes=FALSE))
+      stopifnot(all.equal(round(model$unidiff$maor, 3),
+                          c(4.144, 3.111, 1.966, 1.654, 1.162), check.attributes=FALSE))
       # Interaction coefficients obtained using LEM
       stopifnot(all.equal(round(model$unidiff$interaction[,1], 4),
                           c(0.7084, -0.5925, -0.1608,  0.9028, -0.5433, -0.3146,  1.1473,

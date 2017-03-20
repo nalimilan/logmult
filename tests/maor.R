@@ -287,21 +287,21 @@ tab <- aperm(yaish[,,-7], 3:1)
 # 2-norm
 u2m <- unidiff(tab, weighting="marginal", norm=2)
 stopifnot(all.equal(u2m$unidiff$phi,
-                    maor(fitted(u2m), TRUE, norm=2)[1], weighting="marginal", check.attributes=FALSE))
-stopifnot(all.equal(u2m$unidiff$phi * exp(u2m$unidiff$layer$qvframe$estimate[2]),
-                    maor(fitted(u2m), TRUE, norm=2)[2], weighting="marginal", check.attributes=FALSE))
+                    maor(fitted(u2m), TRUE, weighting="marginal", norm=2), check.attributes=FALSE))
+stopifnot(all.equal(u2m$unidiff$phi[1] * exp(u2m$unidiff$layer$qvframe$estimate),
+                    maor(fitted(u2m), TRUE, weighting="marginal", norm=2), check.attributes=FALSE))
 
 u2u <- unidiff(tab, weighting="uniform", norm=2)
 stopifnot(all.equal(u2u$unidiff$phi,
-                    maor(fitted(u2u), TRUE, weighting="uniform", norm=2)[1], check.attributes=FALSE))
-stopifnot(all.equal(u2u$unidiff$phi * exp(u2u$unidiff$layer$qvframe$estimate[2]),
-                    maor(fitted(u2u), TRUE, weighting="uniform", norm=2)[2], check.attributes=FALSE))
+                    maor(fitted(u2u), TRUE, weighting="uniform", norm=2), check.attributes=FALSE))
+stopifnot(all.equal(u2u$unidiff$phi[1] * exp(u2u$unidiff$layer$qvframe$estimate),
+                    maor(fitted(u2u), TRUE, weighting="uniform", norm=2), check.attributes=FALSE))
 
 u2n <- unidiff(tab, weighting="none", norm=2)
 stopifnot(all.equal(u2n$unidiff$phi,
-                    maor(fitted(u2n), TRUE, weighting="none", norm=2)[1], check.attributes=FALSE))
-stopifnot(all.equal(u2n$unidiff$phi * exp(u2n$unidiff$layer$qvframe$estimate[2]),
-                    maor(fitted(u2n), TRUE, weighting="none", norm=2)[2], check.attributes=FALSE))
+                    maor(fitted(u2n), TRUE, weighting="none", norm=2), check.attributes=FALSE))
+stopifnot(all.equal(u2n$unidiff$phi[1] * exp(u2n$unidiff$layer$qvframe$estimate),
+                    maor(fitted(u2n), TRUE, weighting="none", norm=2), check.attributes=FALSE))
 
 stopifnot(all.equal(maor(yaish),
                     apply(yaish, 3, maor,
