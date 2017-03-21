@@ -98,12 +98,11 @@ against it when possible. Some models are known not to work correctly in LEM, th
   Row-column intraction coefficients obtained with `weighting="none"` are consistent with LEM
   (coefficients reported by LEM exclude the last row and column).
 * RC(1) scores and intrinsic association coefficients are consistent with logmult; some sign
-  changes can happen but do not affect results. This does not apply to not RC(M) models (see below).
-* Multidimensional RC(M) models can be fitted in LEM, but their association parameters
-  are not identified: all results of RC(1) and RC(1)-L models are consistent with logmult
-  (including scores); only fit statistics of RC(M) and RC(M)-L are.
-* RC(M)-L model scores and intrinsic association coefficients are consistent with logmult; some sign
   changes can happen but do not affect results.
+* Multidimensional RC(M) models can be fitted in LEM, but their association parameters
+  are not identified; however fit statistics agree with logmult.
+* RC(M)-L model scores and intrinsic association coefficients are consistent with logmult;
+  some sign changes can happen but do not affect results.
 
 Even when models are supposed to be consistent between LEM and logmult, it can happen that
 different results are obtained. There are several possible reasons to that:
