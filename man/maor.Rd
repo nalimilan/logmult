@@ -8,7 +8,7 @@
   geometric mean of the odds ratios or of their inverse when they are above one,
   which is also closely related to the the intrinsic association coefficient.
   The latter coefficient was first devised by Goodman (1996) as the
-  \dQuote{generalized contigency} when a logarithm link is used, and it is equal
+  \dQuote{generalized contingency} when a logarithm link is used, and it is equal
   to the mean of the absolute value of log-linear two-way interaction parameters
   \eqn{\lambda_{ij}} (in its original version it consists in the square root of
   the sum of squared parameters).
@@ -44,7 +44,7 @@ maor(tab, phi = FALSE, cell = FALSE,
   computed with unit weights. The coefficient is called \eqn{\tilde \lambda^2} in the original
   article, but to avoid the confusion with Goodman and Kruskal's lambda coefficient,
   it is here denoted as \eqn{\phi}, as usual in row-column association models.
-  The uniform-weighed version is defined as:
+  The uniform-weighted version is defined as:
   \deqn{\phi = \left( \sum_{i = 1}^I \sum_{j = 1}^J \frac{1}{IJ} |\lambda_{ij}|^n \right)^{1/n}}
   The (marginal or other) weighted version is defined as:
   \deqn{\tilde \phi = \left( \sum_{i = 1}^I \sum_{j = 1}^J P_{i+} P_{+j} |\tilde \lambda_{ij}|^n \right)^{1/n}}
@@ -61,8 +61,8 @@ maor(tab, phi = FALSE, cell = FALSE,
   and \eqn{MAOR = exp \left[ \left( {\sum_{i = 1}^I \sum_{j = 1}^J c_{ij}} \right)^{1/n} \right]}.
 
   This index cannot be computed in the presence of zero cells since it is based
-  on the logarithm of proportions. In these cases, 0.5 is added to these cells
-  (Agresti 2002, p. 249; Berkson 1955), and a warning is printed.
+  on the logarithm of proportions. In these cases, 0.5 is added to all cells of the table
+  (Agresti 2002, sec. 9.8.7, p. 397; Berkson 1955), and a warning is printed.
   Make sure this correction does not affect too much the results (especially
   with small samples) by manually adding different values before calling this function.
 }
