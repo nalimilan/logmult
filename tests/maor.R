@@ -424,3 +424,9 @@ res <- replicate(10, {
 
 stopifnot(all.equal(res[1,], res[2,]))
 stopifnot(all.equal(res[1,], res[3,]))
+
+res <- replicate(10000, {
+    tab <- matrix(rpois(15, 100), 3, 5)
+    c(log(tab[1,1])+log(tab[2,2])-log(tab[1,2])-log(tab[2,1]),
+      tab[1,1])
+})

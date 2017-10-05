@@ -1,3 +1,9 @@
+2017-11-15 - Version 0.6.5
+- Add iac() function to compute intrinsic association coefficient, either
+  via a non-parametric estimator or via the semi-parametric Bayesian shrikage
+  estimator proposed by Zhou (2015).
+- Remove norm argument to maor(), as the 1-norm variant isn't used.
+
 2017-03-20 - Version 0.6.4
 - Add vignette.
 - No longer eliminate parameters by default in unidiff(), rcL() and anoasL().

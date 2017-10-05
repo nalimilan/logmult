@@ -1,11 +1,3 @@
-lambda <- function(tab, rp=rep(1/nrow(tab), nrow(tab)), cp=rep(1/ncol(tab), ncol(tab))) {
-  logp <- log(prop.table(tab))
-
-  lambda <- sweep(logp, 1, rowSums(sweep(logp, 2, cp, "*")), "-")
-  lambda <- sweep(lambda, 2, colSums(sweep(logp, 1, rp, "*")), "-")
-  lambda + sum(logp * rp %o% cp)
-}
-
 maor <- function(tab, phi=FALSE, cell=FALSE,
                  weighting=c("marginal", "uniform", "none"), norm=2,
                  component=c("total", "symmetric", "antisymmetric"),

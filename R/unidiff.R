@@ -113,13 +113,12 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
       model$unidiff$interaction <- gnm::se(model, con, checkEstimability=checkEstimability)
 
       if(weighting == "marginal") {
-          model$unidiff$phi <- maor(fitted(model), TRUE, norm=norm,
-                                    row.weights=rp, col.weights=cp)
+          model$unidiff$phi <- iac(fitted(model), row.weights=rp, col.weights=cp)
           model$unidiff$maor <- maor(fitted(model), norm=norm,
                                     row.weights=rp, col.weights=cp)
       }
       else {
-          model$unidiff$phi <- maor(fitted(model), TRUE, norm=norm, weighting=weighting)
+          model$unidiff$phi <- iac(fitted(model), weighting=weighting)
           model$unidiff$maor <- maor(fitted(model), norm=norm, weighting=weighting)
       }
   }

@@ -56,6 +56,7 @@ S3method(print, summary.anoas)
 S3method(asGnm, unidiff)
 S3method(asGnm, assocmod)
 
+export(iac)
 export(maor)
 export(ras)
 
