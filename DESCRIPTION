@@ -8,11 +8,13 @@ Authors@R: c(person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
              person("Heather", "Turner", email="ht@heatherturner.net",
                     role="ctb"),
              person("Michael", "Friendly", email="friendly@yorku.ca",
-                    role="ctb"))
+                    role="ctb"),
+             person("Jim", "Lemon", email="jim@bitwrit.com.au", role="cph"),
+             person("Gabor", "Csardi", email="csardi@rmki.kfki.hu", role="cph"))
 Imports: stats, utils, graphics, grDevices, qvcalc
 Depends: gnm (>= 1.0-5)
 Suggests: survey, boot, ellipse, parallel, knitr, rmarkdown
-Description: Functions to fit log-multiplicative models using gnm, with
+Description: Functions to fit log-multiplicative models using 'gnm', with
   support for convenient printing, plots, and jackknife/bootstrap
   standard errors. For complex survey data, models can be fitted from
   design objects from the 'survey' package. Currently supported models
@@ -23,8 +25,7 @@ Description: Functions to fit log-multiplicative models using gnm, with
   models proposed by Yamaguchi and by van der Heijden & Mooijaart.
   Functions allow computing the intrinsic association coefficient
   (and therefore the Altham index), including via the Bayes shrinkage
-  estimator proposed by Zhou (2015); and the RAS/IPF/Deming-Stephan
-  algorithm.
+  estimator proposed by Zhou; and the RAS/IPF/Deming-Stephan algorithm.
 License: GPL (>= 2)
 URL: https://github.com/nalimilan/logmult
 BugReports: https://github.com/nalimilan/logmult/issues
