@@ -29,9 +29,11 @@ cmA1 <- gnm(Freq ~ Eye + Hair + Hair:rscoresA1[row(csup)],
 rscA1 <- getContrasts(rmA1, pickCoef(rmA1, "cscores"), ref="mean")$qvframe[,1]
 cscA1 <- getContrasts(cmA1, pickCoef(cmA1, "rscores"), ref="mean")$qvframe[,1]
 
-stopifnot(all.equal(rscA1, rscoresA1, mA1$assoc$row[5:8,,] * sqrt(mA1$assoc$phi[1, 1]),
+stopifnot(all.equal(rscA1, rscoresA1, tolerance=1e-6, check.attributes=FALSE))
+stopifnot(all.equal(cscA1, cscoresA1, tolerance=1e-6, check.attributes=FALSE))
+stopifnot(all.equal(rscA1, mA1$assoc$row[5:8,,] * sqrt(mA1$assoc$phi[1, 1]),
                     tolerance=1e-6, check.attributes=FALSE))
-stopifnot(all.equal(cscA1, cscoresA1, mA1$assoc$col[6:10,,] * sqrt(mA1$assoc$phi[1, 1]),
+stopifnot(all.equal(cscA1, mA1$assoc$col[6:10,,] * sqrt(mA1$assoc$phi[1, 1]),
                     tolerance=1e-6, check.attributes=FALSE))
 
 
