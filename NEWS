@@ -1,3 +1,6 @@
+2018-10-18 - Version 0.7.0
+- Change scaling of weights in svygnm() to reflect a change in survey 3.34.
+
 2017-11-15 - Version 0.6.5
 - Add iac() function to compute intrinsic association coefficient, either
   via a non-parametric estimator or via the semi-parametric Bayesian shrikage

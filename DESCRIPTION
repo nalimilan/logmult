@@ -1,8 +1,8 @@
 Package: logmult
 Type: Package
 Title: Log-Multiplicative Models, Including Association Models
-Version: 0.6.5
-Date: 2017-11-15
+Version: 0.7.0
+Date: 2018-10-18
 Authors@R: c(person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
                     role=c("aut", "cre")),
              person("Heather", "Turner", email="ht@heatherturner.net",
@@ -13,7 +13,7 @@ Authors@R: c(person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
              person("Gabor", "Csardi", email="csardi@rmki.kfki.hu", role="cph"))
 Imports: stats, utils, graphics, grDevices, qvcalc
 Depends: gnm (>= 1.0-5)
-Suggests: survey, boot, ellipse, parallel, knitr, rmarkdown
+Suggests: survey (>= 3.34), boot, ellipse, parallel, knitr, rmarkdown
 Description: Functions to fit log-multiplicative models using 'gnm', with
   support for convenient printing, plots, and jackknife/bootstrap
   standard errors. For complex survey data, models can be fitted from

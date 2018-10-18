@@ -10,7 +10,7 @@
 \usage{
 svygnm(formula, design, ...) 
 \S3method{svygnm}{svyrep.design}(formula, design,
-    subset = NULL, data.fun = NULL, rho = NULL, 
+    subset = NULL, data.fun = NULL, rescale = NULL, rho = NULL,
     return.replicates = FALSE, keep.weights = FALSE, na.action, 
     eliminate, ncpus = getOption("boot.ncpus"), ...)
 }
@@ -25,6 +25,9 @@ svygnm(formula, design, ...)
                   it will be passed \code{design} and \code{...} as arguments, and must
                   return a \code{data.frame} object. This is primarily useful to compute a
                   frequency table and fit log-linear models.}
+  \item{rescale}{Rescaling of weights, to improve numerical stability. The default rescales                       weights to sum to the sample size. Use \code{FALSE} to not rescale weights.
+                 For replicate-weight designs, use \code{TRUE} to rescale weights to sum to 1, as
+                 was the case before version 0.7.0.}
   \item{rho}{For replicate BRR designs, to specify the parameter for
              Fay's variance method, giving weights of \code{rho} and \code{2-rho}}
   \item{return.replicates}{return the replicates as a component of the result?}

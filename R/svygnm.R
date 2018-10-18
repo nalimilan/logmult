@@ -4,8 +4,8 @@ svygnm<-function(formula, design, ...){
 }
 
 svygnm.svyrep.design<-function(formula, design, subset=NULL, data.fun=NULL,
-                              rho=NULL, return.replicates=FALSE, keep.weights=FALSE,
-                              na.action, eliminate, ncpus=getOption("boot.ncpus"), ...){
+                               rescale=NULL, rho=NULL, return.replicates=FALSE, keep.weights=FALSE,
+                               na.action, eliminate, ncpus=getOption("boot.ncpus"), ...){
       if(!inherits(design, "svyrep.design"))
         stop("'design' must be an object of class \"svyrep.design\".")
 
@@ -26,6 +26,7 @@ svygnm.svyrep.design<-function(formula, design, subset=NULL, data.fun=NULL,
   g$data<-quote(data)
   g$design<-NULL
   g$var<-g$rho<-g$return.replicates<-NULL
+  g$rescale <- NULL
   g[[1]]<-quote(gnm)      
   g$model<-TRUE
   g$x<-TRUE
@@ -38,7 +39,11 @@ svygnm.svyrep.design<-function(formula, design, subset=NULL, data.fun=NULL,
       rscales<-design$rscales
       if (!is.null(rho)) .NotYetUsed(rho)
 
-      pwts<-design$pweights/sum(design$pweights)
+      if (is.null(rescale))
+          pwts<-design$pweights/mean(design$pweights)
+      else if (rescale)  ## old behaviour
+          pwts<-design$pweights/sum(design$pweights)
+
       if (is.data.frame(pwts)) pwts<-pwts[[1]]
 
       if(is.null(data.fun)) {
@@ -326,7 +331,7 @@ residuals.svrepgnm<-function(object,type = c("deviance", "pearson", "working",
 confint.svygnm<-function(object,parm,level=0.95,method=c("Wald","likelihood"),ddf=Inf,...){
   method<-match.arg(method)
   if(method=="Wald"){
-    tlevel<-pt(qnorm(level),df=ddf)
+    tlevel <- 1 - 2*pnorm(qt((1 - level)/2, df = ddf))
     return(confint.default(object,parm=parm,level=tlevel,...))
   }
   pnames <- names(coef(object))
