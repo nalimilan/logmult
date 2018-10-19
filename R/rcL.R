@@ -118,7 +118,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   if(!is.null(base))
       cat("Running real model...\n")
-print(start)
+
   args <- list(formula=as.formula(paste(f1, diagstr, f2)), data=tab,
                family=family, weights=weights, start=start, etastart=etastart,
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)

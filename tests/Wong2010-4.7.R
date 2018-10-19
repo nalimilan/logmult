@@ -8,7 +8,7 @@ if(notcran != "" || (!is.na(timings) && timings > 60)) {
 library(logmult)
 data(gss7590)
 
-set.seed(1)
+set.seed(13)
 model <- rcL(gss7590, nd=2, weighting="none", se="jackknife", start=NA)
 
 model
