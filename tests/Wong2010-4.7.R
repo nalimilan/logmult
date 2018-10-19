@@ -8,8 +8,8 @@ if(notcran != "" || (!is.na(timings) && timings > 60)) {
 library(logmult)
 data(gss7590)
 
-set.seed(13)
-model <- rcL(gss7590, nd=2, weighting="none", se="jackknife", start=NA)
+set.seed(1)
+model <- rcL(gss7590, nd=2, weighting="none", se="jackknife")
 
 model
 summary(model) # Jackknife standard errors are slightly different
@@ -27,9 +27,9 @@ stopifnot(all.equal(round(c(model$assoc$col[,,1]), d=3),
 
 # Check scores of heterogeneous model (scores not given by Wong)
 model.heterog <- rcL(gss7590, nd=2, layer.effect="heterogeneous",
-                     weighting="none", start=NA)
+                     weighting="none")
 sep.models <- lapply(1:4, function(i) rc(gss7590[,,i], nd=2,
-                                         weighting="none", start=NA))
+                                         weighting="none"))
 
 # Level 2 does not converge properly because there are too few farmers:
 # values are always slightly different and cannot be checked
