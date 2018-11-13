@@ -314,9 +314,9 @@ assoc.hmskewL <- function(model, weighting=c("marginal", "uniform", "none"), ...
 
 
   if(length(pickCoef(model, "Diag\\(")) > nr)
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], nl, nr)
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), nl, nr)
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nr)
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), 1, nr)
   else
       dg <- numeric(0)
 

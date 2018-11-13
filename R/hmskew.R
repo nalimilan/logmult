@@ -199,9 +199,9 @@ assoc.hmskew <- function(model, weighting=c("marginal", "uniform", "none"),
   sc <- cbind(mu1, mu2)
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], dim(tab)[3], nrow(tab))
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), dim(tab)[3], nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), 1, nrow(tab))
   else
       dg <- numeric(0)
 

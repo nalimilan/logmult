@@ -276,7 +276,7 @@ assoc.rcL.trans <- function(model, weighting=c("marginal", "uniform", "none"), .
 
   if(length(pickCoef(model, "Diag\\(") > 0)) {
       dg <- matrix(NA, nl, nr)
-      dg[] <- parameters(model)[pickCoef(model, "Diag\\(")]
+      dg[] <- pickCoef(model, "Diag\\(", value=TRUE)
   }
   else {
       dg <- numeric(0)
@@ -439,7 +439,7 @@ assoc.rcL.trans.symm <- function(model, weighting=c("marginal", "uniform", "none
 
   if(length(pickCoef(model, "Diag\\(") > 0)) {
       dg <- matrix(NA, nl, nr)
-      dg[] <- parameters(model)[pickCoef(model, "Diag\\(")]
+      dg[] <- pickCoef(model, "Diag\\(", value=TRUE)
   }
   else {
       dg <- numeric(0)

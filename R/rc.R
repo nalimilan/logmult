@@ -177,9 +177,9 @@ assoc.rc <- function(model, weighting=c("marginal", "uniform", "none"),
   }
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), ncol=nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), 1, nrow(tab))
   else
       dg <- numeric(0)
 
@@ -308,9 +308,9 @@ assoc.rc.symm <- function(model, weighting=c("marginal", "uniform", "none"),
   }
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), ncol=nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), 1, nrow(tab))
   else
       dg <- numeric(0)
 

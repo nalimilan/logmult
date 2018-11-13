@@ -211,9 +211,9 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
       stop("Skew coefficients not found. Are you sure this is a Yamaguchi RC_SK model?")
 
   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), ncol=nrow(tab))
   else if(length(pickCoef(model, "Diag\\(")) > 0)
-      dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+      dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), 1, nrow(tab))
   else
       dg <- numeric(0)
 
@@ -343,9 +343,9 @@ assoc.yrcskew <- function(model, weighting=c("marginal", "uniform", "none"), ...
 #       stop("skew coefficients not found. Are you sure this is a row-column association model with symmetric row and column scores plus skewness?")
 # 
 #   if(length(pickCoef(model, "Diag\\(")) > nrow(tab))
-#       dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], ncol=nrow(tab))
+#       dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), ncol=nrow(tab))
 #   else if(length(pickCoef(model, "Diag\\(")) > 0)
-#       dg <- matrix(parameters(model)[pickCoef(model, "Diag\\(")], 1, nrow(tab))
+#       dg <- matrix(pickCoef(model, "Diag\\(", value=TRUE), 1, nrow(tab))
 #   else
 #       dg <- numeric(0)
 # 
