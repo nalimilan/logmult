@@ -110,6 +110,11 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   else
       eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
+
   if(nastart) {
       cat("Running base model to find starting values...\n")
 

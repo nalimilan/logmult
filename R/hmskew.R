@@ -71,6 +71,11 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   else
       basef2 <- basef
 
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
+
   if(!is.null(start) && is.na(start)) {
       cat("Running base model to find starting values...\n")
 

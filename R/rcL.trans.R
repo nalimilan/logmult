@@ -82,6 +82,11 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
 
   eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
+
   if(!is.null(start) && is.na(start)) {
       cat("Running base model to find starting values...\n")
 

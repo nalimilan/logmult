@@ -39,6 +39,10 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   else
       diagstr <- ""
 
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
 
   nastart <- length(start) == 1 && is.na(start)
 

@@ -55,6 +55,10 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   nastart <- length(start) == 1 && is.na(start)
 
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
 
   if(nastart) {
       cat("Running base model to find starting values...\n")
@@ -124,6 +128,11 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
                tolerance=tolerance, iterMax=iterMax, verbose=verbose, trace=trace)
   if(!is.null(eliminate))
       args$eliminate <- eliminate
+
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
 
   model <- do.call("gnm", c(args, list(...)))
 

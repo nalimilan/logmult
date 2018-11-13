@@ -62,6 +62,10 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
       basef <- sprintf("Freq ~ %s + %s %s+ instances(MultHomog(%s, %s), %i)",
                        vars[1], vars[2], diagstr, vars[1], vars[2], nd.symm)
 
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
 
   if(!is.null(start) && is.na(start)) {
       # Without good starting values, estimation can fail when running start-up iterations

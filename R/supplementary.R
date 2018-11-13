@@ -51,6 +51,11 @@ sup.scores.rc <- function(model, tab, ass, rowsup, colsup,
 
   names(dimnames(args$data)) <- names(dimnames(model$data))
 
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
+
   if(symmetry == "skew-symmetric") {
       hmterm <- sprintf("+ HMSkew(%s, %s)", vars[1], vars[2])
 

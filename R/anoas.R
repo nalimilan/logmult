@@ -38,7 +38,10 @@ anoas <- function(tab, nd=3, symmetric=FALSE, diagonal=FALSE, ...) {
   else
       diagstr <- ""
 
-
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
 
   cat("Fitting independence model...\n")
 

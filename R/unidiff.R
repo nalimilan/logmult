@@ -56,6 +56,11 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
   if(!is.null(eliminate) && is.na(eliminate))
       eliminate <- eval(parse(text=sprintf("quote(%s:%s)", vars[1], vars[3])))
 
+  # gnm can give incorrect results with contrasts other than treatment
+  contr <- getOption("contrasts")
+  on.exit(options(contrasts=contr))
+  options(contrasts=c("contr.treatment", "contr.treatment"))
+
   # We need to handle ... manually, else they would not be found when modelFormula() evaluates the call
   args <- list(formula=as.formula(f), data=tab, constrain=constrain,
                family=family, tolerance=tolerance, iterMax=iterMax,
