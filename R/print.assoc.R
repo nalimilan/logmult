@@ -5,9 +5,9 @@ print.rc <- function(x, digits = max(3, getOption("digits") - 4), ...) {
 
   cat("Intrinsic association coefficients:\n")
   print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
-  cat("\nNormalized row scores:\n")
+  cat("\nNormalized row scores (", ass$vars[1], "):\n", sep="")
   print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
-  cat("\nNormalized column scores:\n")
+  cat("\nNormalized column scores (", ass$vars[2], "):\n", sep="")
   print(format(ass$col[,,1], digits=digits, ...), quote=FALSE)
 
   if(length(ass$diag) > 0) {
@@ -26,7 +26,7 @@ print.rc.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
 
   cat("Intrinsic association coefficients:\n")
   print(format(ass$phi[1,], digits=digits, ...), quote=FALSE)
-  cat("\nNormalized scores:\n")
+  cat("\nNormalized row and column scores:\n")
   print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
 
   if(length(ass$diag) > 0) {
@@ -106,20 +106,20 @@ print.rcL <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   print(format(ass$phi, digits=3), quote=FALSE)
 
   if(dim(ass$row)[3] == 1) {
-      cat("\nNormalized row scores for all layers:\n")
+      cat("\nNormalized row scores (" , ass$vars[1], ") for all layers:\n", sep="")
       print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   }
   else {
-      cat("\nNormalized row scores:\n")
+      cat("\nNormalized row scores (", ass$vars[1], "):\n", sep="")
       print(format(ass$row, digits=digits, ...), quote=FALSE)
   }
 
   if(dim(ass$col)[3] == 1) {
-      cat("\nNormalized column scores for all layers:\n")
+      cat("\nNormalized column scores (" , ass$vars[2], ") for all layers:\n", sep="")
       print(format(ass$col[,,1], digits=digits, ...), quote=FALSE)
   }
   else {
-      cat("\nNormalized column scores:\n")
+      cat("\nNormalized column scores (", ass$vars[2], "):\n", sep="")
       print(format(ass$col, digits=digits, ...), quote=FALSE)
   }
 
@@ -141,11 +141,11 @@ print.rcL.symm <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   print(format(ass$phi, digits=digits, ...), quote=FALSE)
 
   if(dim(ass$row)[3] == 1) {
-      cat("\nNormalized scores for all layers:\n")
+      cat("\nNormalized row and column scores for all layers:\n")
       print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
   }
   else {
-      cat("\nNormalized scores:\n")
+      cat("\nNormalized row and column scores:\n")
       print(format(ass$row, digits=digits, ...), quote=FALSE)
   }
 
@@ -214,20 +214,20 @@ print.rcL.trans <- function(x, digits = max(3, getOption("digits") - 4), ...) {
   print(format(ass$phi, digits=3), quote=FALSE)
 
 
-  cat("\nNormalized row scores for first layer:\n")
+  cat("\nNormalized row scores (", ass$vars[1], ") for first layer:\n", sep="")
   print(format(ass$row[,,1], digits=digits, ...), quote=FALSE)
 
-  cat("\nNormalized row scores for last layer:\n")
+  cat("\nNormalized row scores (", ass$vars[1], ") for last layer:\n", sep="")
   print(format(ass$row[,,dim(ass$row)[3]], digits=digits, ...), quote=FALSE)
 
   cat("\nVariation of normalized row scores\nbetween first and layer layer:\n")
   print(format(ass$row[,,dim(ass$row)[3]] - ass$row[,,1], digits=digits, ...), quote=FALSE)
 
 
-  cat("\nNormalized column scores for first layers:\n")
+  cat("\nNormalized column scores (", ass$vars[2], ") for first layer:\n", sep="")
   print(format(ass$col[,,1], digits=digits, ...), quote=FALSE)
 
-  cat("\nNormalized column scores for last layer:\n")
+  cat("\nNormalized column scores (", ass$vars[2], ") for last layer:\n", sep="")
   print(format(ass$col[,,dim(ass$col)[3]], digits=digits, ...), quote=FALSE)
 
   cat("\nVariation of normalized column scores\nbetween first and layer layer:\n")
