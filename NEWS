@@ -1,3 +1,11 @@
+2019-02-13 - Version 0.7.1
+- Always use treatment contrasts to avoid giving incorrect results with other contrasts
+  not supported by gnm.
+- Print names of row and column dimensions in RC models.
+- Fix dimension labels in RC(1)-L plot and order categories from top to bottom.
+- Fix dimensionality check when computing RC starting values using SVD.
+- Return NA instead of 0 when diagonal parameters are not identified.
+
 2018-10-18 - Version 0.7.0
 - Change scaling of weights in svygnm() to reflect a change in survey 3.34.
 
