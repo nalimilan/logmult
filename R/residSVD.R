@@ -30,7 +30,7 @@ getResid <- function(model, layer=NULL, what=c("ratio", "residuals"),
           res <- res[,, layer]
           weights <- weights[,, layer]
       }
-      else if(is.array(res) && dim(res) > 2) {
+      else if(is.array(res) && length(dim(res)) > 2) {
           res <- apply(res, 1:2, sum, na.rm=TRUE)
           weights <- apply(weights, 1:2, sum, na.rm=TRUE)
       }
@@ -62,7 +62,7 @@ getResid <- function(model, layer=NULL, what=c("ratio", "residuals"),
           fitted <- fitted[,, layer]
           weights <- weights[,, layer]
       }
-      else if(is.array(obs) && dim(obs) > 2) {
+      else if(is.array(obs) && length(dim(obs)) > 2) {
           obs <- apply(obs, 1:2, sum, na.rm=TRUE)
           fitted <- apply(fitted, 1:2, sum, na.rm=TRUE)
           weights <- apply(weights, 1:2, sum, na.rm=TRUE)
