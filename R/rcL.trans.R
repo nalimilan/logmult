@@ -87,7 +87,7 @@ rcL.trans <- function(tab, nd=1, symmetric=FALSE, diagonal=c("none", "heterogene
   on.exit(options(contrasts=contr))
   options(contrasts=c("contr.treatment", "contr.treatment"))
 
-  if(!is.null(start) && is.na(start)) {
+  if(!is.null(start) && identical(start, NA)) {
       cat("Running base model to find starting values...\n")
 
       if(symmetric) {

@@ -103,8 +103,6 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
 
   base <- NULL
 
-  nastart <- length(start) == 1 && is.na(start)
-
   if(layer.effect.symm %in% c("heterogeneous", "regression.type"))
       eliminate <- eval(parse(text=sprintf("quote(Symm(%s, %s))", vars[1], vars[2])))
   else
@@ -115,7 +113,7 @@ hmskewL <- function(tab, nd.symm=NA, layer.effect.skew=c("homogeneous.scores", "
   on.exit(options(contrasts=contr))
   options(contrasts=c("contr.treatment", "contr.treatment"))
 
-  if(nastart) {
+  if(identical(start, NA)) {
       cat("Running base model to find starting values...\n")
 
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,

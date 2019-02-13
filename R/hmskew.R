@@ -76,7 +76,7 @@ hmskew <- function(tab, nd.symm=NA, diagonal=FALSE,
   on.exit(options(contrasts=contr))
   options(contrasts=c("contr.treatment", "contr.treatment"))
 
-  if(!is.null(start) && is.na(start)) {
+  if(!is.null(start) && identical(start, NA)) {
       cat("Running base model to find starting values...\n")
 
       # Setting tolerance to a value below 1e-6 can lead to convergence issues with large tables

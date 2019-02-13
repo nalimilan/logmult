@@ -44,9 +44,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
   on.exit(options(contrasts=contr))
   options(contrasts=c("contr.treatment", "contr.treatment"))
 
-  nastart <- length(start) == 1 && is.na(start)
-
-  if(nastart) {
+  if(identical(start, NA)) {
       cat("Running base model to find starting values...\n")
 
       args <- list(formula=as.formula(sprintf("Freq ~ %s + %s %s", vars[1], vars[2], diagstr)),

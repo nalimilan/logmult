@@ -67,7 +67,7 @@ yrcskew <- function(tab, nd.symm=NA, nd.skew=1, diagonal=FALSE,
   on.exit(options(contrasts=contr))
   options(contrasts=c("contr.treatment", "contr.treatment"))
 
-  if(!is.null(start) && is.na(start)) {
+  if(!is.null(start) && identical(start, NA)) {
       # Without good starting values, estimation can fail when running start-up iterations
       # with large tables
       cat("Running base model to find starting values...\n")

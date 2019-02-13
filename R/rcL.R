@@ -53,14 +53,12 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
 
   base <- NULL
 
-  nastart <- length(start) == 1 && is.na(start)
-
   # gnm can give incorrect results with contrasts other than treatment
   contr <- getOption("contrasts")
   on.exit(options(contrasts=contr))
   options(contrasts=c("contr.treatment", "contr.treatment"))
 
-  if(nastart) {
+  if(identical(start, NA)) {
       cat("Running base model to find starting values...\n")
 
       args <- list(formula=as.formula(paste(f1, diagstr)), data=tab,
