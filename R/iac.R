@@ -71,16 +71,18 @@ iac <- function(tab, cell=FALSE,
           cp <- col.weights
 
       if(weighting == "marginal")
-          return(apply(tab, 3, iac,
-                       cell=cell,
-                       component=component,
-                       row.weights=rp, col.weights=cp))
+          res <- apply(tab, 3, iac, cell=cell, component=component,
+                       row.weights=rp, col.weights=cp)
       else
-          return(apply(tab, 3, iac,
-                       cell=cell,
-                       weighting=weighting,
-                       component=component,
-                       row.weights=row.weights, col.weights=col.weights))
+          res <- apply(tab, 3, iac, cell=cell, weighting=weighting, component=component,
+                       row.weights=row.weights, col.weights=col.weights)
+
+      if(cell) {
+          dim(res) <- dim(tab)
+          dimnames(res) <- dimnames(tab)
+      }
+
+      return(res)
   }
 
   if(any(tab == 0)) {

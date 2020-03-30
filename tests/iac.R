@@ -169,19 +169,19 @@ tab <- aperm(yaish[,,-7], 3:1)
 
 u2m <- unidiff(tab, weighting="marginal")
 stopifnot(all.equal(u2m$unidiff$phi,
-                    iac(fitted(u2m), weighting="marginal"), check.attributes=FALSE))
+                    iac(fitted(u2m), weighting="marginal")))
 stopifnot(all.equal(u2m$unidiff$phi[1] * exp(u2m$unidiff$layer$qvframe$estimate),
                     iac(fitted(u2m), weighting="marginal"), check.attributes=FALSE))
 
 u2u <- unidiff(tab, weighting="uniform")
 stopifnot(all.equal(u2u$unidiff$phi,
-                    iac(fitted(u2u), weighting="uniform"), check.attributes=FALSE))
+                    iac(fitted(u2u), weighting="uniform")))
 stopifnot(all.equal(u2u$unidiff$phi[1] * exp(u2u$unidiff$layer$qvframe$estimate),
                     iac(fitted(u2u), weighting="uniform"), check.attributes=FALSE))
 
 u2n <- unidiff(tab, weighting="none", norm=2)
 stopifnot(all.equal(u2n$unidiff$phi,
-                    iac(fitted(u2n), weighting="none"), check.attributes=FALSE))
+                    iac(fitted(u2n), weighting="none")))
 stopifnot(all.equal(u2n$unidiff$phi[1] * exp(u2n$unidiff$layer$qvframe$estimate),
                     iac(fitted(u2n), weighting="none"), check.attributes=FALSE))
 
