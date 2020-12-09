@@ -155,7 +155,7 @@ rcL <- function(tab, nd=1, layer.effect=c("homogeneous.scores", "heterogeneous",
   }
   else {
       model$assoc <- assoc(model, weighting=weighting)
-      assoc1 <- getS3method("assoc", class(model))
+      assoc1 <- getS3method("assoc", class(model)[1])
   }
 
   class(model$assoc) <- if(symmetric) c("assoc.rcL", "assoc.symm", "assoc")

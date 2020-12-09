@@ -75,7 +75,7 @@ unidiff <- function(tab, diagonal=c("included", "excluded", "only"),
 
   model$unidiff <- list()
   
-  model$unidiff$layer <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\.\\)", vars[3])),
+  model$unidiff$layer <- getContrasts(model, pickCoef(model, sprintf("Mult\\(Exp\\(\\.\\).*\\.\\Q%s\\E", vars[3])),
                                       "first", check=checkEstimability)
 
 
