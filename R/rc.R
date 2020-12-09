@@ -92,7 +92,7 @@ rc <- function(tab, nd=1, symmetric=FALSE, diagonal=FALSE,
 
   if(se %in% c("jackknife", "bootstrap")) {
       jb <- jackboot(se, ncpus, nreplicates, tab, model,
-                     assoc1=getS3method("assoc", class(model)), assoc2=NULL,
+                     assoc1=getS3method("assoc", class(model)[1]), assoc2=NULL,
                      weighting, rowsup=rowsup, colsup=colsup,
                      family, weights, verbose, trace, start, etastart, ...)
       model$assoc$covmat <- jb$covmat

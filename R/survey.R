@@ -140,7 +140,7 @@ svyassocmod <- function(model.function, formula, design,
 
   if(se == "replicate") {
       jb <- jackboot(se, ncpus, NA, tab, model,
-                     assoc1=getS3method("assoc", class(model)), assoc2=NULL,
+                     assoc1=getS3method("assoc", class(model)[1]), assoc2=NULL,
                      model.function=model.function, formula=formula, design=design,
                      Ntotal=Ntotal, exclude=exclude, ...)
       model$assoc$covmat <- jb$covmat
