@@ -171,8 +171,7 @@ print.unidiff <- function(x, digits=max(3, getOption("digits") - 4), ...) {
 
   if(length(x$unidiff$phi) > 0) {
       cat("\nLayer intrinsic association coefficients:\n")
-      print(setNames(exp(x$unidiff$layer$qvframe$estimate) * x$unidiff$phi, row.names(x$unidiff$layer$qvframe)),
-            digits=digits, print.gap=2, ...)
+      print(x$unidiff$phi, digits=digits, print.gap=2, ...)
   }
 
   if(x$unidiff$diagonal == "included") {
