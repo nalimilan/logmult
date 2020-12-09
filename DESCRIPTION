@@ -1,8 +1,8 @@
 Package: logmult
 Type: Package
 Title: Log-Multiplicative Models, Including Association Models
-Version: 0.7.2
-Date: 2020-08-13
+Version: 0.7.3
+Date: 2020-12-09
 Authors@R: c(person("Milan", "Bouchet-Valat", email="nalimilan@club.fr",
                     role=c("aut", "cre")),
              person("Heather", "Turner", email="ht@heatherturner.net",

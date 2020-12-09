@@ -1,3 +1,6 @@
+2020-12-09 - Version 0.7.3
+- Fix tests on R-devel.
+
 2020-08-13 - Version 0.7.2
 - Make iac() preserve input table size and names when cell=TRUE.
 
