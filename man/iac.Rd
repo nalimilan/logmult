@@ -69,12 +69,16 @@ iac(tab, cell = FALSE,
   Altham, P. M. E., Ferrie J. P., 2007. Comparing Contingency Tables Tools for Analyzing Data
       from Two Groups Cross-Classified by Two Characteristics. \emph{Historical Methods} 40(1):3-16.
 
-  Goodman, L. A. (1996). A Single General Method for the Analysis of Cross-Classified Data: Reconciliation
-      and Synthesis of Some Methods of Pearson, Yule, and Fisher, and Also Some Methods of Correspondence
-      Analysis and Association Analysis. \emph{J. of the Am. Stat. Ass.} 91(433):408-428.
+  Bouchet-Valat, M. (in press). General Marginal-free Association Indices for Contingency Tables:
+  From the Altham Index to the Intrinsic Association Coefficient. \emph{Sociological Methods & Research}.
+  Online first.
 
   Berkson, J. (1955). Maximum Likelihood and Minimum chi2 Estimates of the Logistic Function.
       \emph{J. of the Am. Stat. Ass.} 50(269):130-162.
+
+  Goodman, L. A. (1996). A Single General Method for the Analysis of Cross-Classified Data: Reconciliation
+      and Synthesis of Some Methods of Pearson, Yule, and Fisher, and Also Some Methods of Correspondence
+      Analysis and Association Analysis. \emph{J. of the Am. Stat. Ass.} 91(433):408-428.
 
   Zhou, X. (2015). Shrinkage Estimation of Log-Odds Ratios for Comparing Mobility Tables.
       \emph{Sociological Methodology} 45(1):33-63.
