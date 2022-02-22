@@ -63,6 +63,11 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   but set to 0 when \eqn{i \neq j} (off-diagonal). When \code{diagonal = "only"}, \eqn{\psi^{IJ}_{ij}} is set
   to 0 when \eqn{i \neq j}.
 
+  Note that by default \code{weighting="marginal"}, meaning that reported
+  interaction coefficients do \emph{not} correspond to what is usually expected
+  in log-linear modeling. Use \code{weighting="none"} or \code{weighting="uniform"} 
+  to use more classic identification constraints (effects coding).
+
   Layer coefficients \eqn{\phi_k} are internally exponentiated in the gnm formula, which means the reported
   values are in log scale, with reference 0 for the first year. Interaction coefficients use the
   \dQuote{sum} contrast, also known as \dQuote{effect} coding, except when \code{diagonal} is different from

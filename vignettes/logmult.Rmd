@@ -95,7 +95,7 @@ against it when possible. Some models are known not to work correctly in LEM, th
 
 * UNIDIFF layer coefficients are consistent with those computed by LEM, including when diagonal
   cells are excluded (using the `wei` commands or diagonal-specific parameters).
-  Row-column intraction coefficients obtained with `weighting="none"` are consistent with LEM
+  Row-column intraction coefficients obtained with `weighting="none"` or `weighting="uniform"` are consistent with LEM
   (coefficients reported by LEM exclude the last row and column).
 * RC(1) scores and intrinsic association coefficients are consistent with logmult; some sign
   changes can happen but do not affect results.
