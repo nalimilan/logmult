@@ -323,3 +323,41 @@ res <- replicate(10, {
 
 stopifnot(all.equal(res[1,], res[2,]))
 stopifnot(all.equal(res[1,], res[3,]))
+
+
+## Normalized IAC
+data(color)
+
+stopifnot(abs(iac(color[,,1], normalize=TRUE) - 0.4203209) < 1e-7)
+stopifnot(abs(iac(color[,,2], normalize=TRUE) - 0.3646107) < 1e-7)
+stopifnot(abs(iac(color[,,1], normalize=TRUE, weighting="uniform") - 0.5105931) < 1e-7)
+stopifnot(abs(iac(color[,,2], normalize=TRUE, weighting="uniform") - 0.5275346) < 1e-7)
+stopifnot(abs(iac(color[,,1], normalize=TRUE, weighting="none") - 0.8511365) < 1e-7)
+stopifnot(abs(iac(color[,,2], normalize=TRUE, weighting="none") - 0.8586745) < 1e-7)
+
+stopifnot(all.equal(iac(color, normalize=TRUE),
+                    c(0.4032049, 0.3698703), check.names=FALSE,
+                    tolerance=1e-7))
+stopifnot(all.equal(iac(color, normalize=TRUE, weighting="uniform"),
+                    c(0.5105931, 0.5275346), check.names=FALSE,
+                    tolerance=1e-7))
+stopifnot(all.equal(iac(color, normalize=TRUE, weighting="none"),
+                    c(0.8511365, 0.8586745), check.names=FALSE,
+                    tolerance=1e-7))
+
+stopifnot(all.equal(iac(color, normalize=TRUE, shrink=TRUE),
+                    c(0.4114786, 0.3717251), check.names=FALSE,
+                    tolerance=1e-7))
+stopifnot(all.equal(iac(color, normalize=TRUE, shrink=TRUE, weighting="uniform"),
+                    c(0.5188945, 0.5596786), check.names=FALSE,
+                    tolerance=1e-7))
+stopifnot(all.equal(iac(color, normalize=TRUE, shrink=TRUE, weighting="none"),
+                    c(0.854869, 0.872177), check.names=FALSE,
+                    tolerance=1e-7))
+
+stopifnot(iac(matrix(1, 2, 2), normalize=TRUE) == 0)
+stopifnot(iac(array(1, c(2, 2, 2)), normalize=TRUE) == c(0, 0))
+stopifnot(iac(array(1, c(2, 2, 2)), normalize=TRUE, shrink=TRUE) == c(0, 0))
+
+stopifnot(tryCatch(iac(color, cell=TRUE, normalize=TRUE),
+                   error=function(e) TRUE))

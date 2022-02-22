@@ -27,7 +27,7 @@ Description: Functions to fit log-multiplicative models using 'gnm', with
   models proposed by Yamaguchi (1990) <doi:10.2307/271086>
   and by van der Heijden & Mooijaart (1995) <doi:10.1177/0049124195024001002>
   Functions allow computing the intrinsic association coefficient
-  (see Bouchet-Valat (in press) <doi:10.1177/0049124119852389>)
+  (see Bouchet-Valat (2022) <doi:10.1177/0049124119852389>)
   and the Altham (1970) index <doi:10.1111/j.2517-6161.1970.tb00816.x>,
   including via the Bayes shrinkage estimator proposed
   by Zhou (2015) <doi:10.1177/0081175015570097>;

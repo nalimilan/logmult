@@ -10,6 +10,7 @@ iac <- function(tab, cell=FALSE,
                 weighting=c("marginal", "uniform", "none"),
                 component=c("total", "symmetric", "antisymmetric"),
                 shrink=FALSE,
+                normalize=FALSE,
                 row.weights=NULL, col.weights=NULL) {
   weighting <- match.arg(weighting)
   component <- match.arg(component)
@@ -58,7 +59,7 @@ iac <- function(tab, cell=FALSE,
       if(component != "total")
           stop("shrink=TRUE is currently only supported with component=\"total\"")
 
-      return(iac_shrunk(tab, rp, cp))
+      return(iac_shrunk(tab, rp, cp, normalize))
   }
   else if(length(dim(tab)) == 3) {
       rp <- margin.table(tab, 1)
@@ -72,10 +73,10 @@ iac <- function(tab, cell=FALSE,
 
       if(weighting == "marginal")
           res <- apply(tab, 3, iac, cell=cell, component=component,
-                       row.weights=rp, col.weights=cp)
+                       normalize=normalize, row.weights=rp, col.weights=cp)
       else
           res <- apply(tab, 3, iac, cell=cell, weighting=weighting, component=component,
-                       row.weights=row.weights, col.weights=col.weights)
+                       normalize=normalize, row.weights=row.weights, col.weights=col.weights)
 
       if(cell) {
           dim(res) <- dim(tab)
@@ -110,10 +111,19 @@ iac <- function(tab, cell=FALSE,
 
   lambdasq <- l^2 * rp %o% cp
 
-  if(cell)
-      lambdasq
-  else
-      sqrt(sum(lambdasq))
+  if(cell) {
+      if(normalize)
+          stop("normalize=TRUE is not allowed when cell=TRUE")
+
+      return(lambdasq)
+  }
+  else {
+      l <- sqrt(sum(lambdasq))
+      if(normalize)
+          return(ifelse(l == 0, 0, sqrt(1 + 1/(2 * l)^2) - 1/(2 * l)))
+      else
+          return(l)
+  }
 }
 
 # Data frame of all log-odds ratios that can be computed from tab,
@@ -169,7 +179,7 @@ shrink <- function(y, sigma.sq) {
   theta
 }
 
-iac_shrunk <- function(tab, rp, cp) {
+iac_shrunk <- function(tab, rp, cp, normalize) {
   lors <- array(NA, dim=c(nrow(tab)^2*ncol(tab)^2, 3, dim(tab)[[3]]))
   colnames(lors) <- c("LOR", "V", "W")
   dimnames(lors)[[3]] <- dimnames(tab)[[3]]
@@ -184,5 +194,10 @@ iac_shrunk <- function(tab, rp, cp) {
   lors_shrunk <- apply(lors, 1, function(x) shrink(x["LOR",], x["V",]))
   res <- sqrt(rowSums(lors_shrunk^2 * t(lors[,"W",])))
   names(res) <- dimnames(lors)[[3]]
-  res/sqrt(4 * sum(rp %o% cp))
+  l <- res/sqrt(4 * sum(rp %o% cp))
+
+  if(normalize)
+      return(ifelse(l == 0, 0, sqrt(1 + 1/(2 * l)^2) - 1/(2 * l)))
+  else
+      return(l)
 }
