@@ -3,7 +3,7 @@
 \alias{svygnm.svyrep.design}
 \title{Fitting Generalized Nonlinear Models With Complex Survey Data}
 \description{
-     Fit association models to data from a complex survey
+     Fit generalized nonlinear models to data from a complex survey
      design, with inverse-probability weighting and (optionally)
      standard errors based on replicate weights.
 }
@@ -69,7 +69,7 @@ svygnm(formula, design, ...)
 \examples{
   library(survey)
   data(api)
-  dstrat<-svydesign(id=~1,strata=~stype, weights=~pw, data=apistrat, fpc=~fpc)
+  dstrat<-svydesign(ids=~1, strata=~stype, weights=~pw, data=apistrat, fpc=~fpc)
   rstrat<-as.svrepdesign(dstrat)
   glm.mod <- svyglm(api00~ell+meals+mobility, design=rstrat)
   gnm.mod <- svygnm(api00~ell+meals+mobility, design=rstrat, ncpus=1)
@@ -83,9 +83,6 @@ svygnm(formula, design, ...)
   stopifnot(all.equal(residuals(glm.mod), residuals(gnm.mod)))
   stopifnot(all.equal(summary(glm.mod)$coefficients, summary(gnm.mod)$coefficients))
   }
-
-  # GNM, can only be fitted with svygnm()
-  summary(svygnm(api00~ell+meals+mobility, design=rstrat, family=poisson, ncpus=1))
 }
 \seealso{
   \code{\link[gnm]{gnm}}, \code{\link[survey]{svyglm}}, \code{\link[survey]{as.svrepdesign}}
