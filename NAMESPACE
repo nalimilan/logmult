@@ -15,6 +15,7 @@ S3method(assoc, rcL.trans.symm)
 S3method(assoc, hmskewL)
 
 export(se)
+S3method(se, default)
 S3method(se, assoc)
 S3method(se, rc)
 S3method(se, hmskew)
