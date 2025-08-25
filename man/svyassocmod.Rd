@@ -135,7 +135,7 @@ svyhmskewL(formula, design, nd.symm = NA,
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
-  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+  \item{\dots}{ more arguments to be passed to \code{\link[gnm]{gnm}}}
 }
 \details{
      The model is fitted to a table with probabilities estimated by

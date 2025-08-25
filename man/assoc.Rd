@@ -35,7 +35,7 @@
 \method{assoc}{rcL.trans.symm}(model, weighting = c("marginal", "uniform", "none"), ...)
 }
 \arguments{
-  \item{model}{a \code{\link{gnm}} object, usually obtained using \code{\link{rc}}, \code{\link{hmskew}},
+  \item{model}{a \code{\link[gnm]{gnm}} object, usually obtained using \code{\link{rc}}, \code{\link{hmskew}},
                \code{\link{yrcskew}}, \code{\link{rcL}}, or \code{\link{rcL.trans}}, but not necessarily.}
   \item{weighting}{the weights to be used when normalizing scores (see \sQuote{Details}).}
   \item{rowsup}{a matrix with the same columns as the model data giving supplementary (passive) rows
@@ -45,7 +45,7 @@
   \item{...}{currently unused.}
 }
 \details{
-  These functions extract parameters from \code{\link{gnm}} log-multiplicative models
+  These functions extract parameters from \code{\link[gnm]{gnm}} log-multiplicative models
   and make them identifiable by imposing the required constraints on them. The general pattern
   is that row and column scores are separately centered around 0 and scaled so that they sum to 1,
   and so that their cross-dimensional correlation is null. From this operation result two series of

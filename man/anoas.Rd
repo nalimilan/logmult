@@ -35,7 +35,7 @@ anoasL(tab, nd = 3,
   association model against the independence model.
 }
 \value{
-  A \code{list} of \code{\link{gnm}} objects. The first element is the independence model, the remaining ones are \code{\link{rc}}
+  A \code{list} of \code{\link[gnm]{gnm}} objects. The first element is the independence model, the remaining ones are \code{\link{rc}}
   (for \code{anoas}) or \code{\link{rcL}} (for \code{anoasL}) objects with dimensions from 1 to \code{nd}.
 }
 \references{
@@ -45,7 +45,7 @@ anoasL(tab, nd = 3,
   Milan Bouchet-Valat
 }
 \seealso{
-  \code{\link{rc}}, \code{\link{rcL}}, \code{\link{gnm}}
+  \code{\link{rc}}, \code{\link{rcL}}, \code{\link[gnm]{gnm}}
 }
 \examples{
   ## Wong (2010), Table 2.6

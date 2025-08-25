@@ -32,8 +32,8 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   \item{weighting}{what weights should be used when normalizing coefficients. This does not affect
       layer coefficients, which are set to 1 for the first layer, but only two-way interaction
       coefficients and layer association levels, which are layer coefficients times the intrinsic
-      association coefficient (see \code{\link{maor}}) for the first layer.}
-  \item{norm}{the norm to use to compute the mean absolute odds ratio (see \code{\link{maor}}).}
+      association coefficient (see \code{\link{iac}}) for the first layer.}
+  \item{norm}{the norm to use to compute the mean absolute odds ratio (see \code{\link{iac}}).}
   \item{family}{a specification of the error distribution and link function to be used in the model.
       This can be a character string naming a family function; a family function, or the result of
       a call to a family function. See \code{\link{family}} details of family functions.}
@@ -44,14 +44,14 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
      consider raising this value if your model does not converge.}
   \item{eliminate}{ either \code{NULL} (the default) to estimate all parameters, \code{NA}
      to skip the estimation of some parameters for increased efficiency, or the name of a
-     factor to be passed as \code{\link{gnm}}'s corresponding argument.}
+     factor to be passed as \code{\link[gnm]{gnm}}'s corresponding argument.}
   \item{trace}{ a logical value indicating whether the deviance
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
   \item{checkEstimability}{ a logical value indicating whether the estimability of the contrasts should
-     be checked via \code{\link{checkEstimable}}. Disabling this check can improve performance for large models.}
-  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+     be checked via \code{\link[gnm]{checkEstimable}}. Disabling this check can improve performance for large models.}
+  \item{\dots}{ more arguments to be passed to \code{\link[gnm]{gnm}}}
 }
 \details{
   The equation of the fitted model is:
@@ -74,16 +74,16 @@ unidiff(tab, diagonal = c("included", "excluded", "only"),
   \code{included}, in which case \dQuote{treatment} constrast (a.k.a \dQuote{reference} or \dQuote{dummy}
   coding) is used.
 
-  Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
+  Actual model fitting is performed using \code{\link[gnm]{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply allows for direct identification of the log-multiplicative parameters by setting the
   appropriate constraints, and improves performance by eliminating less interesting coefficients.
 }
 \value{
-  A \code{unidiff} object, with all the components of a \code{\link{gnm}} object, plus an
+  A \code{unidiff} object, with all the components of a \code{\link[gnm]{gnm}} object, plus an
       \code{unidiff} component holding the most relevant information:
-  \item{layer}{a \code{\link{qvcalc}} object holding the (log) layer coefficients, their standard
+  \item{layer}{a \code{\link[qvcalc]{qvcalc}} object holding the (log) layer coefficients, their standard
       errors and quasi-standard errors.}
-  \item{phi}{the value of the intrinsic association coefficient (see \code{\link{maor}}) for
+  \item{phi}{the value of the intrinsic association coefficient (see \code{\link{iac}}) for
       each layer.}
   \item{maor}{the value of the Mean absolute odds ratio (see \code{\link{maor}}) for
       each layer.}

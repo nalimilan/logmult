@@ -54,7 +54,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
-  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+  \item{\dots}{ more arguments to be passed to \code{\link[gnm]{gnm}}}
 }
 \details{
   The original model presented by van der Heijden & Mooijaart (1995), called \dQuote{quasi-symmetry plus
@@ -74,7 +74,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
   out of the box, but should be relatively straightforward to implement using the underlying \code{\link{assoc.hmskew}}
   function combined with a symmetric association model.
 
-  Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
+  Actual model fitting is performed using \code{\link[gnm]{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
   The default starting values for skew association parameters are computed using an eigen value decomposition from the
@@ -111,7 +111,7 @@ hmskew(tab, nd.symm = NA, diagonal = FALSE,
 Milan Bouchet-Valat
 }
 \seealso{
-  \code{\link{plot.hmskew}}, \code{\link{gnm}}
+  \code{\link{plot.hmskew}}, \code{\link[gnm]{gnm}}
 }
 \examples{
   ## van der Heijden & Mooijaart (1995), Table 2c, p. 23

@@ -3,7 +3,7 @@
 \title{Specify a Skew-Symmetric Association in a gnm Model Formula}
 \description{
   A function of class \code{"nonlin"} to specify a Yamaguchi (1990) skew-symmetric association in
-  the formula argument to \code{\link{gnm}}.
+  the formula argument to \code{\link[gnm]{gnm}}.
 }
 \usage{
 YRCSkew(row, col, rowinf, rowsup, inst = NULL)

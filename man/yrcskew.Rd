@@ -49,7 +49,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
-  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+  \item{\dots}{ more arguments to be passed to \code{\link[gnm]{gnm}}}
 }
 \details{
   The original presented by Yamaguchi (1990), called \dQuote{row-column-effect skew-symmetric
@@ -71,7 +71,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
   Another model presented in the paper, the homogeneous symmetric and skew-symmetric associations models (HM_(S+SK))
   is not currently supported.
 
-  Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
+  Actual model fitting is performed using \code{\link[gnm]{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
   The default starting values for main parameters are taken from the model without association parameters
@@ -114,7 +114,7 @@ yrcskew(tab, nd.symm = NA, nd.skew = 1, diagonal = FALSE,
 Milan Bouchet-Valat
 }
 \seealso{
-  \code{\link{plot.yrcskew}}, \code{\link{gnm}}
+  \code{\link{plot.yrcskew}}, \code{\link[gnm]{gnm}}
 }
 \examples{
   ## Yamaguchi (1990), Table 5, p. 202, and Table 6B, p. 205

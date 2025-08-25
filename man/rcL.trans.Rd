@@ -52,7 +52,7 @@ rcL.trans(tab, nd = 1,
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
-  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+  \item{\dots}{ more arguments to be passed to \code{\link[gnm]{gnm}}}
 }
 \details{
   This function fits log-multiplicative row-column association models with regression-type layer effect which are
@@ -84,7 +84,7 @@ rcL.trans(tab, nd = 1,
   \code{model$assoc$row[,,dim(model$assoc$row)[3]] - model$assoc$row[,,1]}
   (and similarly for column scores).
 
-  Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
+  Actual model fitting is performed using \code{\link[gnm]{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
   The default starting values are taken from a model with a stable RC(M) association (\dQuote{base model}). In some
@@ -92,7 +92,7 @@ rcL.trans(tab, nd = 1,
   less stable and can converge to non-optimal solutions.
 }
 \value{
-  A \code{rcL} object, with all the components of a \code{\link{gnm}} object, plus an
+  A \code{rcL} object, with all the components of a \code{\link[gnm]{gnm}} object, plus an
     \code{assoc} component holding the most relevant association information:
   \item{phi }{The intrisic association parameters, one per dimension and per layer.}
   \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
@@ -123,7 +123,7 @@ rcL.trans(tab, nd = 1,
   Milan Bouchet-Valat
 }
 \seealso{
-  \code{\link{plot.rcL}}, \code{\link{gnm}}
+  \code{\link{plot.rcL}}, \code{\link[gnm]{gnm}}
 }
 
 \keyword{ models }

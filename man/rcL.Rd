@@ -56,12 +56,12 @@ rcL(tab, nd = 1,
      consider raising this value if your model does not converge.}
   \item{eliminate}{ either \code{NULL} (the default) to estimate all parameters, \code{NA}
      to skip the estimation of some parameters for increased efficiency, or the name of a
-     factor to be passed as \code{\link{gnm}}'s corresponding argument.}
+     factor to be passed as \code{\link[gnm]{gnm}}'s corresponding argument.}
   \item{trace}{ a logical value indicating whether the deviance
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
-  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+  \item{\dots}{ more arguments to be passed to \code{\link[gnm]{gnm}}}
 }
 \details{
   This function fits log-multiplicative row-column association models with layer effect, usually called (after
@@ -78,7 +78,7 @@ rcL(tab, nd = 1,
   of the association across layers. See references for detailed information about the variants of the model, the degrees
   of freedom and the identification constraints applied to the scores.
 
-  Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
+  Actual model fitting is performed using \code{\link[gnm]{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
   The default starting values for association parameters are computed using a singular/eigen value decomposition
@@ -87,7 +87,7 @@ rcL(tab, nd = 1,
   to non-optimal solutions.
 }
 \value{
-  A \code{rcL} object, with all the components of a \code{\link{gnm}} object, plus an
+  A \code{rcL} object, with all the components of a \code{\link[gnm]{gnm}} object, plus an
     \code{assoc} component holding the most relevant association information:
   \item{phi }{The intrisic association parameters, one per dimension and per layer.}
   \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
@@ -115,7 +115,7 @@ rcL(tab, nd = 1,
   Milan Bouchet-Valat
 }
 \seealso{
-  \code{\link{plot.rcL}}, \code{\link{gnm}}
+  \code{\link{plot.rcL}}, \code{\link[gnm]{gnm}}
 }
 \examples{
   ## Becker & Clogg (1989), Table 5 (p. 145)

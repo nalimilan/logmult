@@ -4,7 +4,7 @@
 \title{Specify a Row-Column Association With Transitional Layer Effect in a gnm Model Formula}
 \description{
   A function of class \code{"nonlin"} to specify a log-multiplicative row-column association models with transitional
-  layer effect with one or several dimensions in the formula argument to \code{\link{gnm}}. \code{RCTransSymm}
+  layer effect with one or several dimensions in the formula argument to \code{\link[gnm]{gnm}}. \code{RCTransSymm}
   allows specifying a variant with symmetric (homogeneous) row and column scores.
 }
 \usage{

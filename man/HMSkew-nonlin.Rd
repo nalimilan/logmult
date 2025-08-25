@@ -3,7 +3,7 @@
 \title{Specify a Skew-Symmetric Association in a gnm Model Formula}
 \description{
   A function of class \code{"nonlin"} to specify a van der Heijden & Mooijaart (1995) skew-symmetric
-  association in the formula argument to \code{\link{gnm}}.
+  association in the formula argument to \code{\link[gnm]{gnm}}.
 }
 \usage{
 HMSkew(row, col, inst = NULL)

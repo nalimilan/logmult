@@ -56,7 +56,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
-  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+  \item{\dots}{ more arguments to be passed to \code{\link[gnm]{gnm}}}
 }
 \details{
   This function fits log-multiplicative row-column association models, usually called (after
@@ -66,7 +66,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   \code{tab}, and M the number of dimensions. See references for detailed information about the
   variants of the model, the degrees of freedom and the identification constraints applied to the scores.
 
-  Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
+  Actual model fitting is performed using \code{\link[gnm]{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
   The default starting values for association parameters are computed using a singular/eigen value decomposition
@@ -75,7 +75,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   to non-optimal solutions.
 }
 \value{
-  A \code{rc} object, with all the components of a \code{\link{gnm}} object, plus an
+  A \code{rc} object, with all the components of a \code{\link[gnm]{gnm}} object, plus an
     \code{assoc.rc} component holding the most relevant association information:
   \item{phi }{The intrisic association parameters, one per dimension.}
   \item{row }{Row scores, normalized so that their (weighted) sum is 0, their (weighted)
@@ -119,7 +119,7 @@ rc(tab, nd = 1, symmetric = FALSE, diagonal = FALSE,
   Milan Bouchet-Valat
 }
 \seealso{
-  \code{\link{plot.rc}}, \code{\link{gnm}}
+  \code{\link{plot.rc}}, \code{\link[gnm]{gnm}}
 }
 \examples{
   ## Goodman (1991), Table 17.1 (p. 1097)

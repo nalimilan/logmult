@@ -62,7 +62,7 @@ hmskewL(tab, nd.symm = NA,
      should be printed after each iteration.}
   \item{verbose}{ a logical value indicating whether progress indicators should be printed,
      including a diagnostic error message if the algorithm restarts.}
-  \item{\dots}{ more arguments to be passed to \code{\link{gnm}}}
+  \item{\dots}{ more arguments to be passed to \code{\link[gnm]{gnm}}}
 }
 \details{
   This model follows an equation inspired from that presented by van der Heijden & Mooijaart (1995) for two-way tables
@@ -87,7 +87,7 @@ hmskewL(tab, nd.symm = NA,
   (Goodman-Hout) specification, or are different for each layer, when \code{layer.effect.symm} is respectively
   \code{none}, \code{uniform}, \code{regression.type} and \code{heterogeneous}.
 
-  Actual model fitting is performed using \code{\link{gnm}}, which implements the Newton-Raphson algorithm.
+  Actual model fitting is performed using \code{\link[gnm]{gnm}}, which implements the Newton-Raphson algorithm.
   This function simply ensures correct start values are used, in addition to allowing for identification
   of scores even with several dimensions, computation of their jackknife or bootstrap standard errors, and plotting.
   The default starting values for skew association parameters are computed using an eigen value decomposition from the
@@ -126,7 +126,7 @@ hmskewL(tab, nd.symm = NA,
   Milan Bouchet-Valat
 }
 \seealso{
-  \code{\link{plot.hmskewL}}, \code{\link{hmskew}}, \code{\link{gnm}}
+  \code{\link{plot.hmskewL}}, \code{\link{hmskew}}, \code{\link[gnm]{gnm}}
 }
 \keyword{ models }
 \keyword{ nonlinear }
